@@ -1,35 +1,46 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Select the track and the buttons
-    const track = document.querySelector('.card-track');
-    const prevButton = document.querySelector('.nav-arrow[aria-label="Previous"]');
-    const nextButton = document.querySelector('.nav-arrow[aria-label="Next"]');
-  
-    // Safety check to ensure elements exist
+  // 1. Select ALL slider wrappers on the page (Module 1, Module 2, etc.)
+  const allSliders = document.querySelectorAll('.slider-wrapper');
+
+  // 2. Iterate through each slider individually
+  allSliders.forEach(sliderWrapper => {
+    
+    // Scope variables to THIS specific slider instance
+    const track = sliderWrapper.querySelector('.card-track');
+    const prevButton = sliderWrapper.querySelector('.nav-arrow[aria-label="Previous"]');
+    const nextButton = sliderWrapper.querySelector('.nav-arrow[aria-label="Next"]');
+
+    // Safety check: ensure all parts exist in this wrapper before adding logic
     if (!track || !prevButton || !nextButton) return;
-  
-    // 2. Function to calculate scroll distance
-    // We compute this dynamically in case you change card width in CSS later
+
+    // 3. Dynamic Scroll Calculation
+    // We calculate this specific track's card width to support different card types
     const getScrollAmount = () => {
-      const card = track.querySelector('.seo-card');
-      if (!card) return 304; // Fallback (280px width + 24px gap)
+      const firstCard = track.firstElementChild; // Works for .seo-card OR .market-card
+      if (!firstCard) return 300; // Fallback if empty
+
+      const cardWidth = firstCard.offsetWidth;
       
-      const cardWidth = card.offsetWidth;
-      const gap = 24; // Matches the gap defined in layout.css
+      // Get the actual gap from CSS (handles the 24px gap defined in layout.css)
+      const gap = parseFloat(window.getComputedStyle(track).gap) || 24;
+      
       return cardWidth + gap;
     };
-  
-    // 3. Add Event Listeners
+
+    // 4. Attach Event Listeners
     nextButton.addEventListener('click', () => {
       track.scrollBy({
         left: getScrollAmount(),
         behavior: 'smooth'
       });
     });
-  
+
     prevButton.addEventListener('click', () => {
       track.scrollBy({
         left: -getScrollAmount(),
         behavior: 'smooth'
       });
     });
+    
   });
+});

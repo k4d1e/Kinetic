@@ -1,12 +1,12 @@
 /* base.css */
 :root {
-    /* Brand Colors extracted from image */
+    /* Brand Colors */
     --color-primary-green: #4DAA7F;
     --color-accent-orange: #E88B60;
     --color-action-blue: #4FA0C0;
     --color-alert-red: #D93025;
     
-    /* Neutral Colors */
+    /* Neutrals */
     --color-card-bg: #BCBCBC;
     --color-text-white: #FFFFFF;
     --color-text-dark: #333333;
