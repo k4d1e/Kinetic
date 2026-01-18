@@ -8,9 +8,14 @@
   }
   
   .module-icon {
-    width: 32px;
+    width: 44px;
     height: 32px;
     color: var(--color-primary-green);
+  }
+
+  .flame-icon {
+    width: 50px;
+    height: 44px;
   }
   
   /* --- Navigation Arrows --- */
@@ -210,4 +215,58 @@ color: var(--color-accent-orange); /* Reused variable */
   
   .btn-explore:active {
     transform: scale(0.98);
+  }
+
+  /* --- AI Card Specifics --- */
+.ai-card {
+    background-color: var(--color-card-bg);
+    width: 280px;
+    padding: 30px 20px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+  
+  .ai-card .card-title {
+    color: var(--color-primary-green);
+    font-size: var(--font-size-card-title);
+    font-weight: 700;
+    margin-bottom: 20px;
+  }
+  
+  /* Snippet Group (Icon + Text) */
+  .snippet-group {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 25px;
+    width: 100%;
+    text-align: left;
+  }
+  
+  .snippet-text {
+    color: var(--color-primary-green);
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  
+  /* AI Metric (GEO Score) */
+  .ai-metric {
+    width: 100%;
+    margin-bottom: 20px;
+    text-align: left;
+    padding-left: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-text-white);
+    text-transform: uppercase;
+  }
+  
+  .metric-score {
+    color: var(--color-accent-orange);
   }
