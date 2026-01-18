@@ -1,5 +1,52 @@
 /* components.css */
 
+/* The Row Container */
+.badge-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center; /* Even spacing between badges */
+    align-items: center;
+    width: 100%;
+    height: 100%;
+  }
+  
+  /* Individual Badge Wrapper */
+  .badge-item {
+    position: relative;
+    width: 12%; /* Fits 4 items with breathing room */
+    aspect-ratio: 1 / 1; /* Keeps badges square/hexagonal */
+    display: flex;
+    justify-content: center;
+    gap: 4%;
+    align-items: center;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.27);
+    cursor: pointer;
+  }
+  
+  /* The Badge Image */
+  .badge-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    filter: drop-shadow(0px 0px 5px rgba(0,0,0,0.8));
+  }
+  
+  /* Hover Effect: Lift */
+  .badge-item:hover {
+    transform: translateY(-8px) scale(1.05);
+  }
+  
+  /* Optional: Add a subtle glow to the UNLOCKED badge on hover */
+  .badge-item:not(.locked):hover .badge-img {
+    filter: drop-shadow(0px 0px 15px var(--color-tech-gold));
+  }
+  
+  /* Locked State specific styles (if extra dimming is needed beyond the image) */
+  .badge-item.locked {
+    cursor: not-allowed;
+    opacity: 0.9; 
+  }
+
 /* --- Module Header --- */
 .module-title {
     color: var(--color-primary-green);
