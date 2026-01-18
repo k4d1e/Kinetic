@@ -128,3 +128,86 @@
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     z-index: 10;
   }
+
+  /* --- Market Card Specifics --- */
+.market-card {
+    background-color: var(--color-card-bg);
+    width: 280px;
+    padding: 30px 20px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+  
+  .market-card .card-title {
+    color: var(--color-primary-green);
+    font-size: var(--font-size-card-title);
+    font-weight: 700;
+    margin-bottom: 20px;
+  }
+
+  /* Keyword List Group */
+.keyword-group {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 25px;
+    width: 100%;
+    text-align: left;
+  }
+
+  .sparkle-icon {
+    width: 24px;
+    height: 24px;
+    color: var(--color-primary-green); /* Reused variable */
+    flex-shrink: 0;
+  }
+  
+  .keyword-text {
+    color: var(--color-primary-green); /* Reused variable */
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+/* Metrics */
+.market-metric {
+width: 100%;
+margin-bottom: 20px;
+text-align: left;
+padding-left: 10px;
+font-size: 16px;
+font-weight: 700;
+color: var(--color-text-white);
+}
+
+.metric-value-high {
+color: var(--color-accent-orange); /* Reused variable */
+}
+
+/* Explore Button */
+.btn-explore {
+    background-color: var(--color-primary-green); /* Reused variable */
+    color: white;
+    border: none;
+    padding: 12px 40px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.1s ease, filter 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  }
+  
+  /* For hover, we can use a brightness filter instead of a new color variable */
+  .btn-explore:hover {
+    filter: brightness(90%); 
+  }
+  
+  .btn-explore:active {
+    transform: scale(0.98);
+  }
