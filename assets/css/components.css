@@ -1,0 +1,130 @@
+/* components.css */
+
+/* --- Module Header --- */
+.module-title {
+    color: var(--color-primary-green);
+    font-size: var(--font-size-h2);
+    font-weight: 700;
+  }
+  
+  .module-icon {
+    width: 32px;
+    height: 32px;
+    color: var(--color-primary-green);
+  }
+  
+  /* --- Navigation Arrows --- */
+  .nav-arrow {
+    width: 50px;
+    height: 50px;
+    background-color: var(--color-nav-bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    color: white;
+    font-size: 24px;
+    flex-shrink: 0;
+    transition: background-color 0.2s ease;
+  }
+  
+  .nav-arrow:hover {
+    background-color: #999;
+  }
+  
+  /* --- Card Styles --- */
+  .seo-card {
+    background-color: var(--color-card-bg);
+    width: 280px;
+    padding: 25px 20px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative; /* For notification dot positioning */
+    flex-shrink: 0;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+  
+  .card-title {
+    color: var(--color-primary-green);
+    font-size: var(--font-size-card-title);
+    font-weight: 700;
+    margin-bottom: 15px;
+  }
+  
+  /* Warning Section */
+  .card-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 20px;
+    color: var(--color-text-white);
+    font-size: 13px;
+    line-height: 1.4;
+    text-align: left;
+  }
+  
+  .warning-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+  
+  /* Metrics Section */
+  .card-metrics {
+    width: 100%;
+    margin-bottom: 20px;
+    text-align: left;
+    padding-left: 10px; /* Align with text above */
+  }
+  
+  .metric-row {
+    color: var(--color-text-white);
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+  
+  .metric-var {
+    color: var(--color-accent-orange);
+  }
+  
+  /* Quick Fix Button */
+  .btn-quick-fix {
+    background-color: var(--color-action-blue);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.1s ease, background-color 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  }
+  
+  .btn-quick-fix:hover {
+    background-color: #458ca8;
+  }
+  
+  .btn-quick-fix:active {
+    transform: scale(0.98);
+  }
+  
+  /* --- Notification Dot --- */
+  .notification-dot {
+    position: absolute;
+    top: -10px;
+    left: -10px; /* Adjusted based on image showing it on top-left area relative to content, or corner */
+    /* Correction: Image shows top LEFT corner of the card container */
+    width: 24px;
+    height: 24px;
+    background-color: var(--color-alert-red);
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    z-index: 10;
+  }

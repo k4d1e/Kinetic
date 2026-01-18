@@ -1,0 +1,34 @@
+/* base.css */
+:root {
+    /* Brand Colors extracted from image */
+    --color-primary-green: #4DAA7F;
+    --color-accent-orange: #E88B60;
+    --color-action-blue: #4FA0C0;
+    --color-alert-red: #D93025;
+    
+    /* Neutral Colors */
+    --color-card-bg: #BCBCBC;
+    --color-text-white: #FFFFFF;
+    --color-text-dark: #333333;
+    --color-nav-bg: #AAAAAA;
+  
+    /* Typography */
+    --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-size-h2: 24px;
+    --font-size-card-title: 28px;
+    --font-size-body: 14px;
+  }
+  
+  /* Basic Reset */
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    font-family: var(--font-main);
+    background-color: #f4f4f4; /* Light page background for contrast */
+    color: var(--color-text-dark);
+    line-height: 1.5;
+  }
