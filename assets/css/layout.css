@@ -81,3 +81,21 @@
     flex-direction: column;
     justify-content: center; /* Vertically center in the safe zone */
   }
+
+  /* Module 5 - Local SEO Grid */
+  .local-seo-track {
+    display: flex;
+    gap: 24px;
+    overflow-x: auto; /* Allows scrolling */
+    width: 100%;
+    padding: 10px 5px; /* Padding for shadow clearance */
+    scroll-behavior: smooth;
+    
+    /* Hide scrollbars for cleaner UI */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .local-seo-track::-webkit-scrollbar {
+    display: none;
+  }

@@ -317,3 +317,186 @@ color: var(--color-accent-orange); /* Reused variable */
   .metric-score {
     color: var(--color-accent-orange);
   }
+
+
+/* --- Module 5 - Local SEO Grid --- */
+.city-accordion-card {
+    min-width: 260px; /* Slight adjustment for smaller mobile screens */
+    width: 280px;
+    border-radius: var(--radius-card);
+    overflow: hidden; /* Ensures content stays inside rounded corners */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    display: flex;
+    flex-shrink: 0;
+    flex-direction: column;
+    transition: box-shadow 0.3s ease;
+  }
+  
+  /* --- Header (The Trigger) --- */
+  .accordion-header {
+    container-type: inline-size;
+    border-radius: var(--radius-card);
+    transition: border-radius 0.3s ease;
+    background-color: var(--color-local-header-bg);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    border: none;
+    width: 100%;
+    text-align: left;
+    z-index: 2; /* Sits above body */
+  }
+
+  .city-accordion-card.is-expanded .accordion-header {
+    border-radius: var(--radius-card) var(--radius-card) 0 0;
+  }
+  
+  .city-title {
+    color: var(--color-local-teal);
+    font-weight: 900;
+    font-size: clamp(20px, 6cqw, 22px);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-shadow: 0px 1px 1px rgba(0,0,0,0.1);
+  }
+  
+  /* Plus Icon */
+  .icon-toggle {
+    width: 24px;
+    height: 24px;
+    position: relative;
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+  }
+  
+  .icon-toggle::before,
+  .icon-toggle::after {
+    content: '';
+    position: absolute;
+    background-color: white; /* White icon */
+    border-radius: 2px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
+  .icon-toggle::before { width: 16px; height: 4px; } /* Horizontal bar */
+  .icon-toggle::after { width: 4px; height: 16px; } /* Vertical bar */
+  
+  /* --- Accordion Expansion State Logic --- */
+  /* Expanded State */
+  .city-accordion-card.is-expanded .icon-toggle {
+    transform: rotate(45deg); /* Turns Plus into X */
+  }
+  
+  /* --- Accordion Body --- */
+  .accordion-body {
+    background-color: var(--color-local-purple);
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.4s ease-out;
+  }
+  
+  .accordion-content-wrapper {
+    overflow: hidden; /* Critical for the grid transition */
+    padding: 0 20px; /* Horizontal padding always present but hidden by height */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  /* Expanded State for Body */
+  .city-accordion-card.is-expanded .accordion-body {
+    grid-template-rows: 1fr; /* Expands to natural height */
+  }
+  
+  .city-accordion-card.is-expanded .accordion-content-wrapper {
+    padding-top: 20px;
+    padding-bottom: 25px;
+    opacity: 1;
+  }
+  
+  /* --- Data Rows --- */
+  .data-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    font-size: 14px;
+  }
+  
+  .data-label {
+    color: var(--color-text-white);
+    font-weight: 600;
+  }
+  
+  .data-value-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .data-numbers {
+    color: var(--color-local-teal);
+    font-weight: 700;
+    font-size: 16px;
+  }
+  
+  .status-dot {
+    width: 14px;
+    height: 14px;
+    background-color: var(--color-local-teal);
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  /* --- Speedometer Gauge --- */
+  .gauge-container {
+    position: relative;
+    width: 120px;
+    height: 60px; /* Half circle */
+    margin: 20px auto 0 auto;
+    overflow: hidden;
+  }
+  
+  /* The Grey Arc Background */
+  .gauge-arc {
+    width: 100%;
+    height: 200%; /* Full circle height, but we hide bottom half */
+    background: transparent;
+    border-radius: 50%;
+    border: 15px solid rgba(255,255,255,0.3); /* Semi-transparent white/grey */
+    box-sizing: border-box;
+  }
+  
+  /* The Needle */
+  .gauge-needle {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 4px;
+    height: 55px; /* Length of needle */
+    background-color: #999; /* Grey needle */
+    transform-origin: bottom center; /* Pivot point */
+    border-radius: 4px;
+    
+    /* Dynamic Rotation based on CSS Variable */
+    /* -90deg is 0%, 90deg is 100%. We map 0-100 input to -90 to 90 */
+    transform: rotate(calc( -90deg + (var(--gauge-value) * 1.8deg) ));
+    transition: transform 1s cubic-bezier(0.34, 1.56, 0.64, 1); /* Bouncy animation */
+  }
+  
+  /* Needle Center Hub */
+  .gauge-needle::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: -6px;
+    width: 16px;
+    height: 16px;
+    background-color: #999;
+    border: 2px solid var(--color-local-purple);
+    border-radius: 50%;
+  }
