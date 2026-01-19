@@ -90,7 +90,7 @@
   .seo-card {
     background-color: var(--color-card-bg);
     width: 280px;
-    min-height: 200px; /* Reduced for more compact cards */
+    /* Removed min-height - let cards size naturally to content */
     padding: 25px 20px;
     border-radius: 20px;
     display: flex;
