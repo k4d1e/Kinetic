@@ -63,11 +63,18 @@ function generateProblemDescription(item) {
       return url.substring(0, maxLength) + '...';
     }
   }
+
   
+  // Store the full dataset globally so we can re-sort
+  let quickWinsDataset = [];
+  let currentSortMode = 'impressions'; // 'impressions' or 'rank'
 /**
  * Populate the Quick Wins module with dynamic cards
  */
 function populateQuickWinsCards(quickWinsData) {
+
+    // Store dataset for re-sorting
+  quickWinsDataset = quickWinsData;
   // Find the SEO Quick Fixes module by its title, then get its card-track
   const modules = document.querySelectorAll('.module-container');
   let cardTrack = null;
@@ -85,31 +92,101 @@ function populateQuickWinsCards(quickWinsData) {
     console.log('Available modules:', modules.length);
     return;
   }
+
+    // Render cards with current sort
+    renderQuickWinsCards(cardTrack, quickWinsData);
   
-  // Clear existing placeholder cards
-  cardTrack.innerHTML = '';
-  
-  // Generate cards from data
-  if (quickWinsData && quickWinsData.length > 0) {
-    quickWinsData.forEach(item => {
-      const card = createQuickWinCard(item);
-      cardTrack.appendChild(card);
-    });
-    
-    console.log(`✓ Generated ${quickWinsData.length} Quick Win cards`);
-    
     // Attach event listeners to Quick Fix buttons
     attachQuickFixListeners();
-  } else {
-    // Show empty state
-    cardTrack.innerHTML = `
-      <div class="empty-state">
-        <p>No quick win opportunities found at this time.</p>
-        <p>Check back after your site accumulates more Search Console data.</p>
-      </div>
-    `;
-  }
+    
+    // Set up sort toggle button
+    setupSortToggle();
 }
+
+/**
+ * Render cards to the DOM
+ */
+function renderQuickWinsCards(cardTrack, data) {
+    // Clear existing cards
+    cardTrack.innerHTML = '';
+    
+    // Generate cards from data
+    if (data && data.length > 0) {
+      data.forEach(item => {
+        const card = createQuickWinCard(item);
+        cardTrack.appendChild(card);
+      });
+      
+      console.log(`✓ Generated ${data.length} Quick Win cards (sorted by ${currentSortMode})`);
+    } else {
+      // Show empty state
+      cardTrack.innerHTML = `
+        <div class="empty-state">
+          <p>No quick win opportunities found at this time.</p>
+          <p>Check back after your site accumulates more Search Console data.</p>
+        </div>
+      `;
+    }
+  }
+  
+  /**
+   * Sort the dataset based on current mode
+   */
+  function sortQuickWins(data, mode) {
+    const sorted = [...data]; // Create a copy
+    
+    if (mode === 'impressions') {
+      // Sort by impressions descending (highest first)
+      sorted.sort((a, b) => b.impressions - a.impressions);
+    } else if (mode === 'rank') {
+      // Sort by position ascending (best ranking first)
+      sorted.sort((a, b) => a.position - b.position);
+    }
+    
+    return sorted;
+  }
+  
+  /**
+   * Set up the sort toggle button
+   */
+  function setupSortToggle() {
+    const toggleBtn = document.getElementById('sort-toggle');
+    
+    if (!toggleBtn) {
+      console.warn('Sort toggle button not found');
+      return;
+    }
+    
+    toggleBtn.addEventListener('click', () => {
+      // Toggle sort mode
+      currentSortMode = currentSortMode === 'impressions' ? 'rank' : 'impressions';
+      
+      // Update button label
+      const label = toggleBtn.querySelector('.sort-label');
+      if (label) {
+        label.textContent = currentSortMode === 'impressions' 
+          ? 'Sort: High Volume' 
+          : 'Sort: Best Rank';
+      }
+      
+      // Re-sort and re-render
+      const sortedData = sortQuickWins(quickWinsDataset, currentSortMode);
+      
+      // Find card track
+      const modules = document.querySelectorAll('.module-container');
+      for (const module of modules) {
+        const title = module.querySelector('.module-title');
+        if (title && title.textContent.trim() === 'SEO Quick Fixes') {
+          const cardTrack = module.querySelector('.card-track');
+          if (cardTrack) {
+            renderQuickWinsCards(cardTrack, sortedData);
+            attachQuickFixListeners(); // Re-attach listeners to new buttons
+          }
+          break;
+        }
+      }
+    });
+  }
   
   /**
    * Attach click handlers to Quick Fix buttons
