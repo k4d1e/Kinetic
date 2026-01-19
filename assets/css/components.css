@@ -330,6 +330,7 @@ color: var(--color-accent-orange); /* Reused variable */
     cursor: pointer;
     transition: transform 0.1s ease, filter 0.2s;
     box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    margin-top: auto; /* Push button to bottom of card */
   }
   
   /* For hover, we can use a brightness filter instead of a new color variable */
