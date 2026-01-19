@@ -396,6 +396,115 @@ color: var(--color-accent-orange); /* Reused variable */
     color: var(--color-accent-orange);
   }
 
+/* AI Visibility Card Components */
+.query-description {
+  width: 100%;
+  margin-bottom: 20px;
+  text-align: left;
+  padding: 0 10px;
+}
+
+.query-description p {
+  color: var(--color-text-white);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* GEO Score Container */
+.geo-score-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  width: 100%;
+}
+
+.geo-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.geo-score {
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.geo-score.geo-low {
+  color: #4ade80; /* Green - high opportunity */
+}
+
+.geo-score.geo-medium {
+  color: #fbbf24; /* Yellow - moderate */
+}
+
+.geo-score.geo-high {
+  color: #94a3b8; /* Gray - already optimized */
+}
+
+.geo-status {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.8);
+}
+
+/* AI Metrics Row */
+.ai-metrics {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  margin-bottom: 20px;
+  padding: 12px 0;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.metric-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.8);
+  font-weight: 500;
+}
+
+.metric-icon {
+  width: 16px;
+  height: 16px;
+  opacity: 0.7;
+}
+
+/* Optimize Button */
+.btn-optimize {
+  background-color: var(--color-primary-green);
+  color: white;
+  border: none;
+  padding: 12px 40px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: transform 0.1s ease, filter 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  margin-top: auto; /* Push button to bottom of card */
+}
+
+.btn-optimize:hover {
+  filter: brightness(90%);
+}
+
+.btn-optimize:active {
+  transform: scale(0.98);
+}
+
 
 /* --- Module 5 - Local SEO Grid --- */
 .city-accordion-card {
