@@ -193,6 +193,16 @@ async function getMetricData(req, res) {
         );
         break;
 
+      case 'untapped-markets':
+        const { analyzeUntappedMarkets } = require('../services/gscService');
+        data = await getCachedOrFetch(
+          pool,
+          propertyId,
+          'untapped-markets',
+          () => analyzeUntappedMarkets(pool, userId, siteUrl)
+        );
+        break;
+
       default:
         return res.status(400).json({
           error: 'Bad Request',
