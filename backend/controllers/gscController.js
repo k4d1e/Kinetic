@@ -150,12 +150,28 @@ async function getMetricData(req, res) {
     // Fetch data based on metric type
     switch (metric) {
       case 'quick-wins':
-        data = await getCachedOrFetch(
+        const rawQuickWins = await getCachedOrFetch(
           pool,
           propertyId,
           'quick_wins',
           () => analyzeQuickWins(pool, userId, siteUrl)
         );
+        
+        // Check if we should skip Ahrefs enrichment (for testing)
+        const skipAhrefs = process.env.SKIP_AHREFS_FILTER === 'true';
+        
+        if (skipAhrefs) {
+          console.log('⚠️  Skipping Ahrefs KD filtering (SKIP_AHREFS_FILTER=true)');
+          // Add mock KD values for testing
+          data = rawQuickWins.map(item => ({
+            ...item,
+            keywordDifficulty: 25 // Mock KD value
+          }));
+        } else {
+          // Enrich with Ahrefs KD data
+          const { enrichWithKeywordDifficulty } = require('../services/ahrefsService');
+          data = await enrichWithKeywordDifficulty(rawQuickWins);
+        }
         break;
 
       case 'cannibalization':
