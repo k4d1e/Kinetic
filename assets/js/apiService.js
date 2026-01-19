@@ -108,12 +108,14 @@ class KineticAPI {
    * Get specific metric data
    * @param {string} metric - Metric type (quick-wins, cannibalization, etc.)
    * @param {string} siteUrl - GSC property URL
+   * @param {boolean} refresh - Force refresh cache (default: false)
    * @returns {Promise<Array>} - Metric data
    */
-  async getMetricData(metric, siteUrl) {
+  async getMetricData(metric, siteUrl, refresh = false) {
     try {
+      const refreshParam = refresh ? '&refresh=true' : '';
       const response = await fetch(
-        `${this.baseURL}/api/gsc/data/${metric}?siteUrl=${encodeURIComponent(siteUrl)}`,
+        `${this.baseURL}/api/gsc/data/${metric}?siteUrl=${encodeURIComponent(siteUrl)}${refreshParam}`,
         { credentials: 'include' }
       );
 
