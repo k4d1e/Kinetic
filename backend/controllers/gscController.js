@@ -6,6 +6,7 @@ const {
   analyzeCannibalization,
   analyzeUntappedMarkets,
   analyzeAIVisibility,
+  analyzeLocalSEO,
   getCachedOrFetch
 } = require('../services/gscService');
 
@@ -210,6 +211,15 @@ async function getMetricData(req, res) {
           propertyId,
           'ai-visibility',
           () => analyzeAIVisibility(pool, userId, siteUrl)
+        );
+        break;
+
+      case 'local-seo':
+        data = await getCachedOrFetch(
+          pool,
+          propertyId,
+          'local-seo',
+          () => analyzeLocalSEO(pool, userId, siteUrl)
         );
         break;
 

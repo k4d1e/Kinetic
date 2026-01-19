@@ -619,6 +619,236 @@ function detectSignalType(query, infoSignals) {
   return 'General';
 }
 
+/**
+ * Analyze Local SEO opportunities - Hub and Spoke strategy for cities/suburbs
+ * @param {Pool} pool - PostgreSQL connection pool
+ * @param {number} userId - User ID
+ * @param {string} siteUrl - GSC property URL
+ * @returns {Promise<Array>} - List of local SEO opportunities by city
+ */
+async function analyzeLocalSEO(pool, userId, siteUrl) {
+  try {
+    // Fetch GSC data for location-based queries
+    const data = await fetchSearchAnalytics(pool, userId, siteUrl, {
+      startDate: getDateDaysAgo(90),
+      endDate: getDateDaysAgo(0),
+      dimensions: ['query', 'page'],
+      rowLimit: 5000
+    });
+
+    if (!data || !data.rows) {
+      console.log('⚠️  No data found for local SEO analysis');
+      return [];
+    }
+
+    console.log(`📊 Analyzing ${data.rows.length} total rows for local SEO`);
+
+    // Discover cities from the /locations/ page
+    const cities = await discoverCitiesFromSite(siteUrl);
+    console.log(`✓ Discovered ${cities.length} cities from locations page`);
+
+    if (cities.length === 0) {
+      console.log('⚠️  No cities found. Using fallback detection from queries.');
+      // Fallback: extract cities from query data
+      return analyzeLocalSEOFromQueries(data.rows);
+    }
+
+    // Analyze each city
+    const cityOpportunities = cities.map(city => {
+      // Filter queries mentioning this city
+      const cityQueries = data.rows.filter(row => {
+        const query = (row.keys[0] || '').toLowerCase();
+        const cityName = city.toLowerCase();
+        return query.includes(cityName);
+      });
+
+      // Count "near me" queries (general proximity intent)
+      const nearMeQueries = data.rows.filter(row => {
+        const query = (row.keys[0] || '').toLowerCase();
+        return query.includes('near me') || 
+               query.includes('nearby') || 
+               query.includes('close to me') ||
+               query.includes('in my area');
+      });
+
+      // Count ranking "near me" queries (top 20 positions)
+      const rankingNearMe = nearMeQueries.filter(row => row.position <= 20);
+
+      // Extract services from site (for target keywords)
+      const services = extractServicesFromQueries(data.rows);
+      
+      // Calculate target suburb keywords (service + city combinations)
+      const targetSuburbKeywords = services.length * 1; // 1 per service per city
+      
+      // Count actual ranking suburb keywords for this city
+      const rankingSuburbKeywords = cityQueries.filter(row => 
+        row.position <= 20 && 
+        services.some(service => (row.keys[0] || '').toLowerCase().includes(service))
+      ).length;
+
+      // Calculate total impressions and clicks for this city
+      const totalImpressions = cityQueries.reduce((sum, row) => sum + (row.impressions || 0), 0);
+      const totalClicks = cityQueries.reduce((sum, row) => sum + (row.clicks || 0), 0);
+      
+      // Calculate average position
+      const avgPosition = cityQueries.length > 0 
+        ? cityQueries.reduce((sum, row) => sum + row.position, 0) / cityQueries.length 
+        : 0;
+
+      // Determine opportunity score (0-100, higher = more opportunity)
+      let opportunityScore = 50;
+      
+      // More opportunity if we're not ranking well
+      if (rankingSuburbKeywords === 0) opportunityScore += 30;
+      else if (rankingSuburbKeywords < targetSuburbKeywords / 2) opportunityScore += 20;
+      else if (rankingSuburbKeywords < targetSuburbKeywords) opportunityScore += 10;
+      
+      // More opportunity if near me is underutilized
+      const nearMeRatio = nearMeQueries.length > 0 ? rankingNearMe.length / nearMeQueries.length : 0;
+      if (nearMeRatio < 0.3) opportunityScore += 20;
+      else if (nearMeRatio < 0.6) opportunityScore += 10;
+      
+      // Ensure score is between 0-100
+      opportunityScore = Math.min(100, Math.max(0, opportunityScore));
+
+      return {
+        city: city,
+        targetSuburbKeywords,
+        rankingSuburbKeywords,
+        totalNearMeKeywords: nearMeQueries.length,
+        rankingNearMeKeywords: rankingNearMe.length,
+        totalImpressions,
+        totalClicks,
+        avgPosition: Math.round(avgPosition * 10) / 10,
+        opportunityScore,
+        queryCount: cityQueries.length
+      };
+    });
+
+    // Sort by opportunity score (highest first)
+    cityOpportunities.sort((a, b) => b.opportunityScore - a.opportunityScore);
+
+    console.log(`✓ Analyzed ${cityOpportunities.length} cities for local SEO`);
+    return cityOpportunities;
+
+  } catch (error) {
+    console.error('Error analyzing local SEO:', error);
+    return [];
+  }
+}
+
+/**
+ * Discover cities from the site's /locations/ page
+ */
+async function discoverCitiesFromSite(siteUrl) {
+  try {
+    // Construct the locations page URL
+    const locationsUrl = siteUrl.replace(/\/$/, '') + '/locations/';
+    
+    console.log(`🔍 Attempting to fetch cities from: ${locationsUrl}`);
+    
+    // Fetch the locations page
+    const response = await fetch(locationsUrl);
+    
+    if (!response.ok) {
+      console.log(`⚠️  Could not fetch locations page (status ${response.status})`);
+      return [];
+    }
+    
+    const html = await response.text();
+    
+    // Extract city names from the HTML
+    // Look for common patterns: links, headings, list items containing city names
+    const cities = new Set();
+    
+    // Pattern 1: Look for links with city names in href or text
+    const linkRegex = /<a[^>]*href="[^"]*\/([^/"]+)\/"[^>]*>([^<]+)<\/a>/gi;
+    let match;
+    while ((match = linkRegex.exec(html)) !== null) {
+      const cityName = match[2].trim();
+      // Filter out common navigation items
+      if (cityName.length > 2 && 
+          !cityName.toLowerCase().includes('home') && 
+          !cityName.toLowerCase().includes('about') &&
+          !cityName.toLowerCase().includes('contact') &&
+          !cityName.toLowerCase().includes('service')) {
+        cities.add(cityName);
+      }
+    }
+    
+    // Pattern 2: Look for headings with city names
+    const headingRegex = /<h[2-4][^>]*>([^<]+)<\/h[2-4]>/gi;
+    while ((match = headingRegex.exec(html)) !== null) {
+      const cityName = match[1].trim();
+      if (cityName.length > 2 && cityName.split(' ').length <= 3) {
+        cities.add(cityName);
+      }
+    }
+    
+    return Array.from(cities).slice(0, 50); // Limit to 50 cities
+    
+  } catch (error) {
+    console.error('Error fetching cities from locations page:', error);
+    return [];
+  }
+}
+
+/**
+ * Fallback: Analyze local SEO from query data when cities can't be scraped
+ */
+function analyzeLocalSEOFromQueries(rows) {
+  // Extract city-like terms from queries
+  const cityPattern = /\b(portland|beaverton|hillsboro|gresham|lake oswego|tigard|tualatin|oregon city|west linn|milwaukie|vancouver)\b/gi;
+  
+  const citiesFound = new Set();
+  rows.forEach(row => {
+    const query = (row.keys[0] || '').toLowerCase();
+    const matches = query.match(cityPattern);
+    if (matches) {
+      matches.forEach(city => citiesFound.add(city.charAt(0).toUpperCase() + city.slice(1)));
+    }
+  });
+  
+  // Create basic city data
+  return Array.from(citiesFound).map(city => ({
+    city,
+    targetSuburbKeywords: 10,
+    rankingSuburbKeywords: 0,
+    totalNearMeKeywords: 0,
+    rankingNearMeKeywords: 0,
+    totalImpressions: 0,
+    totalClicks: 0,
+    avgPosition: 0,
+    opportunityScore: 80,
+    queryCount: 0
+  }));
+}
+
+/**
+ * Extract service terms from query data
+ */
+function extractServicesFromQueries(rows) {
+  const serviceTerms = [
+    'roofing', 'roof', 'siding', 'gutter', 'gutters', 
+    'window', 'windows', 'door', 'doors', 'painting',
+    'installation', 'repair', 'replacement', 'cleaning',
+    'maintenance', 'inspection'
+  ];
+  
+  const servicesFound = new Set();
+  
+  rows.forEach(row => {
+    const query = (row.keys[0] || '').toLowerCase();
+    serviceTerms.forEach(term => {
+      if (query.includes(term)) {
+        servicesFound.add(term);
+      }
+    });
+  });
+  
+  return Array.from(servicesFound);
+}
+
 module.exports = {
   fetchUserProperties,
   fetchSearchAnalytics,
@@ -626,6 +856,7 @@ module.exports = {
   analyzeCannibalization,
   analyzeUntappedMarkets,
   analyzeAIVisibility,
+  analyzeLocalSEO,
   getCachedOrFetch,
   getDateDaysAgo
 };
