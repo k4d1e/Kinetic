@@ -221,6 +221,8 @@
   .card-cannibalization {
     border-left: 3px solid #E88B60;
     padding-left: 10px;
+    flex-grow: 0; /* Don't stretch - only take up needed space */
+    align-self: flex-start; /* Align to top, don't fill container */
   }
 
   .metric-label {
