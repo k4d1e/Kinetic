@@ -100,6 +100,7 @@
     position: relative; /* For notification dot positioning */
     flex-shrink: 0;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    overflow: hidden; /* Prevent content from overflowing card boundaries */
   }
   
   .card-title {
@@ -176,10 +177,17 @@
     font-weight: 700;
     font-size: 16px;
     margin-bottom: 8px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
   
   .metric-var {
     color: var(--color-accent-orange);
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    display: inline-block;
   }
   
   /* Quick Fix Button */
