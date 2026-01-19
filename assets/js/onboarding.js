@@ -19,6 +19,7 @@ class OnboardingStateMachine {
     this.properties = [];
     this.selectedProperty = null;
     this.listeners = [];
+    this.calibrationComplete = false;
   }
 
   subscribe(listener) {
@@ -33,20 +34,96 @@ class OnboardingStateMachine {
     console.log(`State transition: ${this.state} -> ${newState}`);
     this.state = newState;
     this.notify();
+    this.saveState(); // Persist state changes
   }
 
   setSelectedProperty(property) {
     this.selectedProperty = property;
+    this.saveState(); // Persist property selection
+  }
+
+  // Persistence: Save state to localStorage
+  saveState() {
+    try {
+      const state = {
+        selectedProperty: this.selectedProperty,
+        calibrationComplete: this.calibrationComplete,
+        timestamp: Date.now()
+      };
+      localStorage.setItem('kinetic_onboarding_state', JSON.stringify(state));
+    } catch (error) {
+      console.error('Error saving state:', error);
+    }
+  }
+
+  // Persistence: Load state from localStorage
+  loadState() {
+    try {
+      const saved = localStorage.getItem('kinetic_onboarding_state');
+      if (!saved) return false;
+
+      const state = JSON.parse(saved);
+      
+      // Check if state is still valid (within 24 hours)
+      const MAX_AGE = 24 * 60 * 60 * 1000; // 24 hours
+      if (Date.now() - state.timestamp > MAX_AGE) {
+        console.log('⚠️ Saved state expired, clearing...');
+        this.clearState();
+        return false;
+      }
+
+      // Restore state
+      this.selectedProperty = state.selectedProperty;
+      this.calibrationComplete = state.calibrationComplete;
+      console.log('✓ Restored saved state:', state);
+      return true;
+    } catch (error) {
+      console.error('Error loading state:', error);
+      return false;
+    }
+  }
+
+  // Persistence: Clear saved state
+  clearState() {
+    localStorage.removeItem('kinetic_onboarding_state');
+    localStorage.removeItem('kinetic_quick_wins_data');
+    localStorage.removeItem('kinetic_cannibalization_data');
+  }
+
+  // Action: Reset session and restart onboarding
+  async resetSession() {
+    console.log('🔄 Resetting session...');
+    this.clearState();
+    this.selectedProperty = null;
+    this.calibrationComplete = false;
+    this.properties = [];
+    
+    // Reload the page to restart
+    window.location.reload();
   }
 
   // Action: Check if user is already authenticated
   async checkExistingAuth() {
     try {
+      // First, try to load saved state
+      const hasState = this.loadState();
+      
       const { authenticated, user } = await this.api.checkAuth();
       if (authenticated) {
         this.user = user;
         console.log('✓ User already authenticated:', user.email);
-        // Skip to property selection
+        
+        // If we have a saved calibrated state, skip onboarding entirely
+        if (hasState && this.calibrationComplete && this.selectedProperty) {
+          console.log('✓ Restoring previous session:', this.selectedProperty);
+          this.setState(STATES.SUCCESS);
+          
+          // Load cached data and populate modules
+          await this.restoreCachedData();
+          return;
+        }
+        
+        // Otherwise, fetch properties and continue
         this.setState(STATES.FETCHING_PROPERTIES);
         await this.fetchProperties();
       }
@@ -106,6 +183,7 @@ class OnboardingStateMachine {
   async startCalibration(siteUrl) {
     try {
       this.selectedProperty = siteUrl;
+      this.calibrationComplete = false; // Will be set to true after checklist completes
       this.setState(STATES.CONNECTING);
       
       // Small delay for UX
@@ -120,6 +198,43 @@ class OnboardingStateMachine {
       console.error('Error starting calibration:', error);
       alert('Failed to start calibration. Please try again.');
       this.setState(STATES.SELECT_PROPERTY);
+    }
+  }
+
+  // Restore cached data from localStorage
+  async restoreCachedData() {
+    try {
+      const quickWinsData = localStorage.getItem('kinetic_quick_wins_data');
+      const cannibalizationData = localStorage.getItem('kinetic_cannibalization_data');
+
+      if (quickWinsData && cannibalizationData) {
+        const quickWins = JSON.parse(quickWinsData);
+        const cannibalization = JSON.parse(cannibalizationData);
+        
+        console.log(`✓ Restored ${quickWins.length} Quick Wins + ${cannibalization.length} Cannibalization cards from cache`);
+        
+        // Populate the module using the cached data
+        if (window.populateModule1Cards) {
+          window.populateModule1Cards(quickWins, cannibalization);
+        }
+        
+        // Close onboarding modal (it was never opened in this case)
+        const overlay = document.getElementById('onboarding-overlay');
+        if (overlay) {
+          overlay.classList.remove('active');
+          document.body.style.overflow = ''; // Re-enable scrolling
+        }
+      } else {
+        console.log('⚠️ No cached data found, fetching fresh data...');
+        // If no cache, fetch fresh data
+        await this.loadQuickWinsModule();
+        await this.loadCannibalizationModule();
+      }
+    } catch (error) {
+      console.error('Error restoring cached data:', error);
+      // Fallback to fetching fresh data
+      await this.loadQuickWinsModule();
+      await this.loadCannibalizationModule();
     }
   }
 
@@ -353,6 +468,11 @@ class OnboardingUI {
   }
 
   closeOnboarding() {
+    // Mark calibration as complete and save state
+    this.stateMachine.calibrationComplete = true;
+    this.stateMachine.saveState();
+    console.log('✓ Calibration complete - state saved');
+    
     // Fade out the modal
     this.elements.overlay.style.opacity = '0';
     
@@ -374,6 +494,9 @@ class OnboardingUI {
       // Store in window for later merging with cannibalization
       window.quickWinsData = quickWins || [];
       
+      // Cache to localStorage
+      localStorage.setItem('kinetic_quick_wins_data', JSON.stringify(quickWins || []));
+      
       console.log('✓ Quick Wins data loaded:', quickWins.length, 'opportunities');
     } catch (error) {
       console.error('Error loading quick wins module:', error);
@@ -391,6 +514,9 @@ class OnboardingUI {
 
       // Store in window for later merging
       window.cannibalizationData = cannibalization || [];
+      
+      // Cache to localStorage
+      localStorage.setItem('kinetic_cannibalization_data', JSON.stringify(cannibalization || []));
       
       console.log('✓ Cannibalization data loaded:', cannibalization.length, 'issues');
       
@@ -428,6 +554,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const stateMachine = new OnboardingStateMachine(api);
   const ui = new OnboardingUI(stateMachine);
   
-  // Expose to window for debugging (optional)
+  // Check for existing authentication/session
+  stateMachine.checkExistingAuth();
+  
+  // Expose to window for debugging and manual controls
   window.onboarding = { stateMachine, ui, api };
+  
+  // Expose reset function globally for easy access
+  window.resetKineticSession = () => stateMachine.resetSession();
+  
+  // Log helpful tip for users
+  console.log('💡 Tip: To reset your session and restart onboarding, run: resetKineticSession()');
+  
+  // Optional: Add keyboard shortcut (Ctrl+Shift+R or Cmd+Shift+R)
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'R') {
+      e.preventDefault();
+      if (confirm('Reset Kinetic session and restart onboarding?')) {
+        stateMachine.resetSession();
+      }
+    }
+  });
 });
