@@ -89,7 +89,7 @@
   /* --- Card Styles --- */
   .seo-card {
     background-color: var(--color-card-bg);
-    width: 280px;
+    width: 380px;
     /* Removed min-height - let cards size naturally to content */
     padding: 25px 20px 15px 20px; /* Reduced bottom padding for tighter layout */
     border-radius: 20px;
@@ -155,7 +155,7 @@
     font-size: 13px;
     line-height: 1.4;
     text-align: left;
-    /* Removed flex-grow: 1 - let cards be compact, button has margin-top: auto */
+    flex-grow: 1; /* Allow section to grow and push button to bottom for uniform card heights */
   }
   
   .warning-icon {
@@ -167,7 +167,7 @@
   /* Metrics Section */
   .card-metrics {
     width: 100%;
-    margin-bottom: 10px; /* Reduced for tighter spacing */
+    margin-bottom: 20px; /* Reduced for tighter spacing */
     text-align: left;
     padding-left: 10px; /* Align with text above */
   }
@@ -202,7 +202,8 @@
     cursor: pointer;
     transition: transform 0.1s ease, background-color 0.2s;
     box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-    margin-top: 15px; /* Consistent spacing above button */
+    margin-top: 10px; /* Consistent spacing above button */
+    margin-bottom: 10px;
   }
   
   .btn-quick-fix:hover {

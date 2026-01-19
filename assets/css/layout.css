@@ -27,7 +27,7 @@
   /* Card Track (The area holding the cards) */
   .card-track {
     display: flex;
-    align-items: flex-start; /* Prevent cards from stretching to match tallest card */
+    align-items: stretch; /* All cards match height for uniform appearance */
     gap: 24px;
     overflow-x: auto; /* Allows scrolling on mobile if needed */
     padding: 10px 5px; /* Padding for shadow clearance */
