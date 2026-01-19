@@ -284,7 +284,7 @@ class OnboardingUI {
       { id: 'check-1', delay: 500 },   // Already completed
       { id: 'check-2', delay: 1000 },  // Already completed
       { id: 'check-3', delay: 2000, action: 'loadQuickWins' },  // Quick Wins - fetch data
-      { id: 'check-4', delay: 2500 },  // Cannibalization
+      { id: 'check-4', delay: 1500, action: 'loadCannibalization' },  // Cannibalization - fetch data
       { id: 'check-5', delay: 2500 },  // Untapped Markets
       { id: 'check-6', delay: 2500 },  // AI Citation
       { id: 'check-7', delay: 2500 }   // Local Visibility
@@ -316,6 +316,17 @@ class OnboardingUI {
             // Ensure spinner shows for at least 1.5 seconds
             const minDelay = this.stateMachine.delay(1500);
             const dataLoad = this.loadQuickWinsModule();
+            
+            // Wait for both the minimum delay AND the data to load
+            await Promise.all([minDelay, dataLoad]);
+            
+            // Only complete after data is loaded and cards are populated
+            item.classList.remove('loading');
+            item.classList.add('completed');
+          } else if (checklistItems[i].action === 'loadCannibalization') {
+            // Ensure spinner shows for at least 1.5 seconds
+            const minDelay = this.stateMachine.delay(1500);
+            const dataLoad = this.loadCannibalizationModule();
             
             // Wait for both the minimum delay AND the data to load
             await Promise.all([minDelay, dataLoad]);
@@ -360,13 +371,47 @@ class OnboardingUI {
       // fetch quick wins data with cache refresh during calibration
       const quickWins = await this.stateMachine.api.getMetricData('quick-wins', siteURL, true);
 
-      // populate the cards (this happens while modal is still open)
-      populateQuickWinsCards(quickWins);
+      // Store in window for later merging with cannibalization
+      window.quickWinsData = quickWins || [];
       
-      console.log('✓ Quick Wins module populated with', quickWins.length, 'opportunities');
+      console.log('✓ Quick Wins data loaded:', quickWins.length, 'opportunities');
     } catch (error) {
       console.error('Error loading quick wins module:', error);
+      window.quickWinsData = [];
       throw error; // Re-throw so checklist can handle the error
+    }
+  }
+
+  async loadCannibalizationModule() {
+    try {
+      const siteURL = this.stateMachine.selectedProperty;
+
+      // fetch cannibalization data with cache refresh during calibration
+      const cannibalization = await this.stateMachine.api.getMetricData('cannibalization', siteURL, true);
+
+      // Store in window for later merging
+      window.cannibalizationData = cannibalization || [];
+      
+      console.log('✓ Cannibalization data loaded:', cannibalization.length, 'issues');
+      
+      // Now merge and populate all cards
+      this.populateModule1Cards();
+    } catch (error) {
+      console.error('Error loading cannibalization module:', error);
+      window.cannibalizationData = [];
+      // Still populate with just Quick Wins if cannibalization fails
+      this.populateModule1Cards();
+    }
+  }
+
+  populateModule1Cards() {
+    // Merge Quick Wins and Cannibalization data
+    const quickWins = window.quickWinsData || [];
+    const cannibalization = window.cannibalizationData || [];
+    
+    // Call the global function from quickWins.js
+    if (typeof populateModule1Cards === 'function') {
+      populateModule1Cards(quickWins, cannibalization);
     }
   }
 }
