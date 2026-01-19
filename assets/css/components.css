@@ -943,3 +943,59 @@ datalist option:hover {
   outline: 3px solid var(--color-action-blue);
   outline-offset: 2px;
 }
+
+/* Embedded OAuth View Styles */
+.signin-view,
+.oauth-view {
+  transition: opacity 0.3s ease;
+}
+
+.oauth-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 500px;
+}
+
+.oauth-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.oauth-back-btn {
+  background: none;
+  border: none;
+  color: var(--color-text-dim);
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.oauth-back-btn:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--color-text-white);
+}
+
+.oauth-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-white);
+  margin: 0;
+}
+
+.oauth-iframe {
+  flex: 1;
+  width: 100%;
+  min-height: 450px;
+  border: none;
+  border-radius: 8px;
+  background-color: #ffffff;
+}
