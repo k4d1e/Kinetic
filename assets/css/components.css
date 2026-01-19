@@ -90,6 +90,7 @@
   .seo-card {
     background-color: var(--color-card-bg);
     width: 280px;
+    min-height: 380px; /* Ensure consistent card height */
     padding: 25px 20px;
     border-radius: 20px;
     display: flex;
@@ -118,6 +119,7 @@
     font-size: 13px;
     line-height: 1.4;
     text-align: left;
+    flex-grow: 1; /* Allow this section to grow and fill available space */
   }
   
   .warning-icon {
@@ -157,6 +159,7 @@
     cursor: pointer;
     transition: transform 0.1s ease, background-color 0.2s;
     box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    margin-top: auto; /* Push button to bottom of card */
   }
   
   .btn-quick-fix:hover {
