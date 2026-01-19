@@ -833,13 +833,14 @@ function renderQuickWinsCards(cardTrack, data) {
     // Get potential class and label
     const potentialClass = `metric-value-${potential.toLowerCase()}`;
     
-    // Format keywords for display (show top 3-5)
-    const displayKeywords = keywords.slice(0, 5).map((kw, index) => {
-      if (index < keywords.length - 1 && index < 4) {
-        return `${kw} +`;
-      }
-      return kw;
-    }).join('<br>');
+// Display all keywords (1-3) with proper formatting
+const displayKeywords = keywords.map((kw, index) => {
+    // Add "+" after each keyword except the last one
+    if (index < keywords.length - 1) {
+      return `${kw} +`;
+    }
+    return kw;
+  }).join('<br>');
     
     card.innerHTML = `
       <h3 class="card-title">${topicTitle}</h3>

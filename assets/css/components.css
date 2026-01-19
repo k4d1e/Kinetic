@@ -89,7 +89,7 @@
   /* --- Card Styles --- */
   .seo-card {
     background-color: var(--color-card-bg);
-    width: 380px;
+    width: 370px;
     /* Removed min-height - let cards size naturally to content */
     padding: 25px 20px 15px 20px; /* Reduced bottom padding for tighter layout */
     border-radius: 20px;
@@ -222,7 +222,6 @@
   .card-cannibalization {
     border-left: 3px solid #E88B60;
     padding-left: 10px;
-    /* Removed flex-grow: 0 and align-self - allows proper expansion for uniform card heights */
   }
 
   .metric-label {

@@ -258,6 +258,13 @@ async function analyzeUntappedMarkets(pool, userId, siteUrl) {
     }
 
     console.log(`📊 Analyzing ${data.rows.length} total rows for untapped markets`);
+    if (data.rows.length > 0) {
+      console.log(`📊 Sample GSC data:`, data.rows.slice(0, 3).map(r => ({
+        query: r.keys[0],
+        impressions: r.impressions,
+        position: r.position
+      })));
+    }
 
     // Filter for potential untapped markets
     // Criteria: Impressions > 100, Position > 30 (not ranking well), exclude brand/generic
@@ -267,7 +274,7 @@ async function analyzeUntappedMarkets(pool, userId, siteUrl) {
       const query = (row.keys[0] || '').toLowerCase();
       
       // Basic filters
-      if (impressions <= 100 || position <= 30) return false;
+      if (impressions <= 50 || position <= 10 || position > 50) return false;
       
       // Exclude brand name
       if (query.includes(brandName.toLowerCase())) return false;
@@ -286,12 +293,22 @@ async function analyzeUntappedMarkets(pool, userId, siteUrl) {
       return true;
     });
 
-    console.log(`✓ ${filtered.length} keywords after filtering (impressions >100, position >30, excluded brand/generic)`);
+    console.log(`✓ ${filtered.length} keywords after filtering (impressions >50, position 11-50, excluded brand/generic)`);
+    if (filtered.length > 0) {
+      console.log(`📊 Sample filtered keywords:`, filtered.slice(0, 3).map(r => ({
+        query: r.keys[0],
+        impressions: r.impressions,
+        position: r.position
+      })));
+    }
 
     // Cluster keywords by topic using simple keyword analysis
     const clusters = clusterKeywords(filtered);
     
     console.log(`✓ Grouped into ${clusters.length} topic clusters`);
+    if (clusters.length > 0) {
+      console.log(`📊 Cluster details:`, clusters.map(c => `${c.topic}: ${c.keywords.length} keywords`));
+    }
 
     // Calculate potential for each cluster
     const opportunities = clusters.map(cluster => {
@@ -379,8 +396,8 @@ function clusterKeywords(keywords) {
     processed.add(keyword);
   });
   
-  // Filter out small clusters (less than 3 keywords)
-  return clusters.filter(c => c.keywords.length >= 3);
+  // Filter out clusters
+  return clusters.filter(c => c.keywords.length >= 1 && c.keywords.length <= 3);
 }
 
 /**
