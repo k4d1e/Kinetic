@@ -283,7 +283,7 @@ class OnboardingUI {
     const checklistItems = [
       { id: 'check-1', delay: 500 },   // Already completed
       { id: 'check-2', delay: 1000 },  // Already completed
-      { id: 'check-3', delay: 2000 },  // Quick Wins - in progress then complete
+      { id: 'check-3', delay: 2000, action: 'loadQuickWins' },  // Quick Wins - fetch data
       { id: 'check-4', delay: 2500 },  // Cannibalization
       { id: 'check-5', delay: 2500 },  // Untapped Markets
       { id: 'check-6', delay: 2500 },  // AI Citation
@@ -310,13 +310,27 @@ class OnboardingUI {
           item.classList.add('completed');
         } else {
           item.classList.add('loading');
+          
+          // Execute special action for this checklist item (if any)
+          if (checklistItems[i].action === 'loadQuickWins') {
+            // Ensure spinner shows for at least 1.5 seconds
+            const minDelay = this.stateMachine.delay(1500);
+            const dataLoad = this.loadQuickWinsModule();
+            
+            // Wait for both the minimum delay AND the data to load
+            await Promise.all([minDelay, dataLoad]);
+            
+            // Only complete after data is loaded and cards are populated
+            item.classList.remove('loading');
+            item.classList.add('completed');
+          }
         }
       }
     }
 
     // Complete last item
     const lastItem = document.getElementById(checklistItems[checklistItems.length - 1].id);
-    if (lastItem) {
+    if (lastItem && !lastItem.classList.contains('completed')) {
       await this.stateMachine.delay(2000);
       lastItem.classList.remove('loading');
       lastItem.classList.add('completed');
@@ -335,7 +349,25 @@ class OnboardingUI {
       this.elements.overlay.style.display = 'none';
       // Show main content (remove blur/hide if applied)
       document.body.classList.remove('onboarding-active');
+      // Note: Quick Wins already loaded during calibration checklist
     }, 300);
+  }
+
+  async loadQuickWinsModule() {
+    try {
+      const siteURL = this.stateMachine.selectedProperty;
+
+      // fetch quick wins data
+      const quickWins = await this.stateMachine.api.getMetricData('quick-wins', siteURL);
+
+      // populate the cards (this happens while modal is still open)
+      populateQuickWinsCards(quickWins);
+      
+      console.log('✓ Quick Wins module populated with', quickWins.length, 'opportunities');
+    } catch (error) {
+      console.error('Error loading quick wins module:', error);
+      throw error; // Re-throw so checklist can handle the error
+    }
   }
 }
 
