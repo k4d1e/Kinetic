@@ -116,9 +116,7 @@ class OnboardingStateMachine {
         // If we have a saved calibrated state, skip onboarding entirely
         if (hasState && this.calibrationComplete && this.selectedProperty) {
           console.log('✓ Restoring previous session:', this.selectedProperty);
-          this.setState(STATES.SUCCESS);
-          
-          // Load cached data and populate modules
+          // DON'T set state to SUCCESS - just restore data directly
           await this.restoreCachedData();
           return;
         }
@@ -218,23 +216,29 @@ class OnboardingStateMachine {
           window.populateModule1Cards(quickWins, cannibalization);
         }
         
-        // Close onboarding modal (it was never opened in this case)
+        // Completely hide onboarding - no modal should appear
         const overlay = document.getElementById('onboarding-overlay');
         if (overlay) {
+          overlay.style.display = 'none'; // Hide immediately
           overlay.classList.remove('active');
-          document.body.style.overflow = ''; // Re-enable scrolling
         }
+        
+        // Remove the onboarding-active class to show main content
+        document.body.classList.remove('onboarding-active');
+        document.body.style.overflow = ''; // Re-enable scrolling
+        
+        console.log('✓ Session restored - skipped onboarding');
       } else {
-        console.log('⚠️ No cached data found, fetching fresh data...');
-        // If no cache, fetch fresh data
-        await this.loadQuickWinsModule();
-        await this.loadCannibalizationModule();
+        console.log('⚠️ No cached data found, showing onboarding...');
+        // If no cache, show onboarding and fetch fresh data
+        this.setState(STATES.FETCHING_PROPERTIES);
+        await this.fetchProperties();
       }
     } catch (error) {
       console.error('Error restoring cached data:', error);
-      // Fallback to fetching fresh data
-      await this.loadQuickWinsModule();
-      await this.loadCannibalizationModule();
+      // Fallback to showing onboarding
+      this.setState(STATES.FETCHING_PROPERTIES);
+      await this.fetchProperties();
     }
   }
 
