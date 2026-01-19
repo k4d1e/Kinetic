@@ -175,7 +175,7 @@ async function getMetricData(req, res) {
           // Add mock KD values for testing
           data = rawQuickWins.map(item => ({
             ...item,
-            keywordDifficulty: 25 // Mock KD value
+            keywordDifficulty: 17 // Mock KD value
           }));
         } else {
           // Enrich with Ahrefs KD data
