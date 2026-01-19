@@ -204,6 +204,36 @@
   .btn-quick-fix:active {
     transform: scale(0.98);
   }
+
+  /* Cannibalization Card Styles */
+  .cannibalization-card {
+    border: 2px solid #E88B60;
+  }
+
+  .card-cannibalization {
+    border-left: 3px solid #E88B60;
+    padding-left: 10px;
+  }
+
+  .metric-label {
+    color: var(--color-primary-green);
+    font-weight: 700;
+    font-size: 14px;
+    margin-top: 5px;
+  }
+
+  .metric-indent {
+    padding-left: 15px;
+    font-size: 15px;
+  }
+
+  .btn-fix-cannibalization {
+    background-color: #E88B60;
+  }
+
+  .btn-fix-cannibalization:hover {
+    background-color: #d17650;
+  }
   
   /* --- Notification Dot --- */
   .notification-dot {

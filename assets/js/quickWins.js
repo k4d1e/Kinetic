@@ -17,6 +17,41 @@ function generateProblemDescription(item) {
   }
   
   /**
+   * Render all Module 1 cards (Quick Wins + Cannibalization)
+   */
+  function renderAllModule1Cards(cardTrack, quickWins, cannibalization) {
+    // Clear existing cards
+    cardTrack.innerHTML = '';
+    
+    const totalCards = quickWins.length + cannibalization.length;
+    
+    if (totalCards === 0) {
+      // Show empty state
+      cardTrack.innerHTML = `
+        <div class="empty-state">
+          <p>No SEO opportunities found at this time.</p>
+          <p>Check back after your site accumulates more Search Console data.</p>
+        </div>
+      `;
+      return;
+    }
+    
+    // Generate Quick Wins cards
+    quickWins.forEach(item => {
+      const card = createQuickWinCard(item);
+      cardTrack.appendChild(card);
+    });
+    
+    // Generate Cannibalization cards
+    cannibalization.forEach(item => {
+      const card = createCannibalizationCard(item);
+      cardTrack.appendChild(card);
+    });
+    
+    console.log(`✓ Generated ${quickWins.length} Quick Win cards + ${cannibalization.length} Cannibalization cards`);
+  }
+
+  /**
    * Create a single SEO card element
    */
   function createQuickWinCard(item) {
@@ -50,6 +85,48 @@ function generateProblemDescription(item) {
   }
   
   /**
+   * Create a cannibalization card element
+   */
+  function createCannibalizationCard(item) {
+    const card = document.createElement('article');
+    card.className = 'seo-card cannibalization-card';
+    
+    const { keyword, pages, pageCount } = item;
+    
+    // Get top 2 pages
+    const page1 = pages[0];
+    const page2 = pages[1];
+    
+    // Generate problem description
+    const problemText = `This keyword has ${pageCount} pages competing for it, causing ranking volatility. Consolidate content or differentiate pages to fix this issue.`;
+    
+    card.innerHTML = `
+      <h3 class="card-title">${keyword}</h3>
+      <div class="card-warning card-cannibalization">
+        <svg class="warning-icon" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" fill="#E88B60" stroke="#E88B60" stroke-width="2"/>
+          <path d="M12 7v6M12 16h.01" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <p>${problemText}</p>
+      </div>
+      <div class="card-metrics">
+        <div class="metric-row metric-label">Page 1:</div>
+        <div class="metric-row metric-indent">Page: <span class="metric-var">${truncateUrl(page1.page)}</span></div>
+        <div class="metric-row metric-indent">Rank: <span class="metric-var">${page1.position.toFixed(1)}</span></div>
+        
+        <div class="metric-row metric-label" style="margin-top: 10px;">Page 2:</div>
+        <div class="metric-row metric-indent">Page: <span class="metric-var">${truncateUrl(page2.page)}</span></div>
+        <div class="metric-row metric-indent">Rank: <span class="metric-var">${page2.position.toFixed(1)}</span></div>
+      </div>
+      <button class="btn-quick-fix btn-fix-cannibalization" data-keyword="${keyword}" data-page1="${page1.page}" data-page2="${page2.page}">
+        Fix Cannibalization
+      </button>
+    `;
+    
+    return card;
+  }
+  
+  /**
    * Truncate long URLs for display
    */
   function truncateUrl(url) {
@@ -67,9 +144,45 @@ function generateProblemDescription(item) {
   
   // Store the full dataset globally so we can re-sort
   let quickWinsDataset = [];
+  let cannibalizationDataset = [];
   let currentSortMode = 'impressions'; // 'impressions' or 'rank'
 /**
- * Populate the Quick Wins module with dynamic cards
+ * Populate Module 1 with both Quick Wins and Cannibalization cards
+ */
+function populateModule1Cards(quickWinsData, cannibalizationData) {
+  // Store datasets for re-sorting
+  quickWinsDataset = quickWinsData || [];
+  cannibalizationDataset = cannibalizationData || [];
+  
+  // Find the SEO Quick Fixes module by its title, then get its card-track
+  const modules = document.querySelectorAll('.module-container');
+  let cardTrack = null;
+  
+  for (const module of modules) {
+    const title = module.querySelector('.module-title');
+    if (title && title.textContent.trim() === 'SEO Quick Fixes') {
+      cardTrack = module.querySelector('.card-track');
+      break;
+    }
+  }
+  
+  if (!cardTrack) {
+    console.error('Card track container not found for SEO Quick Fixes module');
+    return;
+  }
+  
+  // Merge and render all cards
+  renderAllModule1Cards(cardTrack, quickWinsDataset, cannibalizationDataset);
+  
+  // Attach event listeners
+  attachQuickFixListeners();
+  
+  // Set up sort toggle button
+  setupSortToggle();
+}
+
+/**
+ * Populate the Quick Wins module with dynamic cards (legacy function)
  */
 function populateQuickWinsCards(quickWinsData) {
 
