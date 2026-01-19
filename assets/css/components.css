@@ -109,6 +109,40 @@
     margin-bottom: 15px;
     line-height: 1.2; /* Tighter line height for compact titles */
   }
+
+  .sort-toggle {
+    margin-left: auto; /* Push to the right */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background-color: rgba(77, 170, 127, 0.1);
+    border: 1px solid var(--color-primary-green);
+    border-radius: 20px;
+    color: var(--color-primary-green);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .sort-toggle:hover {
+    background-color: rgba(77, 170, 127, 0.2);
+    transform: translateY(-1px);
+  }
+  
+  .sort-toggle:active {
+    transform: translateY(0);
+  }
+  
+  .sort-icon {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .sort-label {
+    white-space: nowrap;
+  }
   
   /* Warning Section */
   .card-warning {
