@@ -1376,30 +1376,30 @@ const displayKeywords = keywords.map((kw, index) => {
     
     console.log(`📊 Populating Module 4 with ${data.length} city opportunities`);
     
-    // Find the Local SEO module grid
+    // Find the Local SEO module track
     const modules = document.querySelectorAll('.module-container');
-    let cardGrid = null;
+    let cardTrack = null;
     
     for (const module of modules) {
       const title = module.querySelector('.module-title');
       if (title && (title.textContent.trim() === 'Local SEO' || title.textContent.trim() === 'Local Visibility')) {
-        cardGrid = module.querySelector('.card-grid');
+        cardTrack = module.querySelector('.card-track');
         break;
       }
     }
     
-    if (!cardGrid) {
-      console.error('Card grid container not found for Local SEO module');
+    if (!cardTrack) {
+      console.error('Card track container not found for Local SEO module');
       return;
     }
     
     // Clear existing placeholder cards
-    cardGrid.innerHTML = '';
+    cardTrack.innerHTML = '';
     
     // Generate and append city accordion cards
     data.forEach(cityData => {
       const card = createCityAccordionCard(cityData);
-      cardGrid.appendChild(card);
+      cardTrack.appendChild(card);
     });
     
     console.log(`✓ Module 4 populated with ${data.length} city opportunities`);
