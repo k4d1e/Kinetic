@@ -1359,12 +1359,215 @@ const displayKeywords = keywords.map((kw, index) => {
   // Also expose for manual initialization after cards are populated
   window.initAIOptimizationModal = initAIOptimizationModal;
   
+  /**
+   * ============================================================
+   * LOCAL SEO ACCORDION FUNCTIONS
+   * ============================================================
+   */
+  
+  /**
+   * Populate Local SEO accordion cards (Module 4)
+   */
+  async function populateLocalSEOCards(data) {
+    if (!data || data.length === 0) {
+      console.log('⚠️ No local SEO data to display');
+      return;
+    }
+    
+    console.log(`📊 Populating Module 4 with ${data.length} city opportunities`);
+    
+    // Find the Local SEO module grid
+    const modules = document.querySelectorAll('.module-container');
+    let cardGrid = null;
+    
+    for (const module of modules) {
+      const title = module.querySelector('.module-title');
+      if (title && (title.textContent.trim() === 'Local SEO' || title.textContent.trim() === 'Local Visibility')) {
+        cardGrid = module.querySelector('.card-grid');
+        break;
+      }
+    }
+    
+    if (!cardGrid) {
+      console.error('Card grid container not found for Local SEO module');
+      return;
+    }
+    
+    // Clear existing placeholder cards
+    cardGrid.innerHTML = '';
+    
+    // Generate and append city accordion cards
+    data.forEach(cityData => {
+      const card = createCityAccordionCard(cityData);
+      cardGrid.appendChild(card);
+    });
+    
+    console.log(`✓ Module 4 populated with ${data.length} city opportunities`);
+    
+    // Initialize accordion functionality
+    initializeAccordions();
+  }
+  
+  /**
+   * Create a single city accordion card
+   */
+  function createCityAccordionCard(cityData) {
+    const { 
+      city, 
+      targetSuburbKeywords, 
+      rankingSuburbKeywords, 
+      totalNearMeKeywords,
+      rankingNearMeKeywords,
+      opportunityScore,
+      totalImpressions,
+      totalClicks,
+      avgPosition
+    } = cityData;
+    
+    const card = document.createElement('article');
+    card.className = 'city-accordion-card';
+    
+    // Calculate percentages
+    const suburbPercentage = targetSuburbKeywords > 0 
+      ? Math.round((rankingSuburbKeywords / targetSuburbKeywords) * 100) 
+      : 0;
+    const nearMePercentage = totalNearMeKeywords > 0
+      ? Math.round((rankingNearMeKeywords / totalNearMeKeywords) * 100)
+      : 0;
+    
+    // Determine opportunity class
+    let opportunityClass = 'opportunity-medium';
+    let opportunityLabel = 'Medium Opportunity';
+    if (opportunityScore >= 70) {
+      opportunityClass = 'opportunity-high';
+      opportunityLabel = 'High Opportunity';
+    } else if (opportunityScore < 50) {
+      opportunityClass = 'opportunity-low';
+      opportunityLabel = 'Low Opportunity';
+    }
+    
+    card.innerHTML = `
+      <div class="accordion-header">
+        <div class="city-name-group">
+          <h3 class="city-name">${city}</h3>
+          <span class="opportunity-badge ${opportunityClass}">${opportunityLabel}</span>
+        </div>
+        <svg class="accordion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </div>
+      
+      <div class="accordion-content">
+        <div class="city-metrics-grid">
+          <div class="metric-card">
+            <div class="metric-label">Target Suburbs</div>
+            <div class="metric-value">
+              <span class="metric-current">${rankingSuburbKeywords}</span>
+              <span class="metric-separator">/</span>
+              <span class="metric-total">${targetSuburbKeywords}</span>
+            </div>
+            <div class="metric-bar">
+              <div class="metric-bar-fill" style="width: ${suburbPercentage}%"></div>
+            </div>
+            <div class="metric-description">
+              ${suburbPercentage}% of target suburb keywords ranking
+            </div>
+          </div>
+          
+          <div class="metric-card">
+            <div class="metric-label">Near Me Queries</div>
+            <div class="metric-value">
+              <span class="metric-current">${rankingNearMeKeywords}</span>
+              <span class="metric-separator">/</span>
+              <span class="metric-total">${totalNearMeKeywords}</span>
+            </div>
+            <div class="metric-bar">
+              <div class="metric-bar-fill" style="width: ${nearMePercentage}%"></div>
+            </div>
+            <div class="metric-description">
+              ${nearMePercentage}% of "near me" keywords ranking
+            </div>
+          </div>
+          
+          <div class="metric-card">
+            <div class="metric-label">Performance</div>
+            <div class="metric-stats">
+              <div class="stat-item">
+                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+                <span>${totalImpressions.toLocaleString()} impressions</span>
+              </div>
+              <div class="stat-item">
+                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/>
+                </svg>
+                <span>${totalClicks.toLocaleString()} clicks</span>
+              </div>
+              <div class="stat-item">
+                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+                <span>Avg. position ${avgPosition}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <button class="btn-expand-city" data-city="${city}">
+          View Hub & Spoke Strategy →
+        </button>
+      </div>
+    `;
+    
+    return card;
+  }
+  
+  /**
+   * Initialize accordion functionality
+   */
+  function initializeAccordions() {
+    const accordionHeaders = document.querySelectorAll('.accordion-header');
+    
+    accordionHeaders.forEach(header => {
+      // Remove any existing listeners
+      const newHeader = header.cloneNode(true);
+      header.parentNode.replaceChild(newHeader, header);
+      
+      newHeader.addEventListener('click', function() {
+        const card = this.closest('.city-accordion-card');
+        const content = card.querySelector('.accordion-content');
+        const icon = card.querySelector('.accordion-icon');
+        
+        // Toggle this accordion
+        const isOpen = card.classList.contains('open');
+        
+        if (isOpen) {
+          card.classList.remove('open');
+          content.style.maxHeight = null;
+          icon.style.transform = 'rotate(0deg)';
+        } else {
+          card.classList.add('open');
+          content.style.maxHeight = content.scrollHeight + 'px';
+          icon.style.transform = 'rotate(180deg)';
+        }
+      });
+    });
+    
+    console.log(`✓ Initialized ${accordionHeaders.length} accordion cards`);
+  }
+  
+  // Make functions globally available
+  window.populateLocalSEOCards = populateLocalSEOCards;
+  
   // Export functions
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = { 
       populateQuickWinsCards, 
       createQuickWinCard, 
       populateUntappedMarketsCards,
-      populateAIVisibilityCards 
+      populateAIVisibilityCards,
+      populateLocalSEOCards 
     };
   }

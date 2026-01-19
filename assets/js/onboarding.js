@@ -406,7 +406,7 @@ class OnboardingUI {
       { id: 'check-4', delay: 1500, action: 'loadCannibalization' },  // Cannibalization - fetch data
       { id: 'check-5', delay: 1500, action: 'loadUntappedMarkets' },  // Untapped Markets - fetch data
       { id: 'check-6', delay: 1500, action: 'loadAIVisibility' },  // AI Visibility - fetch data
-      { id: 'check-7', delay: 2500 }   // Local Visibility
+      { id: 'check-7', delay: 1500, action: 'loadLocalSEO' }   // Local Visibility - fetch data
     ];
 
     // Animate checklist progression
@@ -468,6 +468,17 @@ class OnboardingUI {
             // Ensure spinner shows for at least 1.5 seconds
             const minDelay = this.stateMachine.delay(1500);
             const dataLoad = this.loadAIVisibilityModule();
+            
+            // Wait for both the minimum delay AND the data to load
+            await Promise.all([minDelay, dataLoad]);
+            
+            // Only complete after data is loaded and cards are populated
+            item.classList.remove('loading');
+            item.classList.add('completed');
+          } else if (checklistItems[i].action === 'loadLocalSEO') {
+            // Ensure spinner shows for at least 1.5 seconds
+            const minDelay = this.stateMachine.delay(1500);
+            const dataLoad = this.loadLocalSEOModule();
             
             // Wait for both the minimum delay AND the data to load
             await Promise.all([minDelay, dataLoad]);
@@ -603,6 +614,31 @@ class OnboardingUI {
     } catch (error) {
       console.error('Error loading AI visibility module:', error);
       window.aiVisibilityData = [];
+    }
+  }
+
+  async loadLocalSEOModule() {
+    try {
+      const siteURL = this.stateMachine.selectedProperty;
+
+      // fetch local SEO data with cache refresh during calibration
+      const localSEO = await this.stateMachine.api.getMetricData('local-seo', siteURL, true);
+
+      // Store in window
+      window.localSEOData = localSEO || [];
+      
+      // Cache to localStorage
+      localStorage.setItem('kinetic_local_seo_data', JSON.stringify(localSEO || []));
+      
+      console.log('✓ Local SEO data loaded:', localSEO.length, 'cities');
+      
+      // Populate Module 4 cards
+      if (window.populateLocalSEOCards) {
+        window.populateLocalSEOCards(localSEO);
+      }
+    } catch (error) {
+      console.error('Error loading local SEO module:', error);
+      window.localSEOData = [];
     }
   }
 
