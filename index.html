@@ -15,32 +15,19 @@
     <div id="onboarding-overlay" class="onboarding-overlay">
         <div class="onboarding-modal" id="onboarding-modal">
             
-            <!-- IDLE STATE: Initial Form -->
+            <!-- IDLE STATE: Google Sign-In -->
             <div id="state-idle" class="onboarding-state active">
                 <header class="onboarding-header">
                     <h2 class="onboarding-subtitle">Welcome to Kinetic</h2>
-                    <h1 class="onboarding-title">Calibrate Your Action Engine</h1>
+                    <h1 class="onboarding-title">Configure Your Action Engine</h1>
                     <p class="onboarding-description">
-                        To curate your Kinetic SEO Strategy, we need to securely read your search traffic data. 
-                        This will not edit or change your website.
+                        Sign in with Google to connect your Search Console data.
+                        We only request read-only access to your SEO analytics.
                     </p>
                 </header>
 
                 <div class="onboarding-form">
-                    <div class="form-group">
-                        <label for="url-input" class="form-label">Website URL</label>
-                        <input 
-                            type="text" 
-                            id="url-input" 
-                            class="form-input" 
-                            placeholder="https://www.yourbusiness.com"
-                            autocomplete="off"
-                            list="url-history"
-                        />
-                        <datalist id="url-history"></datalist>
-                    </div>
-
-                    <button id="connect-btn" class="btn-primary">
+                    <button id="google-signin-btn" class="btn-primary">
                         <svg class="btn-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <!-- Google "G" Logo -->
                             <path d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" fill="#EA4335"/>
@@ -48,55 +35,55 @@
                             <path d="M10.53 28.59c-.58-1.69-.92-3.5-.92-5.59s.34-3.9.92-5.59L2.56 11.22C.92 14.46 0 18.13 0 22s.92 7.54 2.56 10.78l7.97-4.19z" fill="#FBBC05"/>
                             <path d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.46-9.9l-7.98 6.19C6.51 42.62 14.62 48 24 48z" fill="#34A853"/>
                         </svg>
-                        Connect Search Console
+                        Sign in with Google
                     </button>
                 </div>
             </div>
 
-            <!-- CONNECTING STATE: Loading Spinner -->
-            <div id="state-connecting" class="onboarding-state">
+            <!-- GOOGLE_AUTH STATE: Authentication in Progress -->
+            <div id="state-google-auth" class="onboarding-state">
                 <div class="loading-container">
                     <div class="spinner"></div>
-                    <p class="loading-text">Connecting to Google...</p>
+                    <p class="loading-text">Authenticating with Google...</p>
                 </div>
             </div>
 
-            <!-- VERIFYING STATE: Verification in Progress -->
-            <div id="state-verifying" class="onboarding-state">
+            <!-- FETCHING_PROPERTIES STATE: Loading GSC Properties -->
+            <div id="state-fetching-properties" class="onboarding-state">
                 <div class="loading-container">
                     <div class="spinner"></div>
-                    <p class="loading-text">
-                        Verifying ownership of <span id="verifying-url-display" class="url-highlight"></span>...
-                    </p>
+                    <p class="loading-text">Fetching your Search Console properties...</p>
                 </div>
             </div>
 
-            <!-- ERROR_MISMATCH STATE: URL Mismatch with Dropdown -->
-            <div id="state-error-mismatch" class="onboarding-state">
+            <!-- SELECT_PROPERTY STATE: Property Selection -->
+            <div id="state-select-property" class="onboarding-state">
                 <header class="onboarding-header">
-                    <div class="error-icon">
-                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="12" cy="12" r="10" fill="#E88B60"/>
-                            <path d="M12 8v4M12 16h.01" stroke="white" stroke-width="2" stroke-linecap="round"/>
-                        </svg>
-                    </div>
-                    <h1 class="onboarding-title error-title">We couldn't verify ownership</h1>
+                    <h1 class="onboarding-title">Select Your Property</h1>
                     <p class="onboarding-description">
-                        We couldn't verify ownership of <span id="user-url-display" class="url-highlight"></span>. 
+                        Choose which website you'd like to analyze.
                     </p>
                 </header>
 
                 <div class="onboarding-form">
                     <div class="form-group">
-                        <label for="property-select" class="form-label">Select Your Property</label>
+                        <label for="property-select" class="form-label">Your GSC Properties</label>
                         <select id="property-select" class="form-select">
                             <option value="">-- Select a property --</option>
                         </select>
                     </div>
 
                     <button id="select-property-btn" class="btn-primary">
-                        Continue with Selected Property
+                        Start Calibration
                     </button>
+                </div>
+            </div>
+
+            <!-- CONNECTING STATE: Starting Calibration -->
+            <div id="state-connecting" class="onboarding-state">
+                <div class="loading-container">
+                    <div class="spinner"></div>
+                    <p class="loading-text">Starting calibration...</p>
                 </div>
             </div>
 
@@ -589,6 +576,7 @@
         </div>
     </section>
 
+    <script src="assets/js/apiService.js"></script>
     <script src="assets/js/onboarding.js"></script>
     <script src="assets/js/buttons.js"></script>
     <script src="assets/js/accordion.js"></script>

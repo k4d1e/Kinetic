@@ -1,30 +1,24 @@
-// onboarding.js - State Machine for Onboarding Wizard
+// onboarding.js - State Machine for Onboarding Wizard with OAuth
 
 // State constants
 const STATES = {
-  IDLE: 'IDLE',
-  CONNECTING: 'CONNECTING',
-  VERIFYING: 'VERIFYING',
-  ERROR_MISMATCH: 'ERROR_MISMATCH',
-  SUCCESS: 'SUCCESS'
+  IDLE: 'IDLE',                              // Show "Sign in with Google"
+  GOOGLE_AUTH: 'GOOGLE_AUTH',                // OAuth in progress
+  FETCHING_PROPERTIES: 'FETCHING_PROPERTIES', // Loading GSC properties
+  SELECT_PROPERTY: 'SELECT_PROPERTY',        // Show property dropdown
+  CONNECTING: 'CONNECTING',                  // Starting calibration
+  SUCCESS: 'SUCCESS'                         // Calibration running/complete
 };
-
-// Mock GSC properties for the error state
-const MOCK_GSC_PROPERTIES = [
-  'austinplumbing.com',
-  'apexroofing.com',
-  'elite-hvac.com'
-];
 
 // State management
 class OnboardingStateMachine {
-  constructor() {
+  constructor(apiService) {
+    this.api = apiService;
     this.state = STATES.IDLE;
-    this.userInputUrl = '';
-    this.selectedProperty = '';
+    this.user = null;
+    this.properties = [];
+    this.selectedProperty = null;
     this.listeners = [];
-    this.urlHistoryKey = 'kinetic_url_history';
-    this.maxHistoryItems = 10;
   }
 
   subscribe(listener) {
@@ -41,96 +35,91 @@ class OnboardingStateMachine {
     this.notify();
   }
 
-  setUserInputUrl(url) {
-    this.userInputUrl = url;
-  }
-
   setSelectedProperty(property) {
     this.selectedProperty = property;
   }
 
-  // Save URL to history in localStorage
-  saveUrlToHistory(url) {
+  // Action: Check if user is already authenticated
+  async checkExistingAuth() {
     try {
-      const history = this.getUrlHistory();
-      
-      // Remove if already exists (to move it to top)
-      const filtered = history.filter(item => item !== url);
-      
-      // Add to beginning
-      filtered.unshift(url);
-      
-      // Keep only max items
-      const trimmed = filtered.slice(0, this.maxHistoryItems);
-      
-      localStorage.setItem(this.urlHistoryKey, JSON.stringify(trimmed));
+      const { authenticated, user } = await this.api.checkAuth();
+      if (authenticated) {
+        this.user = user;
+        console.log('✓ User already authenticated:', user.email);
+        // Skip to property selection
+        this.setState(STATES.FETCHING_PROPERTIES);
+        await this.fetchProperties();
+      }
     } catch (error) {
-      console.warn('Could not save URL to history:', error);
+      console.error('Error checking auth:', error);
     }
   }
 
-  // Get URL history from localStorage
-  getUrlHistory() {
+  // Action: Check if returning from OAuth redirect
+  checkOAuthReturn() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const authStatus = urlParams.get('auth');
+    
+    if (authStatus === 'success') {
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+      // Transition to fetching properties
+      this.setState(STATES.FETCHING_PROPERTIES);
+      this.fetchProperties();
+    } else if (authStatus === 'failure') {
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+      alert('Authentication failed. Please try again.');
+      this.setState(STATES.IDLE);
+    }
+  }
+
+  // Action: User clicks "Sign in with Google"
+  initiateGoogleSignIn() {
+    // Redirect to Google OAuth
+    this.api.initiateGoogleAuth();
+    // Note: This will navigate away from the page
+    // User will return with ?auth=success or ?auth=failure query param
+  }
+
+  // Action: Fetch user's GSC properties
+  async fetchProperties() {
     try {
-      const stored = localStorage.getItem(this.urlHistoryKey);
-      return stored ? JSON.parse(stored) : [];
+      this.properties = await this.api.fetchGSCProperties();
+      
+      if (this.properties.length === 0) {
+        alert('No Search Console properties found. Please add a property to your Google Search Console account first.');
+        this.setState(STATES.IDLE);
+        return;
+      }
+
+      console.log(`✓ Fetched ${this.properties.length} GSC properties`);
+      this.setState(STATES.SELECT_PROPERTY);
     } catch (error) {
-      console.warn('Could not load URL history:', error);
-      return [];
+      console.error('Error fetching properties:', error);
+      alert('Failed to fetch your Search Console properties. Please try again.');
+      this.setState(STATES.IDLE);
     }
   }
 
-  // Action: User clicks "Connect Search Console"
-  async connectSearchConsole() {
-    if (!this.userInputUrl) {
-      alert('Please enter a valid website URL');
-      return;
-    }
-
-    // Validate URL format
-    if (!this.isValidUrl(this.userInputUrl)) {
-      alert('Please enter a valid URL format (e.g., https://www.example.com)');
-      return;
-    }
-
-    // Save URL to history
-    this.saveUrlToHistory(this.userInputUrl);
-
-    // Transition to CONNECTING
-    this.setState(STATES.CONNECTING);
-
-    // Mock: Simulate Google OAuth connection delay
-    await this.delay(2000);
-
-    // Transition to VERIFYING
-    this.setState(STATES.VERIFYING);
-
-    // Mock: Simulate verification process
-    await this.delay(2000);
-
-    // Transition to SUCCESS (checklist will animate there)
-    this.setState(STATES.SUCCESS);
-  }
-
-  // Action: User selects from dropdown in ERROR_MISMATCH state
-  async selectAlternativeProperty(property) {
-    this.setSelectedProperty(property);
-    this.setState(STATES.VERIFYING);
-
-    // Simulate verification delay
-    await this.delay(1500);
-
-    // After selecting alternative, proceed to success
-    this.setState(STATES.SUCCESS);
-  }
-
-  // Helper: URL validation
-  isValidUrl(string) {
+  // Action: User selects a property and starts calibration
+  async startCalibration(siteUrl) {
     try {
-      const url = new URL(string);
-      return url.protocol === 'http:' || url.protocol === 'https:';
-    } catch (_) {
-      return false;
+      this.selectedProperty = siteUrl;
+      this.setState(STATES.CONNECTING);
+      
+      // Small delay for UX
+      await this.delay(1000);
+      
+      // Start calibration on backend
+      await this.api.startCalibration(siteUrl);
+      
+      // Transition to SUCCESS state where checklist runs
+      this.setState(STATES.SUCCESS);
+    } catch (error) {
+      console.error('Error starting calibration:', error);
+      alert('Failed to start calibration. Please try again.');
+      this.setState(STATES.SELECT_PROPERTY);
     }
   }
 
@@ -161,85 +150,63 @@ class OnboardingUI {
     this.elements = {
       modal: document.getElementById('onboarding-modal'),
       overlay: document.getElementById('onboarding-overlay'),
-      urlInput: document.getElementById('url-input'),
-      urlHistoryDatalist: document.getElementById('url-history'),
-      connectBtn: document.getElementById('connect-btn'),
+      googleSignInBtn: document.getElementById('google-signin-btn'),
       idleState: document.getElementById('state-idle'),
+      googleAuthState: document.getElementById('state-google-auth'),
+      fetchingPropertiesState: document.getElementById('state-fetching-properties'),
+      selectPropertyState: document.getElementById('state-select-property'),
       connectingState: document.getElementById('state-connecting'),
-      verifyingState: document.getElementById('state-verifying'),
-      errorState: document.getElementById('state-error-mismatch'),
       successState: document.getElementById('state-success'),
-      userUrlDisplay: document.getElementById('user-url-display'),
       propertySelect: document.getElementById('property-select'),
-      selectPropertyBtn: document.getElementById('select-property-btn'),
-      verifyingUrlDisplay: document.getElementById('verifying-url-display')
+      selectPropertyBtn: document.getElementById('select-property-btn')
     };
 
     // Bind events
     this.bindEvents();
 
-    // Populate URL history
-    this.populateUrlHistory();
-
     // Subscribe to state changes
     this.stateMachine.subscribe(this.render.bind(this));
+
+    // Check if returning from OAuth
+    this.stateMachine.checkOAuthReturn();
+
+    // Check if already authenticated
+    this.stateMachine.checkExistingAuth();
 
     // Initial render
     this.render(this.stateMachine.state, this.stateMachine);
   }
 
   bindEvents() {
-    // Connect button click
-    this.elements.connectBtn.addEventListener('click', () => {
-      const url = this.elements.urlInput.value.trim();
-      this.stateMachine.setUserInputUrl(url);
-      this.stateMachine.connectSearchConsole();
-    });
-
-    // Enter key in URL input
-    this.elements.urlInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        const url = this.elements.urlInput.value.trim();
-        this.stateMachine.setUserInputUrl(url);
-        this.stateMachine.connectSearchConsole();
-      }
-    });
-
-    // Refresh history when input is focused
-    this.elements.urlInput.addEventListener('focus', () => {
-      this.populateUrlHistory();
-    });
+    // Google Sign-In button click - initiates OAuth flow
+    if (this.elements.googleSignInBtn) {
+      this.elements.googleSignInBtn.addEventListener('click', () => {
+        this.stateMachine.initiateGoogleSignIn();
+      });
+    }
 
     // Select property button click
-    this.elements.selectPropertyBtn.addEventListener('click', () => {
-      const selectedProperty = this.elements.propertySelect.value;
-      if (selectedProperty) {
-        this.stateMachine.selectAlternativeProperty(selectedProperty);
-      }
-    });
-
-    // Populate mock properties dropdown
-    this.populatePropertyDropdown();
+    if (this.elements.selectPropertyBtn) {
+      this.elements.selectPropertyBtn.addEventListener('click', () => {
+        const selectedProperty = this.elements.propertySelect.value;
+        if (selectedProperty) {
+          this.stateMachine.startCalibration(selectedProperty);
+        } else {
+          alert('Please select a property');
+        }
+      });
+    }
   }
 
   populatePropertyDropdown() {
-    this.elements.propertySelect.innerHTML = '<option value="">-- Select a property --</option>';
-    MOCK_GSC_PROPERTIES.forEach(property => {
-      const option = document.createElement('option');
-      option.value = property;
-      option.textContent = property;
-      this.elements.propertySelect.appendChild(option);
-    });
-  }
-
-  populateUrlHistory() {
-    const history = this.stateMachine.getUrlHistory();
-    this.elements.urlHistoryDatalist.innerHTML = '';
+    if (!this.elements.propertySelect) return;
     
-    history.forEach(url => {
+    this.elements.propertySelect.innerHTML = '<option value="">-- Select a property --</option>';
+    this.stateMachine.properties.forEach(property => {
       const option = document.createElement('option');
-      option.value = url;
-      this.elements.urlHistoryDatalist.appendChild(option);
+      option.value = property.siteUrl;
+      option.textContent = property.siteUrl;
+      this.elements.propertySelect.appendChild(option);
     });
   }
 
@@ -252,14 +219,17 @@ class OnboardingUI {
       case STATES.IDLE:
         this.renderIdleState();
         break;
+      case STATES.GOOGLE_AUTH:
+        this.renderGoogleAuthState();
+        break;
+      case STATES.FETCHING_PROPERTIES:
+        this.renderFetchingPropertiesState();
+        break;
+      case STATES.SELECT_PROPERTY:
+        this.renderSelectPropertyState();
+        break;
       case STATES.CONNECTING:
         this.renderConnectingState();
-        break;
-      case STATES.VERIFYING:
-        this.renderVerifyingState(machine);
-        break;
-      case STATES.ERROR_MISMATCH:
-        this.renderErrorMismatchState(machine);
         break;
       case STATES.SUCCESS:
         this.renderSuccessState();
@@ -276,30 +246,34 @@ class OnboardingUI {
   }
 
   renderIdleState() {
-    this.elements.idleState.classList.add('active');
-    // Enable input
-    this.elements.urlInput.disabled = false;
-    this.elements.connectBtn.disabled = false;
+    if (this.elements.idleState) {
+      this.elements.idleState.classList.add('active');
+    }
+  }
+
+  renderGoogleAuthState() {
+    if (this.elements.googleAuthState) {
+      this.elements.googleAuthState.classList.add('active');
+    }
+  }
+
+  renderFetchingPropertiesState() {
+    if (this.elements.fetchingPropertiesState) {
+      this.elements.fetchingPropertiesState.classList.add('active');
+    }
+  }
+
+  renderSelectPropertyState() {
+    if (this.elements.selectPropertyState) {
+      this.elements.selectPropertyState.classList.add('active');
+      this.populatePropertyDropdown();
+    }
   }
 
   renderConnectingState() {
-    this.elements.connectingState.classList.add('active');
-    // Disable input during connection
-    this.elements.urlInput.disabled = true;
-    this.elements.connectBtn.disabled = true;
-  }
-
-  renderVerifyingState(machine) {
-    this.elements.verifyingState.classList.add('active');
-    // Display the URL being verified
-    const displayUrl = machine.selectedProperty || machine.userInputUrl;
-    this.elements.verifyingUrlDisplay.textContent = displayUrl;
-  }
-
-  renderErrorMismatchState(machine) {
-    this.elements.errorState.classList.add('active');
-    // Display the user's input URL
-    this.elements.userUrlDisplay.textContent = machine.userInputUrl;
+    if (this.elements.connectingState) {
+      this.elements.connectingState.classList.add('active');
+    }
   }
 
   async renderSuccessState() {
@@ -370,10 +344,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // Add onboarding-active class to body (hides main content initially)
   document.body.classList.add('onboarding-active');
 
+  // Initialize API service
+  const api = new KineticAPI('http://localhost:8000');
+
   // Initialize state machine and UI
-  const stateMachine = new OnboardingStateMachine();
+  const stateMachine = new OnboardingStateMachine(api);
   const ui = new OnboardingUI(stateMachine);
   
   // Expose to window for debugging (optional)
-  window.onboarding = { stateMachine, ui };
+  window.onboarding = { stateMachine, ui, api };
 });
