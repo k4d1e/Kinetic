@@ -11,6 +11,198 @@
 </head>
 <body>
 
+    <!-- Onboarding Modal Overlay -->
+    <div id="onboarding-overlay" class="onboarding-overlay">
+        <div class="onboarding-modal" id="onboarding-modal">
+            
+            <!-- IDLE STATE: Initial Form -->
+            <div id="state-idle" class="onboarding-state active">
+                <header class="onboarding-header">
+                    <h2 class="onboarding-subtitle">Welcome to Kinetic</h2>
+                    <h1 class="onboarding-title">Calibrate Your Action Engine</h1>
+                    <p class="onboarding-description">
+                        To curate your Kinetic SEO Strategy, we need to securely read your search traffic data. 
+                        This will not edit or change your website.
+                    </p>
+                </header>
+
+                <div class="onboarding-form">
+                    <div class="form-group">
+                        <label for="url-input" class="form-label">Website URL</label>
+                        <input 
+                            type="text" 
+                            id="url-input" 
+                            class="form-input" 
+                            placeholder="https://www.yourbusiness.com"
+                            autocomplete="off"
+                            list="url-history"
+                        />
+                        <datalist id="url-history"></datalist>
+                    </div>
+
+                    <button id="connect-btn" class="btn-primary">
+                        <svg class="btn-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Google "G" Logo -->
+                            <path d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" fill="#EA4335"/>
+                            <path d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" fill="#4285F4"/>
+                            <path d="M10.53 28.59c-.58-1.69-.92-3.5-.92-5.59s.34-3.9.92-5.59L2.56 11.22C.92 14.46 0 18.13 0 22s.92 7.54 2.56 10.78l7.97-4.19z" fill="#FBBC05"/>
+                            <path d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.46-9.9l-7.98 6.19C6.51 42.62 14.62 48 24 48z" fill="#34A853"/>
+                        </svg>
+                        Connect Search Console
+                    </button>
+                </div>
+            </div>
+
+            <!-- CONNECTING STATE: Loading Spinner -->
+            <div id="state-connecting" class="onboarding-state">
+                <div class="loading-container">
+                    <div class="spinner"></div>
+                    <p class="loading-text">Connecting to Google...</p>
+                </div>
+            </div>
+
+            <!-- VERIFYING STATE: Verification in Progress -->
+            <div id="state-verifying" class="onboarding-state">
+                <div class="loading-container">
+                    <div class="spinner"></div>
+                    <p class="loading-text">
+                        Verifying ownership of <span id="verifying-url-display" class="url-highlight"></span>...
+                    </p>
+                </div>
+            </div>
+
+            <!-- ERROR_MISMATCH STATE: URL Mismatch with Dropdown -->
+            <div id="state-error-mismatch" class="onboarding-state">
+                <header class="onboarding-header">
+                    <div class="error-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" fill="#E88B60"/>
+                            <path d="M12 8v4M12 16h.01" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <h1 class="onboarding-title error-title">We couldn't verify ownership</h1>
+                    <p class="onboarding-description">
+                        We couldn't verify ownership of <span id="user-url-display" class="url-highlight"></span>. 
+                    </p>
+                </header>
+
+                <div class="onboarding-form">
+                    <div class="form-group">
+                        <label for="property-select" class="form-label">Select Your Property</label>
+                        <select id="property-select" class="form-select">
+                            <option value="">-- Select a property --</option>
+                        </select>
+                    </div>
+
+                    <button id="select-property-btn" class="btn-primary">
+                        Continue with Selected Property
+                    </button>
+                </div>
+            </div>
+
+            <!-- SUCCESS STATE: Calibration Complete -->
+            <div id="state-success" class="onboarding-state">
+                <div class="success-container">
+                    <div class="success-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" fill="#4DAA7F"/>
+                            <path d="M8 12l2 2 4-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h1 class="onboarding-title success-title">Calibration Started</h1>
+                    <p class="onboarding-description">Your Action Engine is now analyzing your SEO data...</p>
+                    
+                    <div class="calibration-checklist">
+                        <div id="check-1" class="checklist-item">
+                            <div class="check-icon">
+                                <svg class="icon-spinner" viewBox="0 0 24 24" fill="none">
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-dasharray="60" stroke-dashoffset="0"/>
+                                </svg>
+                                <svg class="icon-checkmark" viewBox="0 0 24 24" fill="none">
+                                    <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <span class="check-label">Verifying Domain Ownership...</span>
+                        </div>
+
+                        <div id="check-2" class="checklist-item">
+                            <div class="check-icon">
+                                <svg class="icon-spinner" viewBox="0 0 24 24" fill="none">
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-dasharray="60" stroke-dashoffset="0"/>
+                                </svg>
+                                <svg class="icon-checkmark" viewBox="0 0 24 24" fill="none">
+                                    <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <span class="check-label">Establishing Secure Connection to GSC...</span>
+                        </div>
+
+                        <div id="check-3" class="checklist-item">
+                            <div class="check-icon">
+                                <svg class="icon-spinner" viewBox="0 0 24 24" fill="none">
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-dasharray="60" stroke-dashoffset="0"/>
+                                </svg>
+                                <svg class="icon-checkmark" viewBox="0 0 24 24" fill="none">
+                                    <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <span class="check-label">Scanning for "Quick Win" Opportunities...</span>
+                        </div>
+
+                        <div id="check-4" class="checklist-item">
+                            <div class="check-icon">
+                                <svg class="icon-spinner" viewBox="0 0 24 24" fill="none">
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-dasharray="60" stroke-dashoffset="0"/>
+                                </svg>
+                                <svg class="icon-checkmark" viewBox="0 0 24 24" fill="none">
+                                    <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <span class="check-label">Calculating Cannibalization Risks...</span>
+                        </div>
+
+                        <div id="check-5" class="checklist-item">
+                            <div class="check-icon">
+                                <svg class="icon-spinner" viewBox="0 0 24 24" fill="none">
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-dasharray="60" stroke-dashoffset="0"/>
+                                </svg>
+                                <svg class="icon-checkmark" viewBox="0 0 24 24" fill="none">
+                                    <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <span class="check-label">Discovering Untapped Markets...</span>
+                        </div>
+
+                        <div id="check-6" class="checklist-item">
+                            <div class="check-icon">
+                                <svg class="icon-spinner" viewBox="0 0 24 24" fill="none">
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-dasharray="60" stroke-dashoffset="0"/>
+                                </svg>
+                                <svg class="icon-checkmark" viewBox="0 0 24 24" fill="none">
+                                    <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <span class="check-label">Scanning for AI Citation Vulnerabilities...</span>
+                        </div>
+
+                        <div id="check-7" class="checklist-item">
+                            <div class="check-icon">
+                                <svg class="icon-spinner" viewBox="0 0 24 24" fill="none">
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-dasharray="60" stroke-dashoffset="0"/>
+                                </svg>
+                                <svg class="icon-checkmark" viewBox="0 0 24 24" fill="none">
+                                    <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <span class="check-label">Observing Local Visibility Rankings...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
     <section class="sprint-module-container">
         
         <div class="sprint-frame">
@@ -397,6 +589,7 @@
         </div>
     </section>
 
+    <script src="assets/js/onboarding.js"></script>
     <script src="assets/js/buttons.js"></script>
     <script src="assets/js/accordion.js"></script>
 
