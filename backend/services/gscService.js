@@ -78,14 +78,14 @@ async function fetchSearchAnalytics(pool, userId, siteUrl, options = {}) {
 
 /**
  * Analyze data for "Quick Win" opportunities
- * @param {Pool} pool - PostgreSQL connection pool
- * @param {number} userId - User ID
- * @param {string} siteUrl - GSC property URL
- * @returns {Promise<Array>} - Quick win opportunities
+ * Criteria: Position 6-20, ≥30 impressions (28 days), KD < 40
  */
 async function analyzeQuickWins(pool, userId, siteUrl) {
   try {
+    // Fetch last 28 days of data
     const data = await fetchSearchAnalytics(pool, userId, siteUrl, {
+      startDate: getDateDaysAgo(28),
+      endDate: getDateDaysAgo(1),
       dimensions: ['query', 'page'],
       rowLimit: 5000
     });
@@ -94,26 +94,30 @@ async function analyzeQuickWins(pool, userId, siteUrl) {
       return [];
     }
 
-    // Find keywords ranking 4-20 with high impressions but low CTR
+    // Log raw data stats
+    console.log(`📊 Total GSC rows fetched: ${data.rows.length}`);
+    
+    // Filter for position 6-20 with at least 30 impressions
     const quickWins = data.rows
       .filter(row => {
         const position = row.position;
         const impressions = row.impressions;
-        const ctr = row.ctr;
-        return position >= 4 && position <= 20 && impressions >= 100 && ctr < 0.05;
+        return position >= 6.0 && position <= 20.0 && impressions >= 30;
       })
       .sort((a, b) => b.impressions - a.impressions)
-      .slice(0, 50)
+      .slice(0, 50) // Limit to top 50 opportunities
       .map(row => ({
         keyword: row.keys[0],
         page: row.keys[1],
-        position: Math.round(row.position),
+        position: parseFloat(row.position.toFixed(1)),
         impressions: row.impressions,
         clicks: row.clicks,
-        ctr: (row.ctr * 100).toFixed(2) + '%'
+        ctr: (row.ctr * 100).toFixed(2) + '%',
+        needsKD: true // Flag to fetch KD from Ahrefs
       }));
 
-    console.log(`✓ Found ${quickWins.length} quick win opportunities`);
+    console.log(`✓ Found ${quickWins.length} keywords matching position 6-20 with ≥30 impressions`);
+    console.log(`📈 Before KD filtering: ${quickWins.length} opportunities`);
     return quickWins;
   } catch (error) {
     console.error('Error analyzing quick wins:', error);
