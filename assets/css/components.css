@@ -1100,6 +1100,15 @@ datalist option:hover {
   opacity: 1;
 }
 
+/* Cannibalization modal styling */
+.modal-overlay[data-type="cannibalization"] .modal-content {
+  border-top: 4px solid var(--color-accent-orange);
+}
+
+.modal-overlay[data-type="cannibalization"] .progress-fill {
+  background: linear-gradient(90deg, var(--color-accent-orange) 0%, #f4a261 100%);
+}
+
 .modal-content {
   background-color: var(--color-card-bg);
   border-radius: 20px;

@@ -367,8 +367,17 @@ function renderQuickWinsCards(cardTrack, data) {
     buttons.forEach(btn => {
       btn.addEventListener('click', (e) => {
         const keyword = e.target.dataset.keyword;
-        const page = e.target.dataset.page;
-        handleQuickFix(keyword, page);
+        
+        // Check if it's a cannibalization button
+        if (e.target.classList.contains('btn-fix-cannibalization')) {
+          const page1 = e.target.dataset.page1;
+          const page2 = e.target.dataset.page2;
+          handleCannibalizationFix(keyword, page1, page2);
+        } else {
+          // Regular Quick Fix button
+          const page = e.target.dataset.page;
+          handleQuickFix(keyword, page);
+        }
       });
     });
   }
@@ -389,7 +398,26 @@ function renderQuickWinsCards(cardTrack, data) {
     const steps = generateWorkflowSteps(item);
     
     // Open modal with workflow
-    openQuickFixModal(item, steps);
+    openQuickFixModal(item, steps, 'quick-win');
+  }
+  
+  /**
+   * Handle Fix Cannibalization button click
+   */
+  function handleCannibalizationFix(keyword, page1, page2) {
+    // Find the item data from the cannibalization dataset
+    const item = cannibalizationDataset.find(i => i.keyword === keyword);
+    
+    if (!item) {
+      console.error('Cannibalization item not found');
+      return;
+    }
+    
+    // Generate cannibalization-specific workflow steps
+    const steps = generateCannibalizationWorkflowSteps(item);
+    
+    // Open modal with workflow
+    openQuickFixModal(item, steps, 'cannibalization');
   }
   
   /**
@@ -504,9 +532,63 @@ function renderQuickWinsCards(cardTrack, data) {
   }
   
   /**
+   * Generate cannibalization-specific workflow steps
+   */
+  function generateCannibalizationWorkflowSteps(item) {
+    const { keyword, pages, pageCount } = item;
+    const page1 = pages[0];
+    const page2 = pages[1];
+    
+    return [
+      {
+        title: "Analyze Intent & Purpose",
+        description: `You have ${pageCount} pages competing for "${keyword}". First, determine if they serve different search intents or if they're truly duplicates.`,
+        example: `Ask yourself:\n• Does Page 1 serve informational intent? (blog post, guide)\n• Does Page 2 serve transactional intent? (product, service)\n• Are they targeting the same audience?\n• Can they be differentiated by adding modifiers?`,
+        action: "analyze-intent",
+        actionLabel: "🔍 Compare Page Intents"
+      },
+      {
+        title: "Choose Your Strategy",
+        description: `Based on the analysis, choose one of three strategies: Consolidate, Differentiate, or Redirect.`,
+        example: `Strategy Guide:\n\n✓ CONSOLIDATE (same intent):\nMerge content from weaker page into stronger page\n\n✓ DIFFERENTIATE (different angles):\nPage 1: "${keyword} for beginners"\nPage 2: "${keyword} for professionals"\n\n✓ REDIRECT (true duplicates):\n301 redirect weaker page → stronger page`,
+        action: "choose-strategy",
+        actionLabel: "📋 View Full Strategy Guide"
+      },
+      {
+        title: "Implement Consolidation",
+        description: `If consolidating: Copy the best content from Page 2 into Page 1, then 301 redirect Page 2 to Page 1.`,
+        example: `Consolidation checklist:\n1. Export content from both pages\n2. Identify unique sections in Page 2\n3. Add unique content to Page 1\n4. Update internal links pointing to Page 2\n5. Set up 301 redirect (Page 2 → Page 1)\n6. Update sitemap\n7. Wait 2-4 weeks for rankings to stabilize`,
+        action: "consolidate",
+        actionLabel: "🔗 View Redirect Guide"
+      },
+      {
+        title: "Differentiate with Keywords",
+        description: `If differentiating: Add unique modifiers to each page's target keyword to serve different user intents.`,
+        example: `Differentiation examples:\n\nOriginal keyword: "${keyword}"\n\nPage 1 → "${keyword} guide" or "${keyword} tutorial"\n• More informational content\n• Add how-to sections\n• Target longer-tail variations\n\nPage 2 → "best ${keyword}" or "${keyword} services"\n• More commercial content\n• Add pricing, features\n• Target buyer intent`,
+        action: "differentiate",
+        actionLabel: "🎯 Get Keyword Modifier Ideas"
+      },
+      {
+        title: "Update Internal Linking",
+        description: `Update your internal linking structure to clearly signal to Google which page should rank for "${keyword}".`,
+        example: `Internal linking strategy:\n\n• Find all pages linking to either competing page\n• Update anchor text to be more specific:\n  - Page 1 links: Use "${keyword} [modifier 1]"\n  - Page 2 links: Use "${keyword} [modifier 2]"\n• Link from homepage to primary page\n• Add breadcrumbs for clear hierarchy\n• Consider canonical tags if needed`,
+        action: "internal-links",
+        actionLabel: "🔗 Audit Internal Links"
+      },
+      {
+        title: "Monitor & Validate",
+        description: `Track both pages over 4-6 weeks to ensure rankings stabilize and volatility decreases.`,
+        example: `Monitoring checklist:\n✓ Track rankings for "${keyword}" weekly\n✓ Monitor organic traffic to both pages\n✓ Check Search Console for any new issues\n✓ Verify 301 redirects are working (if used)\n✓ Confirm crawl errors are resolved\n✓ Look for improved rankings stability\n\nExpected timeline:\n• Week 1-2: Rankings may fluctuate\n• Week 3-4: Stabilization begins\n• Week 5-6: Clear winner emerges`,
+        action: "monitor",
+        actionLabel: "📊 Set Up Tracking Dashboard"
+      }
+    ];
+  }
+  
+  /**
    * Open Quick Fix Modal
    */
-  function openQuickFixModal(item, steps) {
+  function openQuickFixModal(item, steps, type = 'quick-win') {
     const modal = document.getElementById('quick-fix-modal');
     if (!modal) return;
     
@@ -515,18 +597,34 @@ function renderQuickWinsCards(cardTrack, data) {
     modal.dataset.totalSteps = steps.length.toString();
     modal.dataset.steps = JSON.stringify(steps);
     modal.dataset.keyword = item.keyword;
-    modal.dataset.position = item.position.toString();
-    modal.dataset.page = item.page;
+    modal.dataset.type = type;
     
-    // Update modal header
-    document.getElementById('fix-keyword').textContent = item.keyword;
-    document.getElementById('fix-position').textContent = item.position;
+    // Update modal header based on type
+    const modalTitleEl = document.querySelector('.modal-title');
+    const modalSubtitleEl = document.querySelector('.modal-subtitle');
+    
+    if (type === 'cannibalization') {
+      // Cannibalization modal header
+      modalTitleEl.innerHTML = `Fix Cannibalization: <span id="fix-keyword">${item.keyword}</span>`;
+      modalSubtitleEl.innerHTML = `${item.pageCount} competing pages → Goal: 1 clear winner`;
+      modal.dataset.pageCount = item.pageCount.toString();
+      modal.dataset.page1 = item.pages[0].page;
+      modal.dataset.page2 = item.pages[1].page;
+    } else {
+      // Quick Win modal header
+      modalTitleEl.innerHTML = `Quick Fix: <span id="fix-keyword">${item.keyword}</span>`;
+      modalSubtitleEl.innerHTML = `Position <span id="fix-position">${item.position}</span> → Target: Top 5`;
+      modal.dataset.position = item.position.toString();
+      modal.dataset.page = item.page;
+    }
+    
     document.getElementById('total-steps').textContent = steps.length;
     
     // Show first step
     showStep(0, steps);
     
-    // Show modal
+    // Show modal with type-specific styling
+    modal.setAttribute('data-type', type);
     modal.classList.add('active');
     document.body.style.overflow = 'hidden'; // Prevent background scrolling
   }
