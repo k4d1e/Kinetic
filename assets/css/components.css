@@ -91,7 +91,7 @@
     background-color: var(--color-card-bg);
     width: 280px;
     /* Removed min-height - let cards size naturally to content */
-    padding: 25px 20px;
+    padding: 25px 20px 15px 20px; /* Reduced bottom padding for tighter layout */
     border-radius: 20px;
     display: flex;
     flex-direction: column;
@@ -167,7 +167,7 @@
   /* Metrics Section */
   .card-metrics {
     width: 100%;
-    margin-bottom: 20px;
+    margin-bottom: 10px; /* Reduced for tighter spacing */
     text-align: left;
     padding-left: 10px; /* Align with text above */
   }
