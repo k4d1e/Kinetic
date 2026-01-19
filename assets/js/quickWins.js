@@ -18,8 +18,9 @@ function generateProblemDescription(item) {
   
   /**
    * Render all Module 1 cards (Quick Wins + Cannibalization)
+   * @param {boolean} groupByType - If true, show cannibalization first, then quick wins
    */
-  function renderAllModule1Cards(cardTrack, quickWins, cannibalization) {
+  function renderAllModule1Cards(cardTrack, quickWins, cannibalization, groupByType = false) {
     // Clear existing cards
     cardTrack.innerHTML = '';
     
@@ -36,19 +37,33 @@ function generateProblemDescription(item) {
       return;
     }
     
-    // Generate Quick Wins cards
-    quickWins.forEach(item => {
-      const card = createQuickWinCard(item);
-      cardTrack.appendChild(card);
-    });
-    
-    // Generate Cannibalization cards
-    cannibalization.forEach(item => {
-      const card = createCannibalizationCard(item);
-      cardTrack.appendChild(card);
-    });
-    
-    console.log(`✓ Generated ${quickWins.length} Quick Win cards + ${cannibalization.length} Cannibalization cards`);
+    if (groupByType) {
+      // Type sort: Show Cannibalization cards first, then Quick Wins
+      cannibalization.forEach(item => {
+        const card = createCannibalizationCard(item);
+        cardTrack.appendChild(card);
+      });
+      
+      quickWins.forEach(item => {
+        const card = createQuickWinCard(item);
+        cardTrack.appendChild(card);
+      });
+      
+      console.log(`✓ Grouped by type: ${cannibalization.length} Cannibalization + ${quickWins.length} Quick Wins`);
+    } else {
+      // Default: Mix cards maintaining their sort order
+      quickWins.forEach(item => {
+        const card = createQuickWinCard(item);
+        cardTrack.appendChild(card);
+      });
+      
+      cannibalization.forEach(item => {
+        const card = createCannibalizationCard(item);
+        cardTrack.appendChild(card);
+      });
+      
+      console.log(`✓ Generated ${quickWins.length} Quick Win cards + ${cannibalization.length} Cannibalization cards`);
+    }
   }
 
   /**
@@ -145,7 +160,7 @@ function generateProblemDescription(item) {
   // Store the full dataset globally so we can re-sort
   let quickWinsDataset = [];
   let cannibalizationDataset = [];
-  let currentSortMode = 'impressions'; // 'impressions' or 'rank'
+  let currentSortMode = 'impressions'; // 'impressions', 'rank', or 'type'
 /**
  * Populate Module 1 with both Quick Wins and Cannibalization cards
  */
@@ -243,7 +258,33 @@ function renderQuickWinsCards(cardTrack, data) {
   }
   
   /**
-   * Sort the dataset based on current mode
+   * Sort the datasets based on current mode
+   * @returns {Object} - Object with sorted quickWins and cannibalization arrays
+   */
+  function sortModule1Cards(quickWins, cannibalization, mode) {
+    let sortedQuickWins = [...quickWins];
+    let sortedCannibalization = [...cannibalization];
+    
+    if (mode === 'impressions') {
+      // Sort Quick Wins by impressions descending (highest first)
+      sortedQuickWins.sort((a, b) => b.impressions - a.impressions);
+      // Sort Cannibalization by page count (most competing pages first)
+      sortedCannibalization.sort((a, b) => b.pageCount - a.pageCount);
+    } else if (mode === 'rank') {
+      // Sort Quick Wins by position ascending (best ranking first)
+      sortedQuickWins.sort((a, b) => a.position - b.position);
+      // Sort Cannibalization by best ranking page position
+      sortedCannibalization.sort((a, b) => a.pages[0].position - b.pages[0].position);
+    } else if (mode === 'type') {
+      // No special sorting within each type, just return as-is
+      // Cards will be rendered with Cannibalization first, then Quick Wins
+    }
+    
+    return { quickWins: sortedQuickWins, cannibalization: sortedCannibalization };
+  }
+  
+  /**
+   * Sort the dataset based on current mode (legacy - for Quick Wins only)
    */
   function sortQuickWins(data, mode) {
     const sorted = [...data]; // Create a copy
@@ -271,19 +312,29 @@ function renderQuickWinsCards(cardTrack, data) {
     }
     
     toggleBtn.addEventListener('click', () => {
-      // Toggle sort mode
-      currentSortMode = currentSortMode === 'impressions' ? 'rank' : 'impressions';
+      // Cycle through sort modes: impressions -> rank -> type -> impressions
+      if (currentSortMode === 'impressions') {
+        currentSortMode = 'rank';
+      } else if (currentSortMode === 'rank') {
+        currentSortMode = 'type';
+      } else {
+        currentSortMode = 'impressions';
+      }
       
       // Update button label
       const label = toggleBtn.querySelector('.sort-label');
       if (label) {
-        label.textContent = currentSortMode === 'impressions' 
-          ? 'Sort: High Volume' 
-          : 'Sort: Best Rank';
+        if (currentSortMode === 'impressions') {
+          label.textContent = 'Sort: High Volume';
+        } else if (currentSortMode === 'rank') {
+          label.textContent = 'Sort: Best Rank';
+        } else {
+          label.textContent = 'Sort: Type';
+        }
       }
       
-      // Re-sort and re-render
-      const sortedData = sortQuickWins(quickWinsDataset, currentSortMode);
+      // Re-sort and re-render both datasets
+      const sorted = sortModule1Cards(quickWinsDataset, cannibalizationDataset, currentSortMode);
       
       // Find card track
       const modules = document.querySelectorAll('.module-container');
@@ -292,7 +343,14 @@ function renderQuickWinsCards(cardTrack, data) {
         if (title && title.textContent.trim() === 'SEO Quick Fixes') {
           const cardTrack = module.querySelector('.card-track');
           if (cardTrack) {
-            renderQuickWinsCards(cardTrack, sortedData);
+            // Render based on sort mode
+            if (currentSortMode === 'type') {
+              // Cannibalization first, then Quick Wins
+              renderAllModule1Cards(cardTrack, sorted.quickWins, sorted.cannibalization, true);
+            } else {
+              // Mixed based on sort criteria
+              renderAllModule1Cards(cardTrack, sorted.quickWins, sorted.cannibalization, false);
+            }
             attachQuickFixListeners(); // Re-attach listeners to new buttons
           }
           break;
