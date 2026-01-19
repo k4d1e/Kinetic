@@ -908,6 +908,13 @@ const displayKeywords = keywords.map((kw, index) => {
     });
     
     console.log(`✓ Module 3 populated with ${data.length} AI visibility opportunities`);
+    
+    // Initialize modal handlers after cards are rendered
+    setTimeout(() => {
+      if (window.initAIOptimizationModal) {
+        window.initAIOptimizationModal();
+      }
+    }, 100);
   }
   
   /**
@@ -993,6 +1000,364 @@ const displayKeywords = keywords.map((kw, index) => {
   
   // Make functions globally available
   window.populateAIVisibilityCards = populateAIVisibilityCards;
+  
+  /**
+   * ============================================================
+   * AI OPTIMIZATION MODAL FUNCTIONS
+   * ============================================================
+   */
+  
+  // Store AI visibility dataset
+  let aiVisibilityDataset = [];
+  
+  /**
+   * Initialize AI Optimization modal handlers
+   */
+  function initAIOptimizationModal() {
+    // Store the dataset
+    aiVisibilityDataset = window.aiVisibilityData || [];
+    
+    // Add event listeners to all Optimize buttons
+    const buttons = document.querySelectorAll('.btn-optimize');
+    buttons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const query = e.target.dataset.query;
+        const topic = e.target.dataset.topic;
+        const geoScore = e.target.dataset.score;
+        handleAIOptimize(query, topic, geoScore);
+      });
+    });
+    
+    // Modal navigation
+    setupAIModalNavigation();
+  }
+  
+  /**
+   * Handle Optimize button click
+   */
+  function handleAIOptimize(query, topic, geoScore) {
+    // Find the item data
+    const item = aiVisibilityDataset.find(i => i.query === query);
+    
+    if (!item) {
+      console.error('Item not found for AI Optimize');
+      return;
+    }
+    
+    // Generate optimization steps based on signal type and GEO score
+    const steps = generateAIOptimizationSteps(item);
+    
+    openAIOptimizeModal(item, steps);
+  }
+  
+  /**
+   * Generate AI optimization workflow steps
+   */
+  function generateAIOptimizationSteps(item) {
+    const { query, signalType, geoScore, page, position } = item;
+    
+    const steps = [];
+    
+    // Step 1: Identify the Answer Block Location
+    steps.push({
+      title: 'Identify Answer Block Location',
+      icon: '🎯',
+      description: `Locate where to add the concise answer block on your page for "${query}".`,
+      tasks: [
+        `Navigate to: <code>${truncateURL(page)}</code>`,
+        `Find the main content area discussing "${query.substring(0, 50)}..."`,
+        `Look for the section that currently ranks at position ${position}`,
+        `Identify the best location (usually near the top or H2 heading) for your answer block`
+      ]
+    });
+    
+    // Step 2: Create the Answer Block (based on signal type)
+    const answerGuidance = getAnswerGuidanceBySignalType(signalType, query);
+    steps.push({
+      title: 'Create Concise Answer Block',
+      icon: '✍️',
+      description: answerGuidance.description,
+      tasks: answerGuidance.tasks
+    });
+    
+    // Step 3: Structure for LLM Extraction
+    steps.push({
+      title: 'Optimize for LLM Extraction',
+      icon: '🤖',
+      description: 'Format your content so AI models can easily extract and cite it.',
+      tasks: [
+        'Use clear heading hierarchy (H2 or H3 for the answer section)',
+        'Keep the answer block to 40-60 words for optimal extraction',
+        'Use bullet points or numbered lists for multi-part answers',
+        'Include relevant statistics, dates, or specific numbers',
+        'Add schema markup if applicable (FAQ, HowTo, etc.)',
+        'Ensure the answer can stand alone without surrounding context'
+      ]
+    });
+    
+    // Step 4: Add Authority Signals
+    steps.push({
+      title: 'Strengthen Authority Markers',
+      icon: '⭐',
+      description: 'Add credibility signals that LLMs recognize and value.',
+      tasks: [
+        'Include author credentials or business certifications',
+        'Add publication or last updated dates',
+        'Reference industry standards or regulations',
+        'Link to authoritative sources if making claims',
+        'Include years of experience or service area',
+        'Add customer testimonials or case study data related to this topic'
+      ]
+    });
+    
+    return steps;
+  }
+  
+  /**
+   * Get answer guidance based on signal type
+   */
+  function getAnswerGuidanceBySignalType(signalType, query) {
+    const guidance = {
+      'How': {
+        description: 'Create a step-by-step answer block that directly addresses the "how" question.',
+        tasks: [
+          'Start with a direct answer: "To [accomplish goal], follow these steps:"',
+          'Use numbered list format (3-5 clear steps)',
+          'Keep each step concise (1-2 sentences)',
+          'Include time estimates or difficulty level',
+          'End with expected outcome or result'
+        ]
+      },
+      'What': {
+        description: 'Provide a clear, definition-style answer that explains the concept.',
+        tasks: [
+          'Start with: "[Term] is..." or "[Term] refers to..."',
+          'Define in 2-3 sentences (40-50 words)',
+          'Explain why it matters or key benefits',
+          'Use analogies or examples if helpful',
+          'Avoid jargon; use plain language'
+        ]
+      },
+      'Why': {
+        description: 'Create a reasons-based answer highlighting key benefits or causes.',
+        tasks: [
+          'Open with the main reason or benefit',
+          'List 3-4 key reasons in bullet points',
+          'Include supporting data or statistics',
+          'Address common concerns or objections',
+          'Conclude with the strongest benefit'
+        ]
+      },
+      'Cost': {
+        description: 'Provide transparent, structured pricing information.',
+        tasks: [
+          'State typical cost range upfront: "$X - $Y"',
+          'List 3-4 factors that affect pricing',
+          'Break down cost by tier or category if applicable',
+          'Include average or most common price point',
+          'Mention any warranties or guarantees included'
+        ]
+      },
+      'When': {
+        description: 'Specify timeframes, schedules, or optimal timing.',
+        tasks: [
+          'Provide direct timing answer in first sentence',
+          'List seasonal considerations or best times',
+          'Include duration or how long it takes',
+          'Mention any time-sensitive factors',
+          'Reference industry standards for timing'
+        ]
+      },
+      'Where': {
+        description: 'Clarify location, service area, or geographic information.',
+        tasks: [
+          'State primary service area clearly',
+          'List specific cities, counties, or regions',
+          'Include radius or coverage map reference',
+          'Mention any location-specific expertise',
+          'Add local landmarks or area identifiers'
+        ]
+      },
+      'Who': {
+        description: 'Establish expertise and identify the right professional.',
+        tasks: [
+          'Start with credential or specialization',
+          'List relevant certifications or licenses',
+          'Include years of experience in this area',
+          'Mention team size or expertise areas',
+          'Reference notable projects or clients'
+        ]
+      },
+      'Lifespan': {
+        description: 'Provide specific duration data and longevity information.',
+        tasks: [
+          'State typical lifespan upfront: "X years on average"',
+          'List factors that extend or reduce lifespan',
+          'Include range: "typically between X-Y years"',
+          'Mention maintenance requirements',
+          'Compare to alternatives if relevant'
+        ]
+      },
+      'Warranty': {
+        description: 'Detail warranty and guarantee information clearly.',
+        tasks: [
+          'State warranty length in opening: "X-year warranty"',
+          'List what\'s covered vs. not covered',
+          'Explain claim or service process',
+          'Mention any extended warranty options',
+          'Include manufacturer vs. workmanship warranties'
+        ]
+      }
+    };
+    
+    return guidance[signalType] || {
+      description: 'Create a direct, concise answer to the user\'s question.',
+      tasks: [
+        'Answer the question in the first 2-3 sentences',
+        'Use 40-60 words total for the answer block',
+        'Include specific details, numbers, or examples',
+        'Structure with clear headings or bullet points',
+        'Ensure it can be quoted as a standalone answer'
+      ]
+    };
+  }
+  
+  /**
+   * Open AI Optimization modal
+   */
+  function openAIOptimizeModal(item, steps) {
+    const modal = document.getElementById('ai-optimize-modal');
+    if (!modal) return;
+    
+    // Store current workflow
+    modal.dataset.currentStep = '0';
+    modal.dataset.totalSteps = steps.length.toString();
+    modal.dataset.steps = JSON.stringify(steps);
+    modal.dataset.query = item.query;
+    modal.dataset.topic = item.topic;
+    
+    // Update modal header
+    document.getElementById('ai-topic').textContent = item.topic;
+    document.getElementById('ai-geo-score').textContent = item.geoScore;
+    
+    // Update progress
+    document.getElementById('ai-total-steps').textContent = steps.length;
+    
+    // Show first step
+    showAIStep(0, steps);
+    
+    // Show modal
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  
+  /**
+   * Show a specific step in the AI modal
+   */
+  function showAIStep(stepIndex, steps) {
+    const step = steps[stepIndex];
+    const contentDiv = document.getElementById('ai-step-content');
+    
+    // Build tasks HTML
+    const tasksHTML = step.tasks.map(task => `<li>${task}</li>`).join('');
+    
+    contentDiv.innerHTML = `
+      <div class="step-header">
+        <span class="step-icon">${step.icon}</span>
+        <h3 class="step-title">${step.title}</h3>
+      </div>
+      <p class="step-description">${step.description}</p>
+      <ul class="step-tasks">
+        ${tasksHTML}
+      </ul>
+    `;
+    
+    // Update progress bar
+    const progress = ((stepIndex + 1) / steps.length) * 100;
+    document.getElementById('ai-progress-fill').style.width = progress + '%';
+    document.getElementById('ai-current-step').textContent = stepIndex + 1;
+    
+    // Update button visibility
+    const prevBtn = document.getElementById('ai-btn-prev');
+    const nextBtn = document.getElementById('ai-btn-next');
+    const completeBtn = document.getElementById('ai-btn-complete');
+    
+    prevBtn.style.visibility = stepIndex > 0 ? 'visible' : 'hidden';
+    
+    if (stepIndex === steps.length - 1) {
+      nextBtn.style.display = 'none';
+      completeBtn.style.display = 'inline-block';
+    } else {
+      nextBtn.style.display = 'inline-block';
+      completeBtn.style.display = 'none';
+    }
+  }
+  
+  /**
+   * Setup AI modal navigation
+   */
+  function setupAIModalNavigation() {
+    const modal = document.getElementById('ai-optimize-modal');
+    if (!modal) return;
+    
+    // Close button
+    const closeBtn = modal.querySelector('.modal-close');
+    closeBtn.addEventListener('click', () => {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    });
+    
+    // Click outside to close
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    });
+    
+    // Previous button
+    document.getElementById('ai-btn-prev').addEventListener('click', () => {
+      const currentStep = parseInt(modal.dataset.currentStep);
+      const steps = JSON.parse(modal.dataset.steps);
+      
+      if (currentStep > 0) {
+        modal.dataset.currentStep = (currentStep - 1).toString();
+        showAIStep(currentStep - 1, steps);
+      }
+    });
+    
+    // Next button
+    document.getElementById('ai-btn-next').addEventListener('click', () => {
+      const currentStep = parseInt(modal.dataset.currentStep);
+      const steps = JSON.parse(modal.dataset.steps);
+      
+      if (currentStep < steps.length - 1) {
+        modal.dataset.currentStep = (currentStep + 1).toString();
+        showAIStep(currentStep + 1, steps);
+      }
+    });
+    
+    // Complete button
+    document.getElementById('ai-btn-complete').addEventListener('click', () => {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+      
+      // Could add completion tracking here
+      console.log('✓ AI Optimization completed for:', modal.dataset.query);
+    });
+  }
+  
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(initAIOptimizationModal, 500);
+    });
+  } else {
+    setTimeout(initAIOptimizationModal, 500);
+  }
+  
+  // Also expose for manual initialization after cards are populated
+  window.initAIOptimizationModal = initAIOptimizationModal;
   
   // Export functions
   if (typeof module !== 'undefined' && module.exports) {
