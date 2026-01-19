@@ -621,6 +621,44 @@
         </div>
     </div>
 
+    <!-- AI Optimization Modal -->
+    <div id="ai-optimize-modal" class="modal-overlay">
+        <div class="modal-content">
+            <header class="modal-header">
+                <div class="modal-title-group">
+                    <h2 class="modal-title">AI Optimization: <span id="ai-topic"></span></h2>
+                    <span class="modal-subtitle">GEO Score: <span id="ai-geo-score"></span> → Target: 70+</span>
+                </div>
+                <button class="modal-close" aria-label="Close modal">&times;</button>
+            </header>
+            
+            <div class="modal-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="ai-progress-fill"></div>
+                </div>
+                <span class="progress-text">Step <span id="ai-current-step">1</span> of <span id="ai-total-steps">4</span></span>
+            </div>
+            
+            <div class="modal-body">
+                <div class="step-content" id="ai-step-content">
+                    <!-- Dynamic content loaded here -->
+                </div>
+            </div>
+            
+            <footer class="modal-footer">
+                <button class="btn-modal-secondary" id="ai-btn-prev" style="visibility: hidden;">
+                    ← Back
+                </button>
+                <button class="btn-modal-primary" id="ai-btn-next">
+                    Next Step →
+                </button>
+                <button class="btn-modal-success" id="ai-btn-complete" style="display: none;">
+                    Mark Complete ✓
+                </button>
+            </footer>
+        </div>
+    </div>
+
     <script src="assets/js/apiService.js"></script>
     <script src="assets/js/quickWins.js"></script>
     <script src="assets/js/onboarding.js"></script>
