@@ -4,16 +4,16 @@
  * Generate problem description based on keyword metrics
  */
 function generateProblemDescription(item) {
-    const { position, impressions, ctr, keywordDifficulty } = item;
+    const { position, impressions, clicks, ctr } = item;
     
     // Generate contextual problem statement
     if (position >= 6 && position <= 10) {
-      return `This keyword is ranking on page 1 (position ${position}) with ${impressions} impressions but only ${ctr} CTR. Low competition (KD: ${keywordDifficulty}) makes this a quick win opportunity.`;
-    } else if (position > 10 && position <= 15) {
-      return `Currently ranking on page 2 (position ${position}) with ${impressions} monthly impressions. With KD of ${keywordDifficulty}, minor optimizations could push this to page 1.`;
-    } else {
-      return `Ranking at position ${position} with ${impressions} impressions. Low keyword difficulty (${keywordDifficulty}) indicates easy opportunity to improve rankings.`;
-    }
+        return `This keyword is ranking on page 1 (position ${position}) with ${impressions} impressions and ${clicks} clicks (${ctr} CTR). Improving your title and meta description could significantly increase traffic.`;
+      } else if (position > 10 && position <= 15) {
+        return `Currently ranking on page 2 (position ${position}) with ${impressions} monthly impressions but only ${clicks} clicks. Minor on-page optimizations could push this to page 1 and capture more traffic.`;
+      } else {
+        return `Ranking at position ${position} with ${impressions} impressions and ${clicks} clicks. This keyword shows strong search volume - optimize content to move up rankings and capture more clicks.`;
+      }
   }
   
   /**
@@ -38,7 +38,8 @@ function generateProblemDescription(item) {
       <div class="card-metrics">
         <div class="metric-row">Rank: <span class="metric-var">${item.position}</span></div>
         <div class="metric-row">Page: <span class="metric-var">${truncateUrl(item.page)}</span></div>
-        <div class="metric-row">KD: <span class="metric-var">${item.keywordDifficulty}</span></div>
+        <div class="metric-row">Impressions: <span class="metric-var">${item.impressions.toLocaleString()}</span></div>
+        <div class="metric-row">Clicks: <span class="metric-var">${item.clicks}</span></div>
       </div>
       <button class="btn-quick-fix" data-keyword="${item.keyword}" data-page="${item.page}">
         Quick Fix
