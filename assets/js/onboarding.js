@@ -357,8 +357,8 @@ class OnboardingUI {
     try {
       const siteURL = this.stateMachine.selectedProperty;
 
-      // fetch quick wins data
-      const quickWins = await this.stateMachine.api.getMetricData('quick-wins', siteURL);
+      // fetch quick wins data with cache refresh during calibration
+      const quickWins = await this.stateMachine.api.getMetricData('quick-wins', siteURL, true);
 
       // populate the cards (this happens while modal is still open)
       populateQuickWinsCards(quickWins);

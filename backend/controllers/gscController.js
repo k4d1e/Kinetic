@@ -122,7 +122,7 @@ async function getMetricData(req, res) {
     const pool = req.app.locals.pool;
     const userId = req.user.id;
     const { metric } = req.params;
-    const { siteUrl } = req.query;
+    const { siteUrl, refresh } = req.query;
 
     if (!siteUrl) {
       return res.status(400).json({
@@ -145,6 +145,16 @@ async function getMetricData(req, res) {
     }
 
     const propertyId = propertyResult.rows[0].id;
+    
+    // Check if cache refresh is requested
+    if (refresh === 'true') {
+      console.log('🔄 Cache refresh requested - clearing cache for', metric);
+      await pool.query(
+        'DELETE FROM gsc_analytics_cache WHERE property_id = $1 AND metric_type = $2',
+        [propertyId, metric === 'quick-wins' ? 'quick_wins' : metric]
+      );
+    }
+    
     let data;
 
     // Fetch data based on metric type
