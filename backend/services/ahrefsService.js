@@ -8,31 +8,36 @@
  */
 async function getKeywordDifficulty(keyword, country = 'us') {
     try {
-      // Option 1: Using Ahrefs MCP Server (if available)
-      // This assumes you have Ahrefs MCP server running
-      const mcpResponse = await fetch('http://localhost:3001/ahrefs/keyword-difficulty', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ keyword, country })
-      });
+      const AHREFS_API_TOKEN = process.env.AHREFS_API_TOKEN;
+    
+      if (!AHREFS_API_TOKEN) {
+        console.warn('⚠️  AHREFS_API_TOKEN not set');
+        return null;
+      }
+
+      // Using Ahrefs API v3
+      const response = await fetch(
+        `https://api.ahrefs.com/v3/keywords-explorer/overview?select=keyword_difficulty&keyword=${encodeURIComponent(keyword)}&country=${country}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${AHREFS_API_TOKEN}`,
+            'Accept': 'application/json'
+          }
+        }
+      );
   
-      if (!mcpResponse.ok) {
-        throw new Error('Failed to fetch KD from Ahrefs MCP');
+      if (!response.ok) {
+        throw new Error(`Ahrefs API returned ${response.status}`);
       }
   
-      const data = await mcpResponse.json();
-      return data.keyword_difficulty || 0;
-  
-      // Option 2: Direct Ahrefs API (if you have API key)
-      // const response = await fetch(
-      //   `https://apiv2.ahrefs.com?from=keyword_difficulty&target=${encodeURIComponent(keyword)}&mode=exact&country=${country}&token=YOUR_API_KEY`
-      // );
-      // const data = await response.json();
-      // return data.keyword_difficulty || 0;
+      const data = await response.json();
+      // The response structure might be data.keyword_difficulty or data[0]?.keyword_difficulty
+      const kd = data?.keyword_difficulty ?? data?.[0]?.keyword_difficulty ?? null;
+      return kd;
   
     } catch (error) {
       console.error(`Error fetching KD for "${keyword}":`, error.message);
-      return null; // Return null if KD fetch fails
+      return null;
     }
   }
   

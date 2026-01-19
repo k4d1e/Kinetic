@@ -102,9 +102,9 @@ async function analyzeQuickWins(pool, userId, siteUrl) {
       .filter(row => {
         const position = row.position;
         const impressions = row.impressions;
-        return position >= 6.0 && position <= 20.0 && impressions >= 30;
+        return position >= 6.0 && position <= 20.0 && impressions >= 10;
       })
-      .sort((a, b) => b.impressions - a.impressions)
+      .sort((a, b) => b.impressions - a.impressions) // sort by highest number of impressions
       .slice(0, 50) // Limit to top 50 opportunities
       .map(row => ({
         keyword: row.keys[0],
