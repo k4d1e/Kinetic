@@ -404,7 +404,7 @@ class OnboardingUI {
       { id: 'check-2', delay: 1000 },  // Already completed
       { id: 'check-3', delay: 2000, action: 'loadQuickWins' },  // Quick Wins - fetch data
       { id: 'check-4', delay: 1500, action: 'loadCannibalization' },  // Cannibalization - fetch data
-      { id: 'check-5', delay: 2500 },  // Untapped Markets
+      { id: 'check-5', delay: 1500, action: 'loadUntappedMarkets' },  // Untapped Markets - fetch data
       { id: 'check-6', delay: 2500 },  // AI Citation
       { id: 'check-7', delay: 2500 }   // Local Visibility
     ];
@@ -446,6 +446,17 @@ class OnboardingUI {
             // Ensure spinner shows for at least 1.5 seconds
             const minDelay = this.stateMachine.delay(1500);
             const dataLoad = this.loadCannibalizationModule();
+            
+            // Wait for both the minimum delay AND the data to load
+            await Promise.all([minDelay, dataLoad]);
+            
+            // Only complete after data is loaded and cards are populated
+            item.classList.remove('loading');
+            item.classList.add('completed');
+          } else if (checklistItems[i].action === 'loadUntappedMarkets') {
+            // Ensure spinner shows for at least 1.5 seconds
+            const minDelay = this.stateMachine.delay(1500);
+            const dataLoad = this.loadUntappedMarketsModule();
             
             // Wait for both the minimum delay AND the data to load
             await Promise.all([minDelay, dataLoad]);
@@ -531,6 +542,31 @@ class OnboardingUI {
       window.cannibalizationData = [];
       // Still populate with just Quick Wins if cannibalization fails
       this.populateModule1Cards();
+    }
+  }
+
+  async loadUntappedMarketsModule() {
+    try {
+      const siteURL = this.stateMachine.selectedProperty;
+
+      // fetch untapped markets data with cache refresh during calibration
+      const untappedMarkets = await this.stateMachine.api.getMetricData('untapped-markets', siteURL, true);
+
+      // Store in window
+      window.untappedMarketsData = untappedMarkets || [];
+      
+      // Cache to localStorage
+      localStorage.setItem('kinetic_untapped_markets_data', JSON.stringify(untappedMarkets || []));
+      
+      console.log('✓ Untapped Markets data loaded:', untappedMarkets.length, 'opportunities');
+      
+      // Populate Module 2 cards
+      if (window.populateUntappedMarketsCards) {
+        window.populateUntappedMarketsCards(untappedMarkets);
+      }
+    } catch (error) {
+      console.error('Error loading untapped markets module:', error);
+      window.untappedMarketsData = [];
     }
   }
 

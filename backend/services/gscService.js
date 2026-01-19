@@ -232,11 +232,189 @@ async function getCachedOrFetch(pool, propertyId, metricType, fetchFunction) {
   }
 }
 
+/**
+ * Analyze untapped markets - keywords with demand but no dedicated pages
+ * @param {Pool} pool - PostgreSQL connection pool
+ * @param {number} userId - User ID
+ * @param {string} siteUrl - GSC property URL
+ * @returns {Promise<Array>} - List of untapped market opportunities
+ */
+async function analyzeUntappedMarkets(pool, userId, siteUrl) {
+  try {
+    // Get domain from siteUrl for brand filtering
+    const domain = siteUrl.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+    const brandName = domain.split('.')[0];
+
+    const data = await fetchSearchAnalytics(pool, userId, siteUrl, {
+      startDate: getDateDaysAgo(28),
+      endDate: getDateDaysAgo(0),
+      dimensions: ['query', 'page'],
+      rowLimit: 5000
+    });
+
+    if (!data || !data.rows) {
+      console.log('⚠️  No data found for untapped markets analysis');
+      return [];
+    }
+
+    console.log(`📊 Analyzing ${data.rows.length} total rows for untapped markets`);
+
+    // Filter for potential untapped markets
+    // Criteria: Impressions > 100, Position > 30 (not ranking well), exclude brand/generic
+    const filtered = data.rows.filter(row => {
+      const impressions = row.impressions || 0;
+      const position = row.position || 0;
+      const query = (row.keys[0] || '').toLowerCase();
+      
+      // Basic filters
+      if (impressions <= 100 || position <= 30) return false;
+      
+      // Exclude brand name
+      if (query.includes(brandName.toLowerCase())) return false;
+      
+      // Exclude generic terms unless they have specific modifiers
+      const genericTerms = ['contractor', 'company', 'near me', 'in my area'];
+      const hasGeneric = genericTerms.some(term => query.includes(term));
+      
+      // If it has a generic term, it must also have a specific modifier
+      if (hasGeneric) {
+        const specificModifiers = ['installation', 'repair', 'replacement', 'maintenance', 'service', 'cost', 'price'];
+        const hasModifier = specificModifiers.some(mod => query.includes(mod));
+        if (!hasModifier) return false;
+      }
+      
+      return true;
+    });
+
+    console.log(`✓ ${filtered.length} keywords after filtering (impressions >100, position >30, excluded brand/generic)`);
+
+    // Cluster keywords by topic using simple keyword analysis
+    const clusters = clusterKeywords(filtered);
+    
+    console.log(`✓ Grouped into ${clusters.length} topic clusters`);
+
+    // Calculate potential for each cluster
+    const opportunities = clusters.map(cluster => {
+      const clusterVolume = cluster.keywords.reduce((sum, kw) => sum + kw.impressions, 0);
+      const avgPosition = cluster.keywords.reduce((sum, kw) => sum + kw.position, 0) / cluster.keywords.length;
+      
+      // Calculate commercial intent
+      const highIntentTerms = ['installation', 'repair', 'replacement', 'cost', 'price', 'service', 'install', 'replace'];
+      const commercialKeywords = cluster.keywords.filter(kw => 
+        highIntentTerms.some(term => kw.keyword.toLowerCase().includes(term))
+      );
+      const commercialIntentScore = (commercialKeywords.length / cluster.keywords.length) * 100;
+      
+      // Calculate potential: High (>1000 vol + high intent), Medium (>500 vol OR high intent), Low (rest)
+      let potential = 'Low';
+      if (clusterVolume > 1000 && commercialIntentScore > 40) {
+        potential = 'High';
+      } else if (clusterVolume > 500 || commercialIntentScore > 50) {
+        potential = 'Medium';
+      }
+      
+      // Get top keywords for the description
+      const topKeywords = cluster.keywords
+        .sort((a, b) => b.impressions - a.impressions)
+        .slice(0, 5)
+        .map(kw => kw.keyword);
+      
+      return {
+        topic: cluster.topic,
+        keywords: topKeywords,
+        allKeywords: cluster.keywords,
+        clusterVolume,
+        avgPosition: Math.round(avgPosition * 10) / 10,
+        commercialIntent: Math.round(commercialIntentScore),
+        potential,
+        keywordCount: cluster.keywords.length
+      };
+    });
+
+    // Sort by potential (High > Medium > Low) and cluster volume
+    const potentialOrder = { 'High': 3, 'Medium': 2, 'Low': 1 };
+    opportunities.sort((a, b) => {
+      const potentialDiff = potentialOrder[b.potential] - potentialOrder[a.potential];
+      return potentialDiff !== 0 ? potentialDiff : b.clusterVolume - a.clusterVolume;
+    });
+
+    console.log(`✓ Found ${opportunities.length} untapped market opportunities`);
+    return opportunities.slice(0, 20); // Return top 20
+
+  } catch (error) {
+    console.error('Error analyzing untapped markets:', error);
+    return [];
+  }
+}
+
+/**
+ * Cluster keywords by topic using simple NLP-like analysis
+ */
+function clusterKeywords(keywords) {
+  const clusters = [];
+  const processed = new Set();
+  
+  keywords.forEach(row => {
+    const keyword = row.keys[0];
+    if (processed.has(keyword)) return;
+    
+    // Extract main topic from keyword (remove common words, find core terms)
+    const topic = extractTopic(keyword);
+    
+    // Find or create cluster
+    let cluster = clusters.find(c => c.topic.toLowerCase() === topic.toLowerCase());
+    if (!cluster) {
+      cluster = { topic, keywords: [] };
+      clusters.push(cluster);
+    }
+    
+    cluster.keywords.push({
+      keyword: keyword,
+      page: row.keys[1] || '',
+      impressions: row.impressions || 0,
+      clicks: row.clicks || 0,
+      position: row.position || 0
+    });
+    
+    processed.add(keyword);
+  });
+  
+  // Filter out small clusters (less than 3 keywords)
+  return clusters.filter(c => c.keywords.length >= 3);
+}
+
+/**
+ * Extract main topic from keyword
+ */
+function extractTopic(keyword) {
+  const stopWords = ['how', 'what', 'where', 'when', 'why', 'who', 'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'from', 'as', 'is', 'was', 'are', 'my', 'your', 'best', 'top', 'near', 'me'];
+  
+  const words = keyword.toLowerCase().split(/\s+/);
+  const meaningful = words.filter(w => !stopWords.includes(w) && w.length > 2);
+  
+  // Look for service-type keywords
+  const serviceTerms = ['installation', 'repair', 'replacement', 'maintenance', 'service', 'install', 'replace', 'fix'];
+  const serviceWord = meaningful.find(w => serviceTerms.some(s => w.includes(s)));
+  
+  // If we have a service term, combine it with the main noun
+  if (serviceWord) {
+    const otherWords = meaningful.filter(w => w !== serviceWord);
+    if (otherWords.length > 0) {
+      return `${otherWords[0]} ${serviceWord}`.replace(/s$/, ''); // Capitalize first letter later
+    }
+    return serviceWord;
+  }
+  
+  // Otherwise, take first 2-3 meaningful words
+  return meaningful.slice(0, 2).join(' ');
+}
+
 module.exports = {
   fetchUserProperties,
   fetchSearchAnalytics,
   analyzeQuickWins,
   analyzeCannibalization,
+  analyzeUntappedMarkets,
   getCachedOrFetch,
   getDateDaysAgo
 };

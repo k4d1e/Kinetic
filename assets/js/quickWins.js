@@ -774,7 +774,102 @@ function renderQuickWinsCards(cardTrack, data) {
     }
   });
   
+  // ======================
+  // UNTAPPED MARKETS (Module 2)
+  // ======================
+  
+  /**
+   * Populate Module 2: Untapped Markets cards
+   */
+  async function populateUntappedMarketsCards(data) {
+    if (!data || data.length === 0) {
+      console.log('⚠️ No untapped markets data to display');
+      return;
+    }
+    
+    console.log(`📊 Populating Module 2 with ${data.length} untapped market opportunities`);
+    
+    // Find the New Markets module card track
+    const modules = document.querySelectorAll('.module-container');
+    let cardTrack = null;
+    
+    for (const module of modules) {
+      const title = module.querySelector('.module-title');
+      if (title && title.textContent.trim() === 'New Markets') {
+        cardTrack = module.querySelector('.card-track');
+        break;
+      }
+    }
+    
+    if (!cardTrack) {
+      console.error('Card track container not found for New Markets module');
+      return;
+    }
+    
+    // Clear existing placeholder cards
+    cardTrack.innerHTML = '';
+    
+    // Generate and append market cards
+    data.forEach(opportunity => {
+      const card = createUntappedMarketCard(opportunity);
+      cardTrack.appendChild(card);
+    });
+    
+    console.log(`✓ Module 2 populated with ${data.length} untapped market opportunities`);
+  }
+  
+  /**
+   * Create a single untapped market card
+   */
+  function createUntappedMarketCard(opportunity) {
+    const { topic, keywords, clusterVolume, potential, commercialIntent, avgPosition } = opportunity;
+    
+    const card = document.createElement('article');
+    card.className = 'market-card';
+    
+    // Capitalize topic
+    const topicTitle = topic.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    
+    // Get potential class and label
+    const potentialClass = `metric-value-${potential.toLowerCase()}`;
+    
+    // Format keywords for display (show top 3-5)
+    const displayKeywords = keywords.slice(0, 5).map((kw, index) => {
+      if (index < keywords.length - 1 && index < 4) {
+        return `${kw} +`;
+      }
+      return kw;
+    }).join('<br>');
+    
+    card.innerHTML = `
+      <h3 class="card-title">${topicTitle}</h3>
+      
+      <div class="keyword-group">
+        <svg class="sparkle-icon" viewBox="0 0 600 600" fill="currentColor" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+          <g transform="translate(0,600) scale(0.10,-0.10)" fill="currentColor" stroke="none">
+            <path d="M4275 5751 c-56 -26 -71 -59 -79 -171 -20 -292 -102 -546 -225 -700 -62 -78 -175 -183 -252 -235 -150 -101 -349 -159 -633 -185 -70 -6 -127 -16 -139 -25 -56 -39 -73 -114 -37 -172 25 -41 68 -63 122 -63 75 0 275 -30 375 -56 205 -53 340 -132 484 -281 89 -92 122 -136 169 -229 71 -138 111 -297 130 -509 7 -72 18 -145 26 -163 27 -64 119 -92 177 -53 48 31 56 53 67 177 26 283 84 482 185 634 67 100 224 253 313 305 154 90 344 146 572 166 164 14 164 14 198 49 39 39 49 90 25 137 -29 60 -55 71 -183 83 -296 28 -507 92 -665 205 -70 50 -207 189 -254 258 -100 147 -166 370 -190 646 -11 118 -22 149 -64 175 -39 25 -79 27 -122 7z"/>
+            <path d="M2326 4530 c-45 -29 -54 -56 -66 -201 -38 -455 -134 -783 -306 -1045 -71 -108 -275 -321 -393 -409 -153 -115 -354 -207 -576 -264 -161 -41 -272 -59 -488 -80 -204 -19 -225 -27 -251 -92 -22 -54 -8 -109 37 -143 29 -22 49 -26 167 -36 502 -41 848 -149 1110 -347 87 -65 228 -200 304 -292 229 -275 345 -609 391 -1125 19 -205 31 -236 106 -256 29 -8 46 -7 78 6 60 24 77 60 86 179 33 487 152 872 349 1136 86 113 304 323 407 391 265 174 591 270 1048 308 146 12 182 24 206 70 26 51 20 105 -18 147 l-33 36 -185 18 c-300 28 -485 65 -674 134 -251 90 -369 168 -580 380 -205 204 -292 335 -375 563 -71 193 -110 386 -139 687 l-19 189 -36 33 c-29 27 -44 33 -78 33 -26 0 -55 -8 -72 -20z"/>
+          </g>
+        </svg>
+        <p class="keyword-text">${displayKeywords}</p>
+      </div>
+      
+      <div class="market-metric">
+        Potential: <span class="${potentialClass}">${potential}</span>
+      </div>
+      
+      <button class="btn-explore" data-topic="${topic}" data-volume="${clusterVolume}" data-intent="${commercialIntent}">
+        Explore
+      </button>
+    `;
+    
+    return card;
+  }
+  
+  // Make function globally available
+  window.populateUntappedMarketsCards = populateUntappedMarketsCards;
+  
   // Export functions
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { populateQuickWinsCards, createQuickWinCard };
+    module.exports = { populateQuickWinsCards, createQuickWinCard, populateUntappedMarketsCards };
   }
