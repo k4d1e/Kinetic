@@ -621,6 +621,44 @@
         </div>
     </div>
 
+    <!-- Hub & Spoke Strategy Modal -->
+    <div id="hub-spoke-modal" class="modal-overlay">
+        <div class="modal-content">
+            <header class="modal-header">
+                <div class="modal-title-group">
+                    <h2 class="modal-title">Hub & Spoke: <span id="hub-city-name"></span></h2>
+                    <span class="modal-subtitle">Opportunity Score: <span id="hub-opportunity-score"></span></span>
+                </div>
+                <button class="modal-close" aria-label="Close modal">&times;</button>
+            </header>
+            
+            <div class="modal-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="hub-progress-fill"></div>
+                </div>
+                <span class="progress-text">Step <span id="hub-current-step">1</span> of <span id="hub-total-steps">4</span></span>
+            </div>
+            
+            <div class="modal-body">
+                <div class="step-content" id="hub-step-content">
+                    <!-- Dynamic content loaded here -->
+                </div>
+            </div>
+            
+            <footer class="modal-footer">
+                <button class="btn-modal-secondary" id="hub-btn-prev" style="visibility: hidden;">
+                    ← Back
+                </button>
+                <button class="btn-modal-primary" id="hub-btn-next">
+                    Next Step →
+                </button>
+                <button class="btn-modal-success" id="hub-btn-complete" style="display: none;">
+                    Mark Complete ✓
+                </button>
+            </footer>
+        </div>
+    </div>
+
     <!-- AI Optimization Modal -->
     <div id="ai-optimize-modal" class="modal-overlay">
         <div class="modal-content">

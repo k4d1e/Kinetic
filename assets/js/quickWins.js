@@ -1406,6 +1406,13 @@ const displayKeywords = keywords.map((kw, index) => {
     
     // Initialize accordion functionality
     initializeAccordions();
+    
+    // Initialize Hub & Spoke modal handlers after cards are rendered
+    setTimeout(() => {
+      if (window.initHubSpokeModal) {
+        window.initHubSpokeModal();
+      }
+    }, 100);
   }
   
   /**
@@ -1560,6 +1567,314 @@ const displayKeywords = keywords.map((kw, index) => {
   
   // Make functions globally available
   window.populateLocalSEOCards = populateLocalSEOCards;
+  
+  /**
+   * ============================================================
+   * HUB & SPOKE STRATEGY MODAL FUNCTIONS
+   * ============================================================
+   */
+  
+  // Store local SEO dataset
+  let localSEODataset = [];
+  
+  /**
+   * Initialize Hub & Spoke modal handlers
+   */
+  function initHubSpokeModal() {
+    // Store the dataset
+    localSEODataset = window.localSEOData || [];
+    
+    // Add event listeners to all View Hub & Spoke Strategy buttons
+    const buttons = document.querySelectorAll('.btn-expand-city');
+    buttons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const cityName = e.target.dataset.city;
+        handleHubSpokeStrategy(cityName);
+      });
+    });
+    
+    // Modal navigation
+    setupHubSpokeModalNavigation();
+  }
+  
+  /**
+   * Handle View Hub & Spoke Strategy button click
+   */
+  function handleHubSpokeStrategy(cityName) {
+    // Find the city data
+    const cityData = localSEODataset.find(c => c.city === cityName);
+    
+    if (!cityData) {
+      console.error('City data not found for Hub & Spoke strategy');
+      return;
+    }
+    
+    // Generate strategy steps based on city metrics
+    const steps = generateHubSpokeSteps(cityData);
+    
+    openHubSpokeModal(cityData, steps);
+  }
+  
+  /**
+   * Generate Hub & Spoke strategy steps for a city
+   */
+  function generateHubSpokeSteps(cityData) {
+    const { 
+      city, 
+      targetSuburbKeywords, 
+      rankingSuburbKeywords,
+      totalNearMeKeywords,
+      rankingNearMeKeywords,
+      opportunityScore 
+    } = cityData;
+    
+    const steps = [];
+    
+    // Calculate gaps
+    const suburbGap = targetSuburbKeywords - rankingSuburbKeywords;
+    const nearMeGap = totalNearMeKeywords - rankingNearMeKeywords;
+    const suburbPercentage = targetSuburbKeywords > 0 
+      ? Math.round((rankingSuburbKeywords / targetSuburbKeywords) * 100) 
+      : 0;
+    
+    // Step 1: Create the Hub Page (City Landing Page)
+    steps.push({
+      title: 'Create or Optimize Hub Page',
+      icon: '🎯',
+      description: `Build a comprehensive landing page for ${city} that serves as the authority hub for all your services in this area.`,
+      tasks: [
+        `Create/optimize: <code>/locations/${city.toLowerCase().replace(/\s+/g, '-')}/</code>`,
+        `Title: "Professional [Your Services] in ${city} | [Business Name]"`,
+        `Include H1: "Expert [Service] Services in ${city}"`,
+        `Add 300-500 word intro covering your expertise in ${city}`,
+        `Embed Google Map showing ${city} service area`,
+        `List all services offered in ${city} with internal links`,
+        `Include schema markup: LocalBusiness + Service schema`,
+        `Add customer testimonials from ${city} residents`
+      ]
+    });
+    
+    // Step 2: Build Spoke Pages (Service + City Pages)
+    const spokeGuidance = suburbPercentage < 30
+      ? `You're currently ranking for only ${suburbPercentage}% of target keywords. Focus on creating ${Math.min(suburbGap, 5)} high-priority spoke pages.`
+      : suburbPercentage < 70
+      ? `You have ${rankingSuburbKeywords} spoke pages ranking. Build ${Math.min(suburbGap, 3)} more to strengthen coverage.`
+      : `Strong spoke coverage (${suburbPercentage}%). Focus on optimizing existing pages and adding 1-2 new ones.`;
+    
+    steps.push({
+      title: 'Build Service Spoke Pages',
+      icon: '🔗',
+      description: spokeGuidance,
+      tasks: [
+        `Create pages: <code>/[service]/${city.toLowerCase().replace(/\s+/g, '-')}/</code>`,
+        `Example: "/roof-repair-${city.toLowerCase().replace(/\s+/g, '-')}/"`,
+        `Title format: "[Service] in ${city} | Professional [Service] Services"`,
+        `H1 format: "Professional [Service] in ${city}"`,
+        `Write 400-600 words specific to ${city} (mention local landmarks, neighborhoods)`,
+        `Include "Why choose us in ${city}" section`,
+        `Add FAQ section with ${city}-specific questions`,
+        `Link back to hub page: "${city} Services"`,
+        `Add location-specific images with ${city} in alt text`
+      ]
+    });
+    
+    // Step 3: Optimize for "Near Me" Queries
+    const nearMeStrategy = nearMeGap > 5
+      ? `You're missing ${nearMeGap} "near me" ranking opportunities. Implement proximity signals immediately.`
+      : nearMeGap > 0
+      ? `Close proximity gap by optimizing ${nearMeGap} additional pages for "near me" searches.`
+      : `Strong "near me" coverage. Maintain and monitor performance.`;
+    
+    steps.push({
+      title: 'Optimize for "Near Me" Queries',
+      icon: '📍',
+      description: nearMeStrategy,
+      tasks: [
+        `Add clear service area statement: "Serving ${city} and surrounding areas"`,
+        `Include NAP (Name, Address, Phone) on every page`,
+        `Add "Open Now" or hours of operation with structured data`,
+        `Embed Google Business Profile (if you have ${city} location)`,
+        `Create "Service Areas" section listing ${city} neighborhoods`,
+        `Add real-time location tracking if applicable`,
+        `Optimize meta descriptions: "...near you in ${city}"`,
+        `Build citations in ${city}-specific directories`,
+        `Get reviews mentioning ${city} by name`
+      ]
+    });
+    
+    // Step 4: Internal Linking Strategy
+    steps.push({
+      title: 'Connect Hub & Spokes with Internal Links',
+      icon: '🕸️',
+      description: 'Create a strong internal linking architecture that flows authority from hub to spokes and back.',
+      tasks: [
+        `Hub page links to all ${city} service spoke pages`,
+        `Each spoke page links back to ${city} hub page`,
+        `Cross-link related spoke pages (e.g., "roof repair" → "roof replacement")`,
+        `Add contextual links in blog posts to ${city} pages`,
+        `Use descriptive anchor text: "[service] in ${city}"`,
+        `Create breadcrumbs: Home > Locations > ${city} > [Service]`,
+        `Add "Related Services in ${city}" section to each spoke`,
+        `Link from homepage to ${city} hub if high-value market`
+      ]
+    });
+    
+    // Step 5: Track & Measure
+    steps.push({
+      title: 'Track Performance & Iterate',
+      icon: '📊',
+      description: `Monitor your ${city} hub and spoke performance to identify what's working and optimize further.`,
+      tasks: [
+        `Set up Google Search Console filtering for "${city}" queries`,
+        `Track impressions and clicks for each spoke page`,
+        `Monitor average position for "[service] ${city}" keywords`,
+        `Set up conversion tracking for ${city} leads`,
+        `Review "near me" query performance monthly`,
+        `A/B test title tags and meta descriptions`,
+        `Analyze competitor pages ranking for ${city} keywords`,
+        `Update content quarterly with ${city} news/events`,
+        `Build more spokes as you identify keyword gaps`
+      ]
+    });
+    
+    return steps;
+  }
+  
+  /**
+   * Open Hub & Spoke Strategy modal
+   */
+  function openHubSpokeModal(cityData, steps) {
+    const modal = document.getElementById('hub-spoke-modal');
+    if (!modal) return;
+    
+    // Store current workflow
+    modal.dataset.currentStep = '0';
+    modal.dataset.totalSteps = steps.length.toString();
+    modal.dataset.steps = JSON.stringify(steps);
+    modal.dataset.city = cityData.city;
+    
+    // Update modal header
+    document.getElementById('hub-city-name').textContent = cityData.city;
+    document.getElementById('hub-opportunity-score').textContent = cityData.opportunityScore;
+    
+    // Update progress
+    document.getElementById('hub-total-steps').textContent = steps.length;
+    
+    // Show first step
+    showHubSpokeStep(0, steps);
+    
+    // Show modal
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  
+  /**
+   * Show a specific step in the Hub & Spoke modal
+   */
+  function showHubSpokeStep(stepIndex, steps) {
+    const step = steps[stepIndex];
+    const contentDiv = document.getElementById('hub-step-content');
+    
+    // Build tasks HTML
+    const tasksHTML = step.tasks.map(task => `<li>${task}</li>`).join('');
+    
+    contentDiv.innerHTML = `
+      <div class="step-header">
+        <span class="step-icon">${step.icon}</span>
+        <h3 class="step-title">${step.title}</h3>
+      </div>
+      <p class="step-description">${step.description}</p>
+      <ul class="step-tasks">
+        ${tasksHTML}
+      </ul>
+    `;
+    
+    // Update progress bar
+    const progress = ((stepIndex + 1) / steps.length) * 100;
+    document.getElementById('hub-progress-fill').style.width = progress + '%';
+    document.getElementById('hub-current-step').textContent = stepIndex + 1;
+    
+    // Update button visibility
+    const prevBtn = document.getElementById('hub-btn-prev');
+    const nextBtn = document.getElementById('hub-btn-next');
+    const completeBtn = document.getElementById('hub-btn-complete');
+    
+    prevBtn.style.visibility = stepIndex > 0 ? 'visible' : 'hidden';
+    
+    if (stepIndex === steps.length - 1) {
+      nextBtn.style.display = 'none';
+      completeBtn.style.display = 'inline-block';
+    } else {
+      nextBtn.style.display = 'inline-block';
+      completeBtn.style.display = 'none';
+    }
+  }
+  
+  /**
+   * Setup Hub & Spoke modal navigation
+   */
+  function setupHubSpokeModalNavigation() {
+    const modal = document.getElementById('hub-spoke-modal');
+    if (!modal) return;
+    
+    // Close button
+    const closeBtn = modal.querySelector('.modal-close');
+    closeBtn.addEventListener('click', () => {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    });
+    
+    // Click outside to close
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    });
+    
+    // Previous button
+    document.getElementById('hub-btn-prev').addEventListener('click', () => {
+      const currentStep = parseInt(modal.dataset.currentStep);
+      const steps = JSON.parse(modal.dataset.steps);
+      
+      if (currentStep > 0) {
+        modal.dataset.currentStep = (currentStep - 1).toString();
+        showHubSpokeStep(currentStep - 1, steps);
+      }
+    });
+    
+    // Next button
+    document.getElementById('hub-btn-next').addEventListener('click', () => {
+      const currentStep = parseInt(modal.dataset.currentStep);
+      const steps = JSON.parse(modal.dataset.steps);
+      
+      if (currentStep < steps.length - 1) {
+        modal.dataset.currentStep = (currentStep + 1).toString();
+        showHubSpokeStep(currentStep + 1, steps);
+      }
+    });
+    
+    // Complete button
+    document.getElementById('hub-btn-complete').addEventListener('click', () => {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+      
+      // Could add completion tracking here
+      console.log('✓ Hub & Spoke Strategy completed for:', modal.dataset.city);
+    });
+  }
+  
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(initHubSpokeModal, 500);
+    });
+  } else {
+    setTimeout(initHubSpokeModal, 500);
+  }
+  
+  // Also expose for manual initialization after cards are populated
+  window.initHubSpokeModal = initHubSpokeModal;
   
   // Export functions
   if (typeof module !== 'undefined' && module.exports) {
