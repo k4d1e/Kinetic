@@ -426,12 +426,206 @@ function extractTopic(keyword) {
   return meaningful.slice(0, 2).join(' ');
 }
 
+/**
+ * Analyze AI Visibility opportunities - pages ranking well but not optimized for LLMs
+ * @param {Pool} pool - PostgreSQL connection pool
+ * @param {number} userId - User ID
+ * @param {string} siteUrl - GSC property URL
+ * @returns {Promise<Array>} - List of AI visibility opportunities
+ */
+async function analyzeAIVisibility(pool, userId, siteUrl) {
+  try {
+    const data = await fetchSearchAnalytics(pool, userId, siteUrl, {
+      startDate: getDateDaysAgo(28),
+      endDate: getDateDaysAgo(0),
+      dimensions: ['query', 'page'],
+      rowLimit: 5000
+    });
+
+    if (!data || !data.rows) {
+      console.log('⚠️  No data found for AI visibility analysis');
+      return [];
+    }
+
+    console.log(`📊 Analyzing ${data.rows.length} total rows for AI visibility`);
+
+    // Information signal keywords
+    const infoSignals = {
+      who: ['who', 'which contractor', 'which company', 'best roofer', 'top roofer'],
+      what: ['what is', 'what are', 'what does', 'what kind'],
+      where: ['where', 'near me', 'in my area', 'local'],
+      when: ['when to', 'when should', 'how long', 'how often'],
+      why: ['why', 'reasons', 'benefits'],
+      how: ['how to', 'how do', 'how much'],
+      cost: ['cost', 'price', 'pricing', 'how much'],
+      lifespan: ['lifespan', 'last', 'longevity', 'durability', 'how long'],
+      warranty: ['warranty', 'guarantee']
+    };
+
+    // Filter for ranking pages (1-10) with information signals
+    const filtered = data.rows.filter(row => {
+      const position = row.position || 0;
+      const impressions = row.impressions || 0;
+      const query = (row.keys[0] || '').toLowerCase();
+      
+      // Must rank in top 10 and have reasonable impressions
+      if (position > 10 || impressions < 20) return false;
+      
+      // Must contain at least one information signal
+      const hasInfoSignal = Object.values(infoSignals).some(signals =>
+        signals.some(signal => query.includes(signal))
+      );
+      
+      return hasInfoSignal;
+    });
+
+    console.log(`✓ ${filtered.length} queries with information signals in top 10 positions`);
+
+    if (filtered.length === 0) {
+      return [];
+    }
+
+    // Group by page and analyze
+    const pageGroups = {};
+    filtered.forEach(row => {
+      const page = row.keys[1];
+      const query = row.keys[0];
+      
+      if (!pageGroups[page]) {
+        pageGroups[page] = {
+          page,
+          queries: [],
+          totalImpressions: 0,
+          avgPosition: 0,
+          clicks: 0
+        };
+      }
+      
+      pageGroups[page].queries.push({
+        query: query,
+        position: row.position,
+        impressions: row.impressions,
+        clicks: row.clicks,
+        ctr: row.ctr
+      });
+      
+      pageGroups[page].totalImpressions += row.impressions;
+      pageGroups[page].clicks += row.clicks;
+    });
+
+    // Calculate opportunities
+    const opportunities = Object.values(pageGroups).map(group => {
+      // Find the highest volume query with best information signal
+      const topQuery = group.queries.sort((a, b) => b.impressions - a.impressions)[0];
+      
+      // Calculate average position
+      const avgPosition = group.queries.reduce((sum, q) => sum + q.position, 0) / group.queries.length;
+      
+      // Calculate GEO Score (0-100)
+      const geoScore = calculateGEOScore(topQuery, avgPosition, group);
+      
+      // Extract topic from query
+      const topic = extractTopicFromQuery(topQuery.query);
+      
+      // Determine signal type
+      const signalType = detectSignalType(topQuery.query, infoSignals);
+      
+      return {
+        topic,
+        query: topQuery.query,
+        page: group.page,
+        position: Math.round(topQuery.position * 10) / 10,
+        impressions: topQuery.impressions,
+        clicks: topQuery.clicks,
+        ctr: (topQuery.ctr * 100).toFixed(2) + '%',
+        geoScore,
+        signalType,
+        totalQueries: group.queries.length
+      };
+    });
+
+    // Sort by GEO score (lowest first - most opportunity)
+    opportunities.sort((a, b) => a.geoScore - b.geoScore);
+
+    console.log(`✓ Found ${opportunities.length} AI visibility opportunities`);
+    return opportunities.slice(0, 20); // Return top 20
+
+  } catch (error) {
+    console.error('Error analyzing AI visibility:', error);
+    return [];
+  }
+}
+
+/**
+ * Calculate Generative Optimization Score (GEO Score)
+ * Lower score = more opportunity (page needs optimization)
+ * Higher score = already optimized
+ */
+function calculateGEOScore(query, avgPosition, pageGroup) {
+  let score = 50; // Start at middle
+  
+  // Factor 1: Position (better position = potentially already optimized)
+  if (avgPosition <= 3) score += 20;
+  else if (avgPosition <= 5) score += 10;
+  else if (avgPosition <= 7) score += 5;
+  
+  // Factor 2: CTR (high CTR might indicate good snippet)
+  const avgCTR = pageGroup.clicks / pageGroup.totalImpressions;
+  if (avgCTR > 0.15) score += 15;
+  else if (avgCTR > 0.10) score += 10;
+  else if (avgCTR > 0.05) score += 5;
+  else score -= 10; // Low CTR = opportunity
+  
+  // Factor 3: Query complexity (longer, specific queries = more LLM opportunity)
+  const wordCount = query.query.split(' ').length;
+  if (wordCount >= 6) score -= 10; // More opportunity
+  else if (wordCount >= 4) score -= 5;
+  
+  // Factor 4: Question format (questions are LLM targets)
+  const questionWords = ['how', 'what', 'why', 'when', 'where', 'who', 'which'];
+  const isQuestion = questionWords.some(w => query.query.toLowerCase().includes(w));
+  if (isQuestion) score -= 15; // Big opportunity for LLMs
+  
+  // Ensure score is between 0-100
+  return Math.max(0, Math.min(100, Math.round(score)));
+}
+
+/**
+ * Extract a clean topic name from query
+ */
+function extractTopicFromQuery(query) {
+  const stopWords = ['how', 'to', 'what', 'is', 'are', 'the', 'a', 'an', 'for', 'in', 'on', 'near', 'me'];
+  const words = query.toLowerCase().split(/\s+/);
+  const meaningful = words.filter(w => !stopWords.includes(w) && w.length > 2);
+  
+  // Capitalize and return first 2-3 words
+  return meaningful.slice(0, 3)
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
+
+/**
+ * Detect which information signal type the query contains
+ */
+function detectSignalType(query, infoSignals) {
+  const lowerQuery = query.toLowerCase();
+  
+  for (const [type, signals] of Object.entries(infoSignals)) {
+    if (signals.some(signal => lowerQuery.includes(signal))) {
+      return type.charAt(0).toUpperCase() + type.slice(1);
+    }
+  }
+  
+  return 'General';
+}
+
 module.exports = {
   fetchUserProperties,
   fetchSearchAnalytics,
   analyzeQuickWins,
   analyzeCannibalization,
   analyzeUntappedMarkets,
+  analyzeAIVisibility,
   getCachedOrFetch,
   getDateDaysAgo
 };

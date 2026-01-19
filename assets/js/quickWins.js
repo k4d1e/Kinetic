@@ -870,7 +870,136 @@ const displayKeywords = keywords.map((kw, index) => {
   // Make function globally available
   window.populateUntappedMarketsCards = populateUntappedMarketsCards;
   
+  /**
+   * Populate AI Visibility cards (Module 3)
+   */
+  async function populateAIVisibilityCards(data) {
+    if (!data || data.length === 0) {
+      console.log('⚠️ No AI visibility data to display');
+      return;
+    }
+    
+    console.log(`📊 Populating Module 3 with ${data.length} AI visibility opportunities`);
+    
+    // Find the AI Visibility module card track
+    const modules = document.querySelectorAll('.module-container');
+    let cardTrack = null;
+    
+    for (const module of modules) {
+      const title = module.querySelector('.module-title');
+      if (title && title.textContent.trim() === 'AI Visibility') {
+        cardTrack = module.querySelector('.card-track');
+        break;
+      }
+    }
+    
+    if (!cardTrack) {
+      console.error('Card track container not found for AI Visibility module');
+      return;
+    }
+    
+    // Clear existing placeholder cards
+    cardTrack.innerHTML = '';
+    
+    // Generate and append AI visibility cards
+    data.forEach(opportunity => {
+      const card = createAIVisibilityCard(opportunity);
+      cardTrack.appendChild(card);
+    });
+    
+    console.log(`✓ Module 3 populated with ${data.length} AI visibility opportunities`);
+  }
+  
+  /**
+   * Create a single AI visibility card
+   */
+  function createAIVisibilityCard(opportunity) {
+    const { topic, query, geoScore, signalType, position, impressions } = opportunity;
+    
+    const card = document.createElement('article');
+    card.className = 'ai-card';
+    
+    // Format query as a concise paragraph (aim for 40-60 words)
+    const queryDescription = formatQueryDescription(query, signalType);
+    
+    // Determine GEO score class and label
+    let geoClass = 'geo-low';
+    let geoLabel = 'High Opportunity';
+    if (geoScore >= 70) {
+      geoClass = 'geo-high';
+      geoLabel = 'Well Optimized';
+    } else if (geoScore >= 40) {
+      geoClass = 'geo-medium';
+      geoLabel = 'Moderate Opportunity';
+    }
+    
+    card.innerHTML = `
+      <h3 class="card-title">${topic}</h3>
+      
+      <div class="query-description">
+        <p>${queryDescription}</p>
+      </div>
+      
+      <div class="geo-score-container">
+        <div class="geo-label">GEO Score</div>
+        <div class="geo-score ${geoClass}">${geoScore}</div>
+        <div class="geo-status">${geoLabel}</div>
+      </div>
+      
+      <div class="ai-metrics">
+        <span class="metric-item">
+          <svg class="metric-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          Position ${position}
+        </span>
+        <span class="metric-item">
+          <svg class="metric-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+          </svg>
+          ${impressions} views
+        </span>
+      </div>
+      
+      <button class="btn-optimize" data-query="${query}" data-topic="${topic}" data-score="${geoScore}">
+        Optimize
+      </button>
+    `;
+    
+    return card;
+  }
+  
+  /**
+   * Format query into a descriptive paragraph
+   */
+  function formatQueryDescription(query, signalType) {
+    // Create a context-aware description
+    const descriptions = {
+      'How': `Users searching "${query}" need step-by-step guidance. Your page ranks well but may lack a clear, concise answer block that AI can extract and cite.`,
+      'What': `The query "${query}" seeks definition and explanation. Optimize with a direct 40-60 word answer block to capture AI citations.`,
+      'Why': `"${query}" indicates users want reasoning and benefits. Structure your content with clear value propositions for LLM extraction.`,
+      'Cost': `Cost-related query "${query}" requires transparent pricing information. Add structured pricing data for AI visibility.`,
+      'When': `Timing query "${query}" needs specific timeframes and schedules. Format this information for easy AI extraction.`,
+      'Where': `Location-based query "${query}" should include clear geographic indicators and local authority signals.`,
+      'Who': `"${query}" asks for expert identification. Strengthen authority markers and credentials for AI citation.`,
+      'Lifespan': `Longevity question "${query}" needs specific duration data. Structure this as extractable facts for LLMs.`,
+      'Warranty': `"${query}" seeks guarantee information. Format warranty details as clear, quotable answer blocks.`,
+      'General': `High-volume query "${query}" ranks well but needs optimization for AI extraction. Add concise answer blocks.`
+    };
+    
+    return descriptions[signalType] || descriptions['General'];
+  }
+  
+  // Make functions globally available
+  window.populateAIVisibilityCards = populateAIVisibilityCards;
+  
   // Export functions
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { populateQuickWinsCards, createQuickWinCard, populateUntappedMarketsCards };
+    module.exports = { 
+      populateQuickWinsCards, 
+      createQuickWinCard, 
+      populateUntappedMarketsCards,
+      populateAIVisibilityCards 
+    };
   }

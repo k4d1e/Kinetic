@@ -405,7 +405,7 @@ class OnboardingUI {
       { id: 'check-3', delay: 2000, action: 'loadQuickWins' },  // Quick Wins - fetch data
       { id: 'check-4', delay: 1500, action: 'loadCannibalization' },  // Cannibalization - fetch data
       { id: 'check-5', delay: 1500, action: 'loadUntappedMarkets' },  // Untapped Markets - fetch data
-      { id: 'check-6', delay: 2500 },  // AI Citation
+      { id: 'check-6', delay: 1500, action: 'loadAIVisibility' },  // AI Visibility - fetch data
       { id: 'check-7', delay: 2500 }   // Local Visibility
     ];
 
@@ -457,6 +457,17 @@ class OnboardingUI {
             // Ensure spinner shows for at least 1.5 seconds
             const minDelay = this.stateMachine.delay(1500);
             const dataLoad = this.loadUntappedMarketsModule();
+            
+            // Wait for both the minimum delay AND the data to load
+            await Promise.all([minDelay, dataLoad]);
+            
+            // Only complete after data is loaded and cards are populated
+            item.classList.remove('loading');
+            item.classList.add('completed');
+          } else if (checklistItems[i].action === 'loadAIVisibility') {
+            // Ensure spinner shows for at least 1.5 seconds
+            const minDelay = this.stateMachine.delay(1500);
+            const dataLoad = this.loadAIVisibilityModule();
             
             // Wait for both the minimum delay AND the data to load
             await Promise.all([minDelay, dataLoad]);
@@ -567,6 +578,31 @@ class OnboardingUI {
     } catch (error) {
       console.error('Error loading untapped markets module:', error);
       window.untappedMarketsData = [];
+    }
+  }
+
+  async loadAIVisibilityModule() {
+    try {
+      const siteURL = this.stateMachine.selectedProperty;
+
+      // fetch AI visibility data with cache refresh during calibration
+      const aiVisibility = await this.stateMachine.api.getMetricData('ai-visibility', siteURL, true);
+
+      // Store in window
+      window.aiVisibilityData = aiVisibility || [];
+      
+      // Cache to localStorage
+      localStorage.setItem('kinetic_ai_visibility_data', JSON.stringify(aiVisibility || []));
+      
+      console.log('✓ AI Visibility data loaded:', aiVisibility.length, 'opportunities');
+      
+      // Populate Module 3 cards
+      if (window.populateAIVisibilityCards) {
+        window.populateAIVisibilityCards(aiVisibility);
+      }
+    } catch (error) {
+      console.error('Error loading AI visibility module:', error);
+      window.aiVisibilityData = [];
     }
   }
 
