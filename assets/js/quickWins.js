@@ -67,11 +67,21 @@ function generateProblemDescription(item) {
  * Populate the Quick Wins module with dynamic cards
  */
 function populateQuickWinsCards(quickWinsData) {
-  // Target the first module-container (SEO Quick Fixes)
-  const cardTrack = document.querySelector('.module-container:first-of-type .card-track');
+  // Find the SEO Quick Fixes module by its title, then get its card-track
+  const modules = document.querySelectorAll('.module-container');
+  let cardTrack = null;
+  
+  for (const module of modules) {
+    const title = module.querySelector('.module-title');
+    if (title && title.textContent.trim() === 'SEO Quick Fixes') {
+      cardTrack = module.querySelector('.card-track');
+      break;
+    }
+  }
   
   if (!cardTrack) {
-    console.error('Card track container not found');
+    console.error('Card track container not found for SEO Quick Fixes module');
+    console.log('Available modules:', modules.length);
     return;
   }
   
