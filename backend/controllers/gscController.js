@@ -4,6 +4,7 @@ const {
   fetchSearchAnalytics,
   analyzeQuickWins,
   analyzeCannibalization,
+  analyzeUntappedMarkets,
   getCachedOrFetch
 } = require('../services/gscService');
 
@@ -194,7 +195,6 @@ async function getMetricData(req, res) {
         break;
 
       case 'untapped-markets':
-        const { analyzeUntappedMarkets } = require('../services/gscService');
         data = await getCachedOrFetch(
           pool,
           propertyId,
