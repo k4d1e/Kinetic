@@ -129,7 +129,7 @@ function generateProblemDescription(item) {
         <div class="metric-row metric-indent">Page: <span class="metric-var">${truncateUrl(page1.page)}</span></div>
         <div class="metric-row metric-indent">Rank: <span class="metric-var">${page1.position.toFixed(1)}</span></div>
         
-        <div class="metric-row metric-label" style="margin-top: 10px;">Page 2:</div>
+        <div class="metric-row metric-label" style="margin-top: 5px;">Page 2:</div>
         <div class="metric-row metric-indent">Page: <span class="metric-var">${truncateUrl(page2.page)}</span></div>
         <div class="metric-row metric-indent">Rank: <span class="metric-var">${page2.position.toFixed(1)}</span></div>
       </div>
