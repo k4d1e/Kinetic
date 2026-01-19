@@ -90,7 +90,7 @@
   .seo-card {
     background-color: var(--color-card-bg);
     width: 280px;
-    min-height: 380px; /* Ensure consistent card height */
+    min-height: 250px; /* Ensure consistent card height */
     padding: 25px 20px;
     border-radius: 20px;
     display: flex;
@@ -107,6 +107,7 @@
     font-size: var(--font-size-card-title);
     font-weight: 700;
     margin-bottom: 15px;
+    line-height: 1.2; /* Tighter line height for compact titles */
   }
   
   /* Warning Section */
@@ -114,7 +115,7 @@
     display: flex;
     align-items: flex-start;
     gap: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 2px;
     color: var(--color-text-white);
     font-size: 13px;
     line-height: 1.4;
