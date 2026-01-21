@@ -1,5 +1,8 @@
 // onboarding.js - State Machine for Onboarding Wizard with OAuth
 
+// Development flag - Set to true to disable onboarding during development
+const DISABLE_ONBOARDING_FOR_DEV = true; // ⚠️ Set to false for production!
+
 // State constants
 const STATES = {
   IDLE: 'IDLE',                              // Show "Sign in with Google"
@@ -124,9 +127,15 @@ class OnboardingStateMachine {
         // Otherwise, fetch properties and continue
         this.setState(STATES.FETCHING_PROPERTIES);
         await this.fetchProperties();
+      } else {
+        // Not authenticated - show onboarding
+        console.log('No existing authentication found, showing onboarding');
+        this.notify(); // Trigger render with current IDLE state
       }
     } catch (error) {
       console.error('Error checking auth:', error);
+      // On error, show onboarding
+      this.notify();
     }
   }
 
@@ -216,16 +225,14 @@ class OnboardingStateMachine {
           window.populateModule1Cards(quickWins, cannibalization);
         }
         
-        // Completely hide onboarding - no modal should appear
+        // Ensure onboarding is hidden (it should be by default now)
         const overlay = document.getElementById('onboarding-overlay');
         if (overlay) {
-          overlay.style.display = 'none'; // Hide immediately
-          overlay.classList.remove('active');
+          overlay.classList.remove('visible');
         }
         
-        // Remove the onboarding-active class to show main content
+        // Ensure no blur effect on main content
         document.body.classList.remove('onboarding-active');
-        document.body.style.overflow = ''; // Re-enable scrolling
         
         console.log('✓ Session restored - skipped onboarding');
       } else {
@@ -289,11 +296,8 @@ class OnboardingUI {
     // Check if returning from OAuth
     this.stateMachine.checkOAuthReturn();
 
-    // Check if already authenticated
+    // Check if already authenticated - this will trigger render if needed
     this.stateMachine.checkExistingAuth();
-
-    // Initial render
-    this.render(this.stateMachine.state, this.stateMachine);
   }
 
   bindEvents() {
@@ -330,6 +334,9 @@ class OnboardingUI {
   }
 
   render(state, machine) {
+    // Show onboarding overlay and add blur effect
+    this.showOnboardingOverlay();
+
     // Hide all state containers
     this.hideAllStates();
 
@@ -353,6 +360,14 @@ class OnboardingUI {
       case STATES.SUCCESS:
         this.renderSuccessState();
         break;
+    }
+  }
+
+  showOnboardingOverlay() {
+    // Add blur effect and show overlay
+    document.body.classList.add('onboarding-active');
+    if (this.elements.overlay) {
+      this.elements.overlay.classList.add('visible');
     }
   }
 
@@ -510,15 +525,14 @@ class OnboardingUI {
     this.stateMachine.saveState();
     console.log('✓ Calibration complete - state saved');
     
-    // Fade out the modal
-    this.elements.overlay.style.opacity = '0';
+    // Remove visible class to fade out the modal
+    if (this.elements.overlay) {
+      this.elements.overlay.classList.remove('visible');
+    }
     
-    setTimeout(() => {
-      this.elements.overlay.style.display = 'none';
-      // Show main content (remove blur/hide if applied)
-      document.body.classList.remove('onboarding-active');
-      // Note: Quick Wins already loaded during calibration checklist
-    }, 300);
+    // Show main content (remove blur)
+    document.body.classList.remove('onboarding-active');
+    // Note: Quick Wins already loaded during calibration checklist
   }
 
   async loadQuickWinsModule() {
@@ -654,10 +668,49 @@ class OnboardingUI {
   }
 }
 
+// Load onboarding modal HTML and initialize
+async function loadOnboardingModal() {
+  try {
+    const response = await fetch('assets/html/onboardingmodal.html');
+    if (!response.ok) {
+      throw new Error(`Failed to load onboarding modal: ${response.status}`);
+    }
+    const html = await response.text();
+    document.getElementById('onboarding-modal-container').innerHTML = html;
+    console.log('✓ Onboarding modal HTML loaded');
+    return true;
+  } catch (error) {
+    console.error('Error loading onboarding modal:', error);
+    return false;
+  }
+}
+
 // Initialize on DOM ready
-document.addEventListener('DOMContentLoaded', () => {
-  // Add onboarding-active class to body (hides main content initially)
-  document.body.classList.add('onboarding-active');
+document.addEventListener('DOMContentLoaded', async () => {
+  // Ensure onboarding-active class is removed on page load (in case it persisted)
+  document.body.classList.remove('onboarding-active');
+  
+  // Check if onboarding is disabled for development
+  if (DISABLE_ONBOARDING_FOR_DEV) {
+    console.log('🚧 DEV MODE: Onboarding disabled (DISABLE_ONBOARDING_FOR_DEV = true)');
+    console.log('💡 To enable onboarding, set DISABLE_ONBOARDING_FOR_DEV = false in onboarding.js');
+    
+    // Hide the onboarding modal container
+    const container = document.getElementById('onboarding-modal-container');
+    if (container) {
+      container.style.display = 'none';
+    }
+    
+    return; // Skip all onboarding initialization
+  }
+  
+  // Load the onboarding modal HTML first
+  const modalLoaded = await loadOnboardingModal();
+  
+  if (!modalLoaded) {
+    console.error('Failed to load onboarding modal. Please check that assets/html/onboardingmodal.html exists.');
+    return;
+  }
 
   // Initialize API service
   const api = new KineticAPI('http://localhost:8000');
@@ -667,6 +720,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const ui = new OnboardingUI(stateMachine);
   
   // Check for existing authentication/session
+  // This will add onboarding-active class only if needed
   stateMachine.checkExistingAuth();
   
   // Expose to window for debugging and manual controls
