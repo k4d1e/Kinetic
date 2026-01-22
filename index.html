@@ -616,6 +616,25 @@
         </div>
     </div>
 
+    <!-- New Markets Modal -->
+    <div id="new-markets-modal" class="new-markets-modal-overlay">
+        <div class="new-markets-modal-content">
+            <button class="new-markets-modal-close" aria-label="Close new markets modal">&times;</button>
+            <h2 class="new-markets-modal-title">
+                <svg class="new-markets-modal-icon" viewBox="0 0 576 512" fill="currentColor">
+                    <path d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z"/>
+                </svg>
+                New Markets
+            </h2>
+            <p style="font-family: var(--font-main); color: var(--color-dark-blue); font-size: 16px; font-weight: 700; text-align: left; margin-top: 0px; margin-bottom: 60px; margin-left: -38px;">Completed: 0/100</p>
+            <div class="new-markets-list-container">
+                <div class="new-markets-list" id="new-markets-list">
+                    <!-- Market query items will be generated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="assets/js/buttons.js"></script>
     <script src="assets/js/apiService.js"></script>
     <script src="assets/js/quickWins.js"></script>
