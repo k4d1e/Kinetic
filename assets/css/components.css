@@ -1884,11 +1884,22 @@ datalist option:hover {
 }
 
 .progress-modal-title {
-  font-family: var(--font-title);
+  font-family: var(--font-main);
   font-size: 36px;
-  color: var(--color-text-white);
+  color: var(--color-text-blue);
   margin-bottom: 40px;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.progress-modal-icon {
+  width: 32px;
+  height: 32px;
+  color: var(--color-text-blue);
+  flex-shrink: 0;
 }
 
 .progress-grid-container {
@@ -1906,10 +1917,10 @@ datalist option:hover {
 }
 
 .progress-grid-card {
-  width: 10px;
-  height: 10px;
+  width: 20px;
+  height: 20px;
   background-color: var(--color-dark-blue);
-  border-radius: 2px;
+  border-radius: 3px;
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
