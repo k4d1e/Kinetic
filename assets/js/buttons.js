@@ -1,3 +1,4 @@
+alert('BUTTONS.JS IS LOADING!');
 console.log('🔧 buttons.js loaded');
 
 document.addEventListener('DOMContentLoaded', () => {
