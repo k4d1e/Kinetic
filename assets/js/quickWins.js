@@ -39,12 +39,12 @@ function generateProblemDescription(item) {
     
     if (groupByType) {
       // Type sort: Show Cannibalization cards first, then Quick Wins
-      cannibalization.forEach(item => {
+      cannibalization.slice(0, 16).forEach(item => {
         const card = createCannibalizationCard(item);
         cardTrack.appendChild(card);
       });
       
-      quickWins.forEach(item => {
+      quickWins.slice(0, 16).forEach(item => {
         const card = createQuickWinCard(item);
         cardTrack.appendChild(card);
       });
@@ -810,7 +810,7 @@ function renderQuickWinsCards(cardTrack, data) {
     cardTrack.innerHTML = '';
     
     // Generate and append market cards
-    data.forEach(opportunity => {
+    data.slice(0, 16).forEach(opportunity => {
       const card = createUntappedMarketCard(opportunity);
       cardTrack.appendChild(card);
     });
@@ -879,7 +879,8 @@ const displayKeywords = keywords.map((kw, index) => {
       return;
     }
     
-    console.log(`📊 Populating Module 3 with ${data.length} AI visibility opportunities`);
+    const displayCount = Math.min(data.length, 16);
+    console.log(`📊 Populating Module 3 with ${displayCount} AI visibility opportunities`);
     
     // Find the AI Visibility module card track
     const modules = document.querySelectorAll('.module-container');
@@ -902,12 +903,12 @@ const displayKeywords = keywords.map((kw, index) => {
     cardTrack.innerHTML = '';
     
     // Generate and append AI visibility cards
-    data.forEach(opportunity => {
+    data.slice(0, 16).forEach(opportunity => {
       const card = createAIVisibilityCard(opportunity);
       cardTrack.appendChild(card);
     });
     
-    console.log(`✓ Module 3 populated with ${data.length} AI visibility opportunities`);
+    console.log(`✓ Module 3 populated with ${displayCount} AI visibility opportunities`);
     
     // Initialize modal handlers after cards are rendered
     setTimeout(() => {

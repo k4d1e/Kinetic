@@ -1,7 +1,7 @@
 // onboarding.js - State Machine for Onboarding Wizard with OAuth
 
 // Development flag - Set to true to disable onboarding during development
-const DISABLE_ONBOARDING_FOR_DEV = true; // ⚠️ Set to false for production!
+const DISABLE_ONBOARDING_FOR_DEV = false; // ⚠️ Set to false for production!
 
 // State constants
 const STATES = {
