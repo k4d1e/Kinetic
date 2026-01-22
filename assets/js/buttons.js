@@ -1,4 +1,7 @@
+console.log('🔧 buttons.js loaded');
+
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('🔧 buttons.js DOMContentLoaded fired');
   // 1. Select ALL slider wrappers on the page (Module 1, Module 2, etc.)
   const allSliders = document.querySelectorAll('.slider-wrapper');
 
