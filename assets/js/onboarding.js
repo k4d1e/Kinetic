@@ -665,6 +665,12 @@ class OnboardingUI {
     if (typeof populateModule1Cards === 'function') {
       populateModule1Cards(quickWins, cannibalization);
     }
+    
+    // Update progress grid with the number of cards rendered
+    const totalCards = Math.min(32, quickWins.length + cannibalization.length);
+    if (window.updateProgressGrid) {
+      window.updateProgressGrid(totalCards);
+    }
   }
 }
 
