@@ -1920,7 +1920,7 @@ datalist option:hover {
   width: 23px;
   height: 23px;
   background-color: var(--color-dark-blue);
-  border-radius: 4px;
+  border-radius: 5px;
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
