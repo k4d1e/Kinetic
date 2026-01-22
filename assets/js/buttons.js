@@ -53,9 +53,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const stickyQuickFixBtn = document.getElementById('sticky-quick-fix');
   const modalCloseBtn = progressModal?.querySelector('.progress-modal-close');
 
+  // Debug logging
+  console.log('Progress Modal Elements:', {
+    progressModal: !!progressModal,
+    progressGrid: !!progressGrid,
+    stickyQuickFixBtn: !!stickyQuickFixBtn,
+    modalCloseBtn: !!modalCloseBtn
+  });
+
   // Initialize the grid with 72 cards (8x9)
   function initializeProgressGrid() {
-    if (!progressGrid) return;
+    if (!progressGrid) {
+      console.error('Progress grid element not found');
+      return;
+    }
     
     progressGrid.innerHTML = '';
     
@@ -84,7 +95,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Open the modal
   function openProgressModal() {
-    if (!progressModal) return;
+    console.log('openProgressModal called, progressModal exists:', !!progressModal);
+    if (!progressModal) {
+      console.error('Progress modal element not found');
+      return;
+    }
     
     // Count the number of cards in SEO Quick Fixes module
     const quickFixModule = Array.from(document.querySelectorAll('.module-container'))
@@ -120,7 +135,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Attach event listeners
   if (stickyQuickFixBtn) {
-    stickyQuickFixBtn.addEventListener('click', openProgressModal);
+    console.log('Attaching click listener to sticky quick fix button');
+    stickyQuickFixBtn.addEventListener('click', (e) => {
+      console.log('Sticky quick fix button clicked!', e);
+      openProgressModal();
+    });
+  } else {
+    console.error('Sticky quick fix button not found');
   }
 
   if (modalCloseBtn) {
