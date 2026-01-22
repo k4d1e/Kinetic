@@ -1887,7 +1887,7 @@ datalist option:hover {
   font-family: var(--font-main);
   font-size: 36px;
   color: var(--color-text-blue);
-  margin-bottom: 40px;
+  margin-bottom: 0px;
   text-align: center;
   display: flex;
   align-items: center;
