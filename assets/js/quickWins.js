@@ -39,16 +39,18 @@ function generateProblemDescription(item) {
     
     if (groupByType) {
       // Type sort: Show Cannibalization cards first, then Quick Wins
-      cannibalization.slice(0, 32).forEach(item => {
+      cannibalization.slice(0, 16).forEach(item => {
         const card = createCannibalizationCard(item);
         cardTrack.appendChild(card);
       });
       
-      quickWins.slice(0, 32).forEach(item => {
+      quickWins.slice(0, 16).forEach(item => {
         const card = createQuickWinCard(item);
         cardTrack.appendChild(card);
       });
-      
+
+      const displayCount = Math.min(cannibalization.length + quickWins.length, 16);
+      console.log(`✓ Generated ${displayCount} Quick Wins and Cannibalization cards`);
       console.log(`✓ Grouped by type: ${cannibalization.length} Cannibalization + ${quickWins.length} Quick Wins`);
     } else {
       // Default: Mix cards maintaining their sort order
@@ -61,8 +63,6 @@ function generateProblemDescription(item) {
         const card = createCannibalizationCard(item);
         cardTrack.appendChild(card);
       });
-      
-      console.log(`✓ Generated ${quickWins.length} Quick Win cards + ${cannibalization.length} Cannibalization cards`);
     }
   }
 
@@ -810,7 +810,7 @@ function renderQuickWinsCards(cardTrack, data) {
     cardTrack.innerHTML = '';
     
     // Generate and append market cards
-    data.slice(0, 32).forEach(opportunity => {
+    data.slice(0, 16).forEach(opportunity => {
       const card = createUntappedMarketCard(opportunity);
       cardTrack.appendChild(card);
     });
@@ -879,7 +879,7 @@ const displayKeywords = keywords.map((kw, index) => {
       return;
     }
     
-    const displayCount = Math.min(data.length, 32);
+    const displayCount = Math.min(data.length, 16);
     console.log(`📊 Populating Module 3 with ${displayCount} AI visibility opportunities`);
     
     // Find the AI Visibility module card track
@@ -903,7 +903,7 @@ const displayKeywords = keywords.map((kw, index) => {
     cardTrack.innerHTML = '';
     
     // Generate and append AI visibility cards
-    data.slice(0, 32).forEach(opportunity => {
+    data.slice(0, 16).forEach(opportunity => {
       const card = createAIVisibilityCard(opportunity);
       cardTrack.appendChild(card);
     });
