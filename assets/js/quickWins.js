@@ -49,20 +49,22 @@ function generateProblemDescription(item) {
         cardTrack.appendChild(card);
       });
 
-      const displayCount = Math.min(cannibalization.length + quickWins.length, 16);
-      console.log(`✓ Generated ${displayCount} Quick Wins and Cannibalization cards`);
-      console.log(`✓ Grouped by type: ${cannibalization.length} Cannibalization + ${quickWins.length} Quick Wins`);
+      const displayCount = Math.min(cannibalization.length + quickWins.length, 32);
+      console.log(`✓ Generated ${displayCount} cards grouped by type (${Math.min(cannibalization.length, 16)} Cannibalization + ${Math.min(quickWins.length, 16)} Quick Wins)`);
     } else {
-      // Default: Mix cards maintaining their sort order
-      quickWins.forEach(item => {
+      // Default: Mix cards maintaining their sort order - limit to 16 each (32 total max)
+      quickWins.slice(0, 16).forEach(item => {
         const card = createQuickWinCard(item);
         cardTrack.appendChild(card);
       });
       
-      cannibalization.forEach(item => {
+      cannibalization.slice(0, 16).forEach(item => {
         const card = createCannibalizationCard(item);
         cardTrack.appendChild(card);
       });
+      
+      const displayCount = Math.min(quickWins.length + cannibalization.length, 32);
+      console.log(`✓ Generated ${displayCount} cards (${Math.min(quickWins.length, 16)} Quick Wins + ${Math.min(cannibalization.length, 16)} Cannibalization)`);
     }
   }
 
