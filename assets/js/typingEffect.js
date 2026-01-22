@@ -35,6 +35,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Start with greeting title, then sprint title after it finishes
     typeText(greetingTextElement, greetingText, function() {
         // After greeting finishes, start sprint title
-        typeText(sprintTextElement, sprintText);
+        typeText(sprintTextElement, sprintText, function() {
+            // After sprint title finishes, show the checklist
+            const sprintChecklist = document.querySelector('.sprint-checklist');
+            if (sprintChecklist) {
+                sprintChecklist.style.opacity = '1';
+                sprintChecklist.style.visibility = 'visible';
+                // Dispatch custom event to start checklist animation
+                sprintChecklist.dispatchEvent(new CustomEvent('checklistVisible'));
+            }
+        });
     });
 });
