@@ -39,12 +39,12 @@ function generateProblemDescription(item) {
     
     if (groupByType) {
       // Type sort: Show Cannibalization cards first, then Quick Wins
-      cannibalization.slice(0, 16).forEach(item => {
+      cannibalization.slice(0, 32).forEach(item => {
         const card = createCannibalizationCard(item);
         cardTrack.appendChild(card);
       });
       
-      quickWins.slice(0, 16).forEach(item => {
+      quickWins.slice(0, 32).forEach(item => {
         const card = createQuickWinCard(item);
         cardTrack.appendChild(card);
       });
@@ -810,7 +810,7 @@ function renderQuickWinsCards(cardTrack, data) {
     cardTrack.innerHTML = '';
     
     // Generate and append market cards
-    data.slice(0, 16).forEach(opportunity => {
+    data.slice(0, 32).forEach(opportunity => {
       const card = createUntappedMarketCard(opportunity);
       cardTrack.appendChild(card);
     });
@@ -879,7 +879,7 @@ const displayKeywords = keywords.map((kw, index) => {
       return;
     }
     
-    const displayCount = Math.min(data.length, 16);
+    const displayCount = Math.min(data.length, 32);
     console.log(`📊 Populating Module 3 with ${displayCount} AI visibility opportunities`);
     
     // Find the AI Visibility module card track
@@ -903,7 +903,7 @@ const displayKeywords = keywords.map((kw, index) => {
     cardTrack.innerHTML = '';
     
     // Generate and append AI visibility cards
-    data.slice(0, 16).forEach(opportunity => {
+    data.slice(0, 32).forEach(opportunity => {
       const card = createAIVisibilityCard(opportunity);
       cardTrack.appendChild(card);
     });

@@ -43,4 +43,106 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
   });
+
+  // ========================================
+  // Progress Grid Modal Logic
+  // ========================================
+
+  const progressModal = document.getElementById('progress-grid-modal');
+  const progressGrid = document.getElementById('progress-grid');
+  const stickyQuickFixBtn = document.getElementById('sticky-quick-fix');
+  const modalCloseBtn = progressModal?.querySelector('.progress-modal-close');
+
+  // Initialize the grid with 72 cards (8x9)
+  function initializeProgressGrid() {
+    if (!progressGrid) return;
+    
+    progressGrid.innerHTML = '';
+    
+    for (let i = 0; i < 72; i++) {
+      const card = document.createElement('div');
+      card.className = 'progress-grid-card';
+      card.dataset.index = i;
+      progressGrid.appendChild(card);
+    }
+  }
+
+  // Update the grid to show completed cards
+  function updateProgressGrid(completedCount) {
+    if (!progressGrid) return;
+    
+    const cards = progressGrid.querySelectorAll('.progress-grid-card');
+    
+    // Reset all cards first
+    cards.forEach(card => card.classList.remove('completed'));
+    
+    // Mark the first N cards as completed
+    for (let i = 0; i < Math.min(completedCount, 72); i++) {
+      cards[i].classList.add('completed');
+    }
+  }
+
+  // Open the modal
+  function openProgressModal() {
+    if (!progressModal) return;
+    
+    // Count the number of cards in SEO Quick Fixes module
+    const quickFixModule = Array.from(document.querySelectorAll('.module-container'))
+      .find(module => {
+        const title = module.querySelector('.module-title');
+        return title && title.textContent.trim() === 'SEO Quick Fixes';
+      });
+    
+    let completedCount = 0;
+    if (quickFixModule) {
+      const cardTrack = quickFixModule.querySelector('.card-track');
+      const cards = cardTrack?.querySelectorAll('.seo-card, .cannibalization-card');
+      completedCount = cards ? cards.length : 0;
+    }
+    
+    // Update the grid with the count
+    updateProgressGrid(completedCount);
+    
+    progressModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  // Close the modal
+  function closeProgressModal() {
+    if (!progressModal) return;
+    
+    progressModal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  // Initialize the grid on page load
+  initializeProgressGrid();
+
+  // Attach event listeners
+  if (stickyQuickFixBtn) {
+    stickyQuickFixBtn.addEventListener('click', openProgressModal);
+  }
+
+  if (modalCloseBtn) {
+    modalCloseBtn.addEventListener('click', closeProgressModal);
+  }
+
+  // Close modal when clicking outside the content
+  if (progressModal) {
+    progressModal.addEventListener('click', (e) => {
+      if (e.target === progressModal) {
+        closeProgressModal();
+      }
+    });
+  }
+
+  // Close modal with Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && progressModal?.classList.contains('active')) {
+      closeProgressModal();
+    }
+  });
+
+  // Expose update function globally for use after calibration
+  window.updateProgressGrid = updateProgressGrid;
 });
