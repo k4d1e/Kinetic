@@ -1,8 +1,4 @@
-alert('BUTTONS.JS IS LOADING!');
-console.log('🔧 buttons.js loaded');
-
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('🔧 buttons.js DOMContentLoaded fired');
   // 1. Select ALL slider wrappers on the page (Module 1, Module 2, etc.)
   const allSliders = document.querySelectorAll('.slider-wrapper');
 
@@ -57,20 +53,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const stickyQuickFixBtn = document.getElementById('sticky-quick-fix');
   const modalCloseBtn = progressModal?.querySelector('.progress-modal-close');
 
-  // Debug logging
-  console.log('Progress Modal Elements:', {
-    progressModal: !!progressModal,
-    progressGrid: !!progressGrid,
-    stickyQuickFixBtn: !!stickyQuickFixBtn,
-    modalCloseBtn: !!modalCloseBtn
-  });
-
   // Initialize the grid with 72 cards (8x9)
   function initializeProgressGrid() {
-    if (!progressGrid) {
-      console.error('Progress grid element not found');
-      return;
-    }
+    if (!progressGrid) return;
     
     progressGrid.innerHTML = '';
     
@@ -99,11 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Open the modal
   function openProgressModal() {
-    console.log('openProgressModal called, progressModal exists:', !!progressModal);
-    if (!progressModal) {
-      console.error('Progress modal element not found');
-      return;
-    }
+    if (!progressModal) return;
     
     // Count the number of cards in SEO Quick Fixes module
     const quickFixModule = Array.from(document.querySelectorAll('.module-container'))
@@ -139,13 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Attach event listeners
   if (stickyQuickFixBtn) {
-    console.log('Attaching click listener to sticky quick fix button');
-    stickyQuickFixBtn.addEventListener('click', (e) => {
-      console.log('Sticky quick fix button clicked!', e);
-      openProgressModal();
-    });
-  } else {
-    console.error('Sticky quick fix button not found');
+    stickyQuickFixBtn.addEventListener('click', openProgressModal);
   }
 
   if (modalCloseBtn) {
