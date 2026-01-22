@@ -1,4 +1,15 @@
 /* base.css */
+
+/* QOBAR Font Import */
+@font-face {
+  font-family: 'QOBAR';
+  src: url('../fonts/qobar-font/Qobar-q2Wj1.otf') format('opentype'),
+       url('../fonts/qobar-font/Qobar-V4nvl.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap; /* Improves loading performance */
+}
+
 :root {
     /* Brand Colors */
     --color-primary-green: #4DAA7F;
@@ -12,12 +23,14 @@
     --color-card-bg: #383737;
     --color-text-white: #FFFFFF;
     --color-text-dark: #333333;
+    --color-text-blue: #14b2ec;
     --color-nav-bg: #AAAAAA;
 
     /* Backgrounds */
     --color-void-black: #0a0a0a;
   
     /* Typography */
+    --font-title: 'QOBAR', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --font-size-h2: 24px;
     --font-size-card-title: 28px;

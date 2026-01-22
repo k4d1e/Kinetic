@@ -1,5 +1,70 @@
 /* components.css */
 
+/* Greeting Section */
+.greeting-section {
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.greeting-title {
+  font-family: var(--font-title);
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--color-text-blue);
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+.greeting-title .typing-cursor {
+  color: white !important;
+  animation: blink 1s infinite;
+  margin-left: 2px;
+}
+
+/* Sprint Plan Section */
+.sprint-section {
+  padding: 40px 20px;
+  text-align: left;
+  margin-left: 200px;
+}
+
+.sprint-title {
+  font-family: var(--font-title);
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--color-text-blue);
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+.sprint-title .typing-cursor {
+  color: white !important;
+  animation: blink 1s infinite;
+  margin-left: 4px;
+  font-weight: 900;
+  transform: scaleX(2); /* Make it wider horizontally */
+  display: inline-block; /* Required for transform to work */
+}
+
+.sprint-container {
+  background-color: black;
+  width: 30vw;
+  margin-left: calc(-200px - 20px); /* Negative margin to offset section margin-left and padding-left */
+  padding: 20px 20px 20px 100px; /* top right bottom left - more left padding */
+  min-height: 50px; /* Adjust height as needed */
+  display: flex;
+  align-items: flex-start;
+}
+
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
 /* The Row Container */
 .badge-row {
     display: flex;
