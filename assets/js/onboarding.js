@@ -235,6 +235,10 @@ class OnboardingStateMachine {
         document.body.classList.remove('onboarding-active');
         
         console.log('✓ Session restored - skipped onboarding');
+        
+        // Dispatch custom event to signal onboarding is complete (skipped)
+        window.dispatchEvent(new CustomEvent('onboardingComplete'));
+        console.log('✓ Dispatched onboardingComplete event (from cache restore)');
       } else {
         console.log('⚠️ No cached data found, showing onboarding...');
         // If no cache, show onboarding and fetch fresh data
@@ -533,6 +537,10 @@ class OnboardingUI {
     // Show main content (remove blur)
     document.body.classList.remove('onboarding-active');
     // Note: Quick Wins already loaded during calibration checklist
+    
+    // Dispatch custom event to signal onboarding is complete
+    window.dispatchEvent(new CustomEvent('onboardingComplete'));
+    console.log('✓ Dispatched onboardingComplete event');
   }
 
   async loadQuickWinsModule() {
@@ -706,6 +714,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (container) {
       container.style.display = 'none';
     }
+    
+    // Dispatch event to allow typing animation to start
+    window.dispatchEvent(new CustomEvent('onboardingComplete'));
+    console.log('✓ Dispatched onboardingComplete event (dev mode)');
     
     return; // Skip all onboarding initialization
   }
