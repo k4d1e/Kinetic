@@ -145,4 +145,113 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Expose update function globally for use after calibration
   window.updateProgressGrid = updateProgressGrid;
+
+  // ========================================
+  // New Markets Modal Logic
+  // ========================================
+
+  const newMarketsModal = document.getElementById('new-markets-modal');
+  const newMarketsList = document.getElementById('new-markets-list');
+  const stickyNewMarketsBtn = document.getElementById('sticky-new-markets');
+  const newMarketsCloseBtn = newMarketsModal?.querySelector('.new-markets-modal-close');
+
+  // Populate the list with queries from untapped markets data
+  function populateNewMarketsList() {
+    if (!newMarketsList) return;
+    
+    // Clear existing items
+    newMarketsList.innerHTML = '';
+    
+    // Get untapped markets data (limit to first 16 as per card generation pattern)
+    const untappedMarketsData = window.untappedMarketsData || [];
+    const displayData = untappedMarketsData.slice(0, 16);
+    
+    if (displayData.length === 0) {
+      // Show empty state
+      newMarketsList.innerHTML = `
+        <div style="text-align: center; color: var(--color-dark-blue); padding: 40px;">
+          <p style="font-size: 16px; font-weight: 700; margin-top: 2px;">No new markets data available yet.</p>
+          <p style="font-size: 16px; font-weight: 700; margin-top: 2px;">Complete onboarding calibration to populate this data.</p>
+        </div>
+      `;
+      return;
+    }
+    
+    // Loop through each opportunity and extract keywords
+    displayData.forEach(opportunity => {
+      if (opportunity.keywords && Array.isArray(opportunity.keywords)) {
+        opportunity.keywords.forEach(keyword => {
+          // Create list item
+          const listItem = document.createElement('div');
+          listItem.className = 'new-markets-list-item';
+          
+          // Create blue card
+          const card = document.createElement('div');
+          card.className = 'new-markets-card';
+          
+          // Create query text with quotations
+          const queryText = document.createElement('div');
+          queryText.className = 'new-markets-query';
+          queryText.textContent = `"${keyword}"`;
+          
+          // Append to list item
+          listItem.appendChild(card);
+          listItem.appendChild(queryText);
+          
+          // Append to list
+          newMarketsList.appendChild(listItem);
+        });
+      }
+    });
+    
+    console.log(`✓ New Markets modal populated with queries from ${displayData.length} opportunities`);
+  }
+
+  // Open the New Markets modal
+  function openNewMarketsModal() {
+    if (!newMarketsModal) return;
+    
+    // Populate the list with current data
+    populateNewMarketsList();
+    
+    // Show modal
+    newMarketsModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  // Close the New Markets modal
+  function closeNewMarketsModal() {
+    if (!newMarketsModal) return;
+    
+    newMarketsModal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  // Attach event listeners for New Markets modal
+  if (stickyNewMarketsBtn) {
+    stickyNewMarketsBtn.addEventListener('click', openNewMarketsModal);
+  }
+
+  if (newMarketsCloseBtn) {
+    newMarketsCloseBtn.addEventListener('click', closeNewMarketsModal);
+  }
+
+  // Close modal when clicking outside the content
+  if (newMarketsModal) {
+    newMarketsModal.addEventListener('click', (e) => {
+      if (e.target === newMarketsModal) {
+        closeNewMarketsModal();
+      }
+    });
+  }
+
+  // Close New Markets modal with Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && newMarketsModal?.classList.contains('active')) {
+      closeNewMarketsModal();
+    }
+  });
+
+  // Expose populate function globally for use after calibration
+  window.populateNewMarketsList = populateNewMarketsList;
 });
