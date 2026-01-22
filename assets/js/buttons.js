@@ -254,4 +254,112 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Expose populate function globally for use after calibration
   window.populateNewMarketsList = populateNewMarketsList;
+
+  /**
+   * ============================================================
+   * AI VISIBILITY MODAL
+   * ============================================================
+   */
+  const aiVisibilityModal = document.getElementById('ai-visibility-modal');
+  const aiVisibilityList = document.getElementById('ai-visibility-list');
+  const stickyAIVisibilityBtn = document.getElementById('sticky-ai-visibility');
+  const aiVisibilityCloseBtn = aiVisibilityModal?.querySelector('.ai-visibility-modal-close');
+
+  // Populate the list with queries from AI visibility data
+  function populateAIVisibilityList() {
+    if (!aiVisibilityList) return;
+    
+    // Clear existing items
+    aiVisibilityList.innerHTML = '';
+    
+    // Get AI visibility data (limit to first 16 as per card generation pattern)
+    const aiVisibilityData = window.aiVisibilityData || [];
+    const displayData = aiVisibilityData.slice(0, 16);
+    
+    if (displayData.length === 0) {
+      // Show empty state
+      aiVisibilityList.innerHTML = `
+        <div style="text-align: center; color: var(--color-dark-blue); padding: 40px;">
+          <p style="font-size: 16px; font-weight: 700; margin-top: 2px;">No AI visibility data available yet.</p>
+          <p style="font-size: 16px; font-weight: 700; margin-top: 2px;">Complete onboarding calibration to populate this data.</p>
+        </div>
+      `;
+      return;
+    }
+    
+    // Loop through each opportunity and create list items
+    displayData.forEach(opportunity => {
+      if (opportunity.query) {
+        // Create list item
+        const listItem = document.createElement('div');
+        listItem.className = 'ai-visibility-list-item';
+        
+        // Create blue card
+        const card = document.createElement('div');
+        card.className = 'ai-visibility-card';
+        
+        // Create query text with quotations
+        const queryText = document.createElement('div');
+        queryText.className = 'ai-visibility-query';
+        queryText.textContent = `"${opportunity.query}"`;
+        
+        // Append to list item
+        listItem.appendChild(card);
+        listItem.appendChild(queryText);
+        
+        // Append to list
+        aiVisibilityList.appendChild(listItem);
+      }
+    });
+    
+    console.log(`✓ AI Visibility modal populated with ${displayData.length} queries`);
+  }
+
+  // Open the AI Visibility modal
+  function openAIVisibilityModal() {
+    if (!aiVisibilityModal) return;
+    
+    // Populate the list with current data
+    populateAIVisibilityList();
+    
+    // Show modal
+    aiVisibilityModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  // Close the AI Visibility modal
+  function closeAIVisibilityModal() {
+    if (!aiVisibilityModal) return;
+    
+    aiVisibilityModal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  // Attach event listeners for AI Visibility modal
+  if (stickyAIVisibilityBtn) {
+    stickyAIVisibilityBtn.addEventListener('click', openAIVisibilityModal);
+  }
+
+  if (aiVisibilityCloseBtn) {
+    aiVisibilityCloseBtn.addEventListener('click', closeAIVisibilityModal);
+  }
+
+  // Close modal when clicking outside the content
+  if (aiVisibilityModal) {
+    aiVisibilityModal.addEventListener('click', (e) => {
+      if (e.target === aiVisibilityModal) {
+        closeAIVisibilityModal();
+      }
+    });
+  }
+
+  // Close AI Visibility modal with Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && aiVisibilityModal?.classList.contains('active')) {
+      closeAIVisibilityModal();
+    }
+  });
+
+  // Expose populate function globally for use after calibration
+  window.populateAIVisibilityList = populateAIVisibilityList;
 });

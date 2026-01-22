@@ -2066,3 +2066,135 @@ datalist option:hover {
 .new-markets-list-container::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-blue);
 }
+
+/* AI Visibility Modal */
+.ai-visibility-modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-void-blue);
+  z-index: 10000;
+  justify-content: center;
+  align-items: center;
+}
+
+.ai-visibility-modal-overlay.active {
+  display: flex;
+}
+
+.ai-visibility-modal-content {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  height: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 40px;
+}
+
+.ai-visibility-modal-close {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  background: none;
+  border: none;
+  font-size: 48px;
+  color: var(--color-text-white);
+  cursor: pointer;
+  z-index: 10001;
+  transition: color 0.3s ease;
+}
+
+.ai-visibility-modal-close:hover {
+  color: var(--color-primary-green);
+}
+
+.ai-visibility-modal-title {
+  font-family: var(--font-main);
+  font-size: 36px;
+  color: var(--color-text-blue);
+  margin-bottom: 0px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.ai-visibility-modal-icon {
+  width: 32px;
+  height: 32px;
+  color: var(--color-text-blue);
+  flex-shrink: 0;
+}
+
+.ai-visibility-list-container {
+  width: 100%;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  justify-content: center;
+  padding: 0 20px;
+}
+
+.ai-visibility-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 700px;
+}
+
+.ai-visibility-list-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 0;
+}
+
+.ai-visibility-card {
+  width: 23px;
+  height: 23px;
+  background-color: var(--color-dark-blue);
+  border-radius: 5px;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.ai-visibility-card:hover {
+  transform: scale(1.1);
+}
+
+.ai-visibility-query {
+  font-family: var(--font-main);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-dark-blue);
+  line-height: 1.0;
+  flex: 1;
+}
+
+/* Custom scrollbar for AI Visibility list */
+.ai-visibility-list-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.ai-visibility-list-container::-webkit-scrollbar-track {
+  background: rgba(13, 27, 62, 0.3);
+  border-radius: 4px;
+}
+
+.ai-visibility-list-container::-webkit-scrollbar-thumb {
+  background: var(--color-dark-blue);
+  border-radius: 4px;
+}
+
+.ai-visibility-list-container::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-blue);
+}

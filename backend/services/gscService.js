@@ -469,7 +469,7 @@ async function analyzeAIVisibility(pool, userId, siteUrl) {
       const query = (row.keys[0] || '').toLowerCase();
       
       // Must rank in top 10 and have reasonable impressions
-      if (position > 10 || impressions < 20) return false;
+      if (position > 10 || impressions < 1) return false;
       
       // Must contain at least one information signal
       const hasInfoSignal = Object.values(infoSignals).some(signals =>
