@@ -56,6 +56,24 @@
   align-items: flex-start;
 }
 
+.sprint-circles {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 440px;
+  margin-left: calc(-200px - 20px);
+  padding: 10px 10px 10px 150px;
+  margin-top: 20px;
+}
+
+.sprint-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #1e3a5f; /* Dark blue color */
+  flex-shrink: 0;
+}
+
 @keyframes blink {
   0%, 50% {
     opacity: 1;
