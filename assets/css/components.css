@@ -1912,15 +1912,15 @@ datalist option:hover {
   display: grid;
   grid-template-columns: repeat(8, 10px);
   grid-template-rows: repeat(9, 10px);
-  gap: 8px;
+  gap: 22px;
   padding: 20px;
 }
 
 .progress-grid-card {
-  width: 20px;
-  height: 20px;
+  width: 23px;
+  height: 23px;
   background-color: var(--color-dark-blue);
-  border-radius: 3px;
+  border-radius: 4px;
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
