@@ -25,11 +25,173 @@
             <h1 class="sprint-title"><span id="sprint-typing-text"></span><span class="typing-cursor">|</span></h1>
         </div>
         <div class="sprint-circles">
-            <div class="sprint-circle"></div>
-            <div class="sprint-circle"></div>
-            <div class="sprint-circle"></div>
-            <div class="sprint-circle"></div>
+            <div class="sprint-circle active" data-sprint-index="0" data-status="active"></div>
+            <div class="sprint-circle locked" data-sprint-index="1" data-status="locked"></div>
+            <div class="sprint-circle locked" data-sprint-index="2" data-status="locked"></div>
+            <div class="sprint-circle locked" data-sprint-index="3" data-status="locked"></div>
         </div>
+
+        <!-- Sprint Plan Card Container -->
+        <div class="sprint-plan-card-container" style="display: none;">
+            <div class="sprint-plan-card">
+                
+                <!-- Page 1: Mission Introduction -->
+                <div class="sprint-card-page" data-page="1">
+                    <div class="mission-header">MISSION:</div>
+                    <div class="mission-title">Meta Surgeon Protocol</div>
+                    
+                    <div class="progress-line-container">
+                        <div class="progress-line" style="--progress-fill: 0%;"></div>
+                        <div class="entity-signal-label">Entity Signal Strength</div>
+                    </div>
+                    
+                    <div class="strategist-insight">Strategist Insight:</div>
+                    <div class="insight-blockquote">
+                        Before we fight for keywords, we must introduce you to the algorithm. Right now, Google is guessing who you are. We will stop the guessing. By injecting these 4 'Truth Layers' into your code, we force the search engines to recognize Oregon Exterior Experts as a verified local entity, not just another website.
+                    </div>
+                    
+                    <div class="card-footer">
+                        <button class="btn-continue">Continue</button>
+                    </div>
+                </div>
+
+                <!-- Page 2: Step 1 -->
+                <div class="sprint-card-page" data-page="2" style="display: none;">
+                    <div class="mission-header">MISSION:</div>
+                    <div class="mission-title">Meta Surgeon Protocol</div>
+                    
+                    <div class="progress-line-container">
+                        <div class="progress-line" style="--progress-fill: 0%;"></div>
+                        <div class="entity-signal-label">Entity Signal Strength</div>
+                    </div>
+                    
+                    <div class="step-header">Step 1: Global Identity</div>
+                    <div class="step-body">
+                        First, we hard-code your brand's DNA (Logo, Phone, Social Profiles) into the pages of your site.
+                    </div>
+                    
+                    <div class="instruction-container">
+                        <div class="instruction-label">Target Files</div>
+                        <div class="instruction-label">Cursor Instruction</div>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <button class="btn-execution-assist">Execution Assist</button>
+                        <button class="btn-next-step">Next Step</button>
+                    </div>
+                </div>
+
+                <!-- Page 3: Step 2 -->
+                <div class="sprint-card-page" data-page="3" style="display: none;">
+                    <div class="mission-header">MISSION:</div>
+                    <div class="mission-title">Meta Surgeon Protocol</div>
+                    
+                    <div class="progress-line-container">
+                        <div class="progress-line" style="--progress-fill: 35%;"></div>
+                        <div class="entity-signal-label">Entity Signal Strength</div>
+                    </div>
+                    
+                    <div class="step-header">Step 2: Territory Claim</div>
+                    <div class="step-body">
+                        Next, we draw the digital borders. We will define the exact 'GEO Circle' for each city you service so Google knows exactly where your trucks go.
+                    </div>
+                    
+                    <div class="instruction-container">
+                        <div class="instruction-label">Target Files</div>
+                        <div class="instruction-label">Cursor Instruction</div>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <button class="btn-execution-assist">Execution Assist</button>
+                        <button class="btn-next-step">Next Step</button>
+                    </div>
+                </div>
+
+                <!-- Page 4: Step 3 -->
+                <div class="sprint-card-page" data-page="4" style="display: none;">
+                    <div class="mission-header">MISSION:</div>
+                    <div class="mission-title">Meta Surgeon Protocol</div>
+                    
+                    <div class="progress-line-container">
+                        <div class="progress-line" style="--progress-fill: 65%;"></div>
+                        <div class="entity-signal-label">Entity Signal Strength</div>
+                    </div>
+                    
+                    <div class="step-header">Step 3: Commercial Definition</div>
+                    <div class="step-body">
+                        Now, we define the product. We explicitly tell the bot that 'Roofing' is a Service you sell, with a specific price range, turning your page from a 'brochure' to a 'catalog'.
+                    </div>
+                    
+                    <div class="instruction-container">
+                        <div class="instruction-label">Target Files</div>
+                        <div class="instruction-label">Cursor Instruction</div>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <button class="btn-execution-assist">Execution Assist</button>
+                        <button class="btn-next-step">Next Step</button>
+                    </div>
+                </div>
+
+                <!-- Page 5: Step 4 -->
+                <div class="sprint-card-page" data-page="5" style="display: none;">
+                    <div class="mission-header">MISSION:</div>
+                    <div class="mission-title">Meta Surgeon Protocol</div>
+                    
+                    <div class="progress-line-container">
+                        <div class="progress-line" style="--progress-fill: 95%;"></div>
+                        <div class="entity-signal-label">Entity Signal Strength</div>
+                    </div>
+                    
+                    <div class="step-header">Step 4: Reputation Sync</div>
+                    <div class="step-body">
+                        Finally, we aggregate your trust. Let's take your scattered 5-star reviews and format them into a 'CollectionPage' that search engines can count.
+                    </div>
+                    
+                    <div class="instruction-container">
+                        <div class="instruction-label">Cursor Instruction</div>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <button class="btn-execution-assist">Execution Assist</button>
+                        <button class="btn-complete">
+                            Complete
+                            <svg class="checkmark-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Page 6: Completion Status -->
+                <div class="sprint-card-page" data-page="6" style="display: none;">
+                    <div class="mission-header">MISSION:</div>
+                    <div class="mission-title">Meta Surgeon Protocol</div>
+                    
+                    <div class="progress-line-container">
+                        <div class="progress-line" style="--progress-fill: 95%;"></div>
+                        <div class="entity-signal-label">Entity Signal Strength</div>
+                    </div>
+                    
+                    <div class="completion-checklist">
+                        <div class="checklist-step">Step 1</div>
+                        <div class="checklist-step">Step 2</div>
+                        <div class="checklist-step">Step 3</div>
+                        <div class="checklist-step">Step 4</div>
+                    </div>
+                    
+                    <div class="strategist-insight">Strategist:</div>
+                    
+                    <div class="status-container">
+                        <div class="status-line">Status: Scanning Source Code...</div>
+                        <div class="status-line">Status: Entity Signal Established.</div>
+                        <div class="status-line">Success: Your business is now a verified entity. 4 Schema Packs Active.</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
         <div class="sprint-checklist">
             <div class="checklist-item" data-index="0">
                 <div class="spinner"></div>
@@ -37,7 +199,7 @@
             </div>
             <div class="checklist-item" data-index="1">
                 <div class="spinner"></div>
-                Discovering Untapped Markets
+                Discovering Untapped Markets...
             </div>
             <div class="checklist-item" data-index="2">
                 <div class="spinner"></div>
@@ -661,6 +823,7 @@
     <script src="assets/js/accordion.js"></script>
     <script src="assets/js/typingEffect.js"></script>
     <script src="assets/js/checklistAnimation.js"></script>
+    <script src="assets/js/sprintPlan.js"></script>
 
 </body>
 </html>
