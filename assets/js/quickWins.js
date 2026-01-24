@@ -1067,7 +1067,7 @@ const displayKeywords = keywords.map((kw, index) => {
       icon: '🎯',
       description: `Locate where to add the concise answer block on your page for "${query}".`,
       tasks: [
-        `Navigate to: <code>${truncateUrl(page)}</code>`,
+        `Navigate to: <code>${page}</code>`,
         `Find the main content area discussing "${query.substring(0, 50)}..."`,
         `Look for the section that currently ranks at position ${position}`,
         `Identify the best location (usually near the top or H2 heading) for your answer block`

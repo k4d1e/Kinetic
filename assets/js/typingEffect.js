@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return; // Exit if elements don't exist
     }
     
-    const greetingText = 'Hello, Kadie';
+    const greetingText = 'Good Morning, Kadie';
     const sprintText = 'Your SEO Sprint Plan';
     const typingSpeed = 100; // milliseconds per character
     
