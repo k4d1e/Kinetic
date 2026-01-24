@@ -128,13 +128,10 @@ document.addEventListener('DOMContentLoaded', () => {
    * Animate the orange horizontal line to the specified percentage
    */
   function updateProgressLine(percentage) {
-    // Find all progress lines in currently visible page
-    const visiblePage = document.querySelector('.sprint-card-page[style*="display: flex"]');
-    if (visiblePage) {
-      const progressLine = visiblePage.querySelector('.progress-line');
-      if (progressLine) {
-        progressLine.style.setProperty('--progress-fill', `${percentage}%`);
-      }
+    // Find the shared progress line in the header
+    const progressLine = document.querySelector('.sprint-card-header .progress-line');
+    if (progressLine) {
+      progressLine.style.setProperty('--progress-fill', `${percentage}%`);
     }
   }
 
