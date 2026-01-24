@@ -72,6 +72,332 @@
   border-radius: 50%;
   background-color: #1e3a5f; /* Dark blue color */
   flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+/* Sprint Circle States */
+.sprint-circle.active {
+  background-color: #4FA0C0; /* Light blue for active */
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(79, 160, 192, 0.5);
+}
+
+.sprint-circle.active:hover {
+  background-color: #5ab5d5;
+  transform: scale(1.1);
+}
+
+.sprint-circle.locked {
+  background-color: #1e3a5f;
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.sprint-circle.completed {
+  background-color: #4DAA7F; /* Green for completed */
+  position: relative;
+}
+
+.sprint-circle.completed::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* Sprint Plan Card Container */
+.sprint-plan-card-container {
+  width: 640px;
+  margin-left: calc(-200px - 20px);
+  padding: 20px 10px 10px 150px;
+  margin-top: 30px;
+  animation: slideDown 0.4s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sprint-plan-card {
+  background-color: var(--color-dark-blue);
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 640px;
+  aspect-ratio: 4 / 3;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+}
+
+.sprint-card-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  animation: fadeIn 0.3s ease;
+}
+
+/* Mission Header */
+.mission-header {
+  font-family: var(--font-title);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-primary-green);
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+.mission-title {
+  font-family: var(--font-main);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text-white);
+  margin-bottom: 15px;
+}
+
+/* Progress Line */
+.progress-line-container {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.progress-line {
+  height: 3px;
+  background-color: rgba(232, 139, 96, 0.2);
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-line::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: var(--progress-fill);
+  background-color: var(--color-accent-orange);
+  transition: width 0.6s ease;
+}
+
+.entity-signal-label {
+  position: absolute;
+  right: 0;
+  top: -18px;
+  font-size: 9px;
+  color: var(--color-accent-orange);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Strategist Insight */
+.strategist-insight {
+  font-family: var(--font-main);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-primary-green);
+  margin-bottom: 12px;
+}
+
+.insight-blockquote {
+  font-family: var(--font-main);
+  font-size: 14px;
+  color: var(--color-text-blue);
+  line-height: 1.6;
+  padding-left: 15px;
+  border-left: 3px solid var(--color-accent-orange);
+  margin-bottom: 20px;
+  flex: 1;
+}
+
+/* Step Headers and Body */
+.step-header {
+  font-family: var(--font-main);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text-blue);
+  margin-bottom: 12px;
+}
+
+.step-body {
+  font-family: var(--font-main);
+  font-size: 14px;
+  color: var(--color-text-blue);
+  line-height: 1.6;
+  margin-bottom: 20px;
+  flex: 1;
+}
+
+/* Instruction Container */
+.instruction-container {
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  padding: 15px 20px;
+  margin-bottom: 20px;
+}
+
+.instruction-label {
+  font-family: var(--font-main);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-primary-green);
+  margin-bottom: 8px;
+}
+
+.instruction-label:last-child {
+  margin-bottom: 0;
+}
+
+/* Completion Checklist (Page 6) */
+.completion-checklist {
+  display: flex;
+  justify-content: space-around;
+  gap: 15px;
+  margin-bottom: 20px;
+  padding: 15px 0;
+}
+
+.checklist-step {
+  font-family: var(--font-main);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-blue);
+  padding: 8px 16px;
+  background-color: rgba(20, 178, 236, 0.1);
+  border-radius: 8px;
+  border: 1px solid var(--color-text-blue);
+}
+
+/* Status Container (Page 6) */
+.status-container {
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  flex: 1;
+}
+
+.status-line {
+  font-family: var(--font-main);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-primary-green);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.status-line:last-child {
+  margin-bottom: 0;
+}
+
+/* Card Footer Buttons */
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-top: auto;
+}
+
+.btn-execution-assist {
+  background-color: var(--color-primary-green);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(77, 170, 127, 0.3);
+}
+
+.btn-execution-assist:hover {
+  background-color: #3d8a65;
+  transform: translateY(-1px);
+}
+
+.btn-execution-assist:active {
+  transform: translateY(0);
+}
+
+.btn-continue,
+.btn-next-step {
+  background-color: var(--color-action-blue);
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(79, 160, 192, 0.3);
+  margin-left: auto;
+}
+
+.btn-continue:hover,
+.btn-next-step:hover {
+  background-color: #458ca8;
+  transform: translateY(-1px);
+}
+
+.btn-continue:active,
+.btn-next-step:active {
+  transform: translateY(0);
+}
+
+.btn-complete {
+  background-color: var(--color-primary-green);
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(77, 170, 127, 0.3);
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-complete:hover {
+  background-color: #3d8a65;
+  transform: translateY(-1px);
+}
+
+.btn-complete:active {
+  transform: translateY(0);
+}
+
+.checkmark-icon {
+  width: 18px;
+  height: 18px;
+  stroke-width: 3;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .sprint-checklist {
