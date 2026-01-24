@@ -36,8 +36,8 @@
             <div class="sprint-plan-card">
                 <div class="notification-dot"></div>
                 
-                <!-- Page 1: Mission Introduction -->
-                <div class="sprint-card-page" data-page="1">
+                <!-- Shared Header Section -->
+                <div class="sprint-card-header">
                     <div class="mission-header">MISSION:</div>
                     <div class="mission-title">Meta Surgeon Protocol</div>
                     
@@ -45,21 +45,26 @@
                         <div class="progress-line" style="--progress-fill: 0%;"></div>
                         <div class="entity-signal-label">Entity Signal Strength</div>
                     </div>
-                    
-                    <div class="strategist-insight">
-                        <svg class="strategist-icon" xmlns="http://www.w3.org/2000/svg" version="1.0" viewBox="0 0 600.000000 600.000000" preserveAspectRatio="xMidYMid meet">
-                            <g transform="translate(0.000000,600.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none">
-                                <path d="M2770 5183 c-508 -49 -943 -246 -1299 -588 -397 -381 -618 -848 -663 -1401 -14 -174 0 -383 38 -574 112 -550 446 -1046 922 -1363 270 -181 604 -303 937 -342 549 -64 1112 93 1554 435 86 67 253 225 317 300 262 309 427 671 496 1085 20 123 17 525 -5 645 -61 330 -161 587 -332 846 -316 482 -832 825 -1395 927 -176 33 -418 45 -570 30z m1070 -713 c11 -6 51 -72 89 -148 70 -137 70 -137 133 -174 35 -20 100 -55 146 -77 91 -46 112 -72 96 -119 -7 -22 -38 -42 -154 -102 l-145 -75 -72 -140 c-78 -155 -100 -177 -153 -155 -22 9 -42 39 -95 143 -37 73 -72 138 -78 145 -5 7 -72 44 -147 83 -116 58 -140 74 -151 100 -21 53 -1 73 156 153 l140 71 75 144 c82 158 106 180 160 151z m-843 -302 c11 -13 43 -87 71 -165 65 -179 99 -254 154 -340 66 -102 141 -187 223 -254 133 -109 203 -147 425 -229 85 -32 167 -63 182 -70 51 -24 54 -93 6 -124 -13 -8 -95 -41 -184 -74 -188 -70 -253 -102 -349 -170 -102 -71 -177 -143 -244 -233 -88 -117 -126 -190 -203 -397 -38 -103 -77 -193 -86 -199 -23 -18 -66 -16 -91 5 -11 9 -40 73 -67 146 -105 292 -170 405 -319 553 -145 144 -253 207 -520 305 -164 60 -195 79 -195 125 0 42 40 67 195 122 247 88 366 155 502 284 160 152 231 274 344 592 22 61 49 118 60 128 29 24 71 22 96 -5z"/>
-                            </g>
-                        </svg>
-                        Strategist Insight:
-                    </div>
-                    <div class="insight-blockquote">
-                        "Before we fight for keywords, we must introduce you to the algorithm. Right now, Google is guessing who you are. We will stop the guessing. By injecting these 4 'Truth Layers' into your code, we force the search engines to recognize Oregon Exterior Experts as a verified local entity, not just another website."
-                    </div>
-                    
-                    <div class="card-footer">
-                        <button class="btn-continue">
+                </div>
+                
+                <!-- Pages Container -->
+                <div class="sprint-pages-container">
+                    <!-- Page 1: Mission Introduction -->
+                    <div class="sprint-card-page" data-page="1">
+                        <div class="strategist-insight">
+                            <svg class="strategist-icon" xmlns="http://www.w3.org/2000/svg" version="1.0" viewBox="0 0 600.000000 600.000000" preserveAspectRatio="xMidYMid meet">
+                                <g transform="translate(0.000000,600.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none">
+                                    <path d="M2770 5183 c-508 -49 -943 -246 -1299 -588 -397 -381 -618 -848 -663 -1401 -14 -174 0 -383 38 -574 112 -550 446 -1046 922 -1363 270 -181 604 -303 937 -342 549 -64 1112 93 1554 435 86 67 253 225 317 300 262 309 427 671 496 1085 20 123 17 525 -5 645 -61 330 -161 587 -332 846 -316 482 -832 825 -1395 927 -176 33 -418 45 -570 30z m1070 -713 c11 -6 51 -72 89 -148 70 -137 70 -137 133 -174 35 -20 100 -55 146 -77 91 -46 112 -72 96 -119 -7 -22 -38 -42 -154 -102 l-145 -75 -72 -140 c-78 -155 -100 -177 -153 -155 -22 9 -42 39 -95 143 -37 73 -72 138 -78 145 -5 7 -72 44 -147 83 -116 58 -140 74 -151 100 -21 53 -1 73 156 153 l140 71 75 144 c82 158 106 180 160 151z m-843 -302 c11 -13 43 -87 71 -165 65 -179 99 -254 154 -340 66 -102 141 -187 223 -254 133 -109 203 -147 425 -229 85 -32 167 -63 182 -70 51 -24 54 -93 6 -124 -13 -8 -95 -41 -184 -74 -188 -70 -253 -102 -349 -170 -102 -71 -177 -143 -244 -233 -88 -117 -126 -190 -203 -397 -38 -103 -77 -193 -86 -199 -23 -18 -66 -16 -91 5 -11 9 -40 73 -67 146 -105 292 -170 405 -319 553 -145 144 -253 207 -520 305 -164 60 -195 79 -195 125 0 42 40 67 195 122 247 88 366 155 502 284 160 152 231 274 344 592 22 61 49 118 60 128 29 24 71 22 96 -5z"/>
+                                </g>
+                            </svg>
+                            Strategist Insight:
+                        </div>
+                        <div class="insight-blockquote">
+                            "Before we fight for keywords, we must introduce you to the algorithm. Right now, Google is guessing who you are. We will stop the guessing. By injecting these 4 'Truth Layers' into your code, we force the search engines to recognize Oregon Exterior Experts as a verified local entity, not just another website."
+                        </div>
+                        
+                        <div class="card-footer">
+                            <button class="btn-continue">
                             Continue
                             <svg class="btn-arrow-icon" xmlns="http://www.w3.org/2000/svg" version="1.0" viewBox="0 0 600.000000 600.000000" preserveAspectRatio="xMidYMid meet">
                                 <g transform="translate(0.000000,600.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none">
@@ -70,17 +75,9 @@
                     </div>
                 </div>
 
-                <!-- Page 2: Step 1 -->
-                <div class="sprint-card-page" data-page="2" style="display: none;">
-                    <div class="mission-header">MISSION:</div>
-                    <div class="mission-title">Meta Surgeon Protocol</div>
-                    
-                    <div class="progress-line-container">
-                        <div class="progress-line" style="--progress-fill: 0%;"></div>
-                        <div class="entity-signal-label">Entity Signal Strength</div>
-                    </div>
-                    
-                    <div class="step-header">Step 1: Global Identity</div>
+                    <!-- Page 2: Step 1 -->
+                    <div class="sprint-card-page" data-page="2" style="display: none;">
+                        <div class="step-header">Step 1: Global Identity</div>
                     <div class="step-body">
                         "First, we hard-code your brand's DNA (Logo, Phone, Social Profiles) into the pages of your site."
                     </div>
@@ -110,17 +107,9 @@
                     </div>
                 </div>
 
-                <!-- Page 3: Step 2 -->
-                <div class="sprint-card-page" data-page="3" style="display: none;">
-                    <div class="mission-header">MISSION:</div>
-                    <div class="mission-title">Meta Surgeon Protocol</div>
-                    
-                    <div class="progress-line-container">
-                        <div class="progress-line" style="--progress-fill: 35%;"></div>
-                        <div class="entity-signal-label">Entity Signal Strength</div>
-                    </div>
-                    
-                    <div class="step-header">Step 2: Territory Claim</div>
+                    <!-- Page 3: Step 2 -->
+                    <div class="sprint-card-page" data-page="3" style="display: none;">
+                        <div class="step-header">Step 2: Territory Claim</div>
                     <div class="step-body">
                         "Next, we draw the digital borders. We will define the exact 'GEO Circle' for each city you service so Google knows exactly where your trucks go."
                     </div>
@@ -150,17 +139,9 @@
                     </div>
                 </div>
 
-                <!-- Page 4: Step 3 -->
-                <div class="sprint-card-page" data-page="4" style="display: none;">
-                    <div class="mission-header">MISSION:</div>
-                    <div class="mission-title">Meta Surgeon Protocol</div>
-                    
-                    <div class="progress-line-container">
-                        <div class="progress-line" style="--progress-fill: 65%;"></div>
-                        <div class="entity-signal-label">Entity Signal Strength</div>
-                    </div>
-                    
-                    <div class="step-header">Step 3: Commercial Definition</div>
+                    <!-- Page 4: Step 3 -->
+                    <div class="sprint-card-page" data-page="4" style="display: none;">
+                        <div class="step-header">Step 3: Commercial Definition</div>
                     <div class="step-body">
                         "Now, we define the product. We explicitly tell the bot that 'Roofing' is a Service you sell, with a specific price range, turning your page from a 'brochure' to a 'catalog'."
                     </div>
@@ -190,17 +171,9 @@
                     </div>
                 </div>
 
-                <!-- Page 5: Step 4 -->
-                <div class="sprint-card-page" data-page="5" style="display: none;">
-                    <div class="mission-header">MISSION:</div>
-                    <div class="mission-title">Meta Surgeon Protocol</div>
-                    
-                    <div class="progress-line-container">
-                        <div class="progress-line" style="--progress-fill: 95%;"></div>
-                        <div class="entity-signal-label">Entity Signal Strength</div>
-                    </div>
-                    
-                    <div class="step-header">Step 4: Reputation Sync</div>
+                    <!-- Page 5: Step 4 -->
+                    <div class="sprint-card-page" data-page="5" style="display: none;">
+                        <div class="step-header">Step 4: Reputation Sync</div>
                     <div class="step-body">
                         "Finally, we aggregate your trust. Let's take your scattered 5-star reviews and format them into a 'CollectionPage' that search engines can count."
                     </div>
@@ -227,22 +200,14 @@
                     </div>
                 </div>
 
-                <!-- Page 6: Completion Status -->
-                <div class="sprint-card-page" data-page="6" style="display: none;">
-                    <div class="mission-header">MISSION:</div>
-                    <div class="mission-title">Meta Surgeon Protocol</div>
-                    
-                    <div class="progress-line-container">
-                        <div class="progress-line" style="--progress-fill: 95%;"></div>
-                        <div class="entity-signal-label">Entity Signal Strength</div>
-                    </div>
-                    
-                    <div class="completion-checklist">
-                        <div class="checklist-step">Step 1</div>
-                        <div class="checklist-step">Step 2</div>
-                        <div class="checklist-step">Step 3</div>
-                        <div class="checklist-step">Step 4</div>
-                    </div>
+                    <!-- Page 6: Completion Status -->
+                    <div class="sprint-card-page" data-page="6" style="display: none;">
+                        <div class="completion-checklist">
+                            <div class="checklist-step">Step 1</div>
+                            <div class="checklist-step">Step 2</div>
+                            <div class="checklist-step">Step 3</div>
+                            <div class="checklist-step">Step 4</div>
+                        </div>
                     
                     <div class="strategist-insight">
                         <svg class="strategist-icon" xmlns="http://www.w3.org/2000/svg" version="1.0" viewBox="0 0 600.000000 600.000000" preserveAspectRatio="xMidYMid meet">
@@ -259,9 +224,11 @@
                         <div class="status-line">Success: Your business is now a verified entity. 4 Schema Packs Active.</div>
                     </div>
                 </div>
-
+                <!-- End Sprint Pages Container -->
             </div>
+            <!-- End Sprint Plan Card -->
         </div>
+        <!-- End Sprint Plan Card Container -->
 
         <div class="sprint-checklist">
             <div class="checklist-item" data-index="0">

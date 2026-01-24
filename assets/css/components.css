@@ -158,14 +158,30 @@
   pointer-events: none;
 }
 
+.sprint-card-header {
+  flex-shrink: 0;
+  margin-bottom: 20px;
+}
+
+.sprint-pages-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
 
 .sprint-card-page {
-  display: flex;
+  display: none;
   flex-direction: column;
   animation: fadeIn 0.3s ease;
   position: relative;
   min-height: 400px;
   padding-bottom: 70px;
+  flex: 1;
+}
+
+.sprint-card-page[data-page="1"] {
+  display: flex;
 }
 
 /* Mission Header */
@@ -191,9 +207,13 @@
 .progress-line-container {
   position: relative;
   margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .progress-line {
+  flex: 1;
   height: 3px;
   background-color: rgba(232, 139, 96, 0.2);
   border-radius: 2px;
@@ -213,13 +233,16 @@
 }
 
 .entity-signal-label {
-  position: absolute;
-  right: 0;
-  top: -18px;
-  font-size: 9px;
+  position: relative;
+  right: auto;
+  top: auto;
+  font-family: var(--font-press-start);
+  font-size: 7px;
   color: var(--color-accent-orange);
-  font-weight: 600;
+  font-weight: 400;
   letter-spacing: 0.5px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* Strategist Insight */
