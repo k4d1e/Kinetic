@@ -12,6 +12,7 @@ const rateLimit = require('express-rate-limit');
 // Import routes
 const authRoutes = require('./routes/auth');
 const gscRoutes = require('./routes/gsc');
+const sprintCardRoutes = require('./routes/sprintCards');
 
 // Initialize Express app
 const app = express();
@@ -114,6 +115,7 @@ app.get('/health', (req, res) => {
 // Routes
 app.use('/auth', authRoutes);
 app.use('/api/gsc', gscRoutes);
+app.use('/api/sprint-cards', sprintCardRoutes);
 
 // 404 handler
 app.use((req, res) => {
