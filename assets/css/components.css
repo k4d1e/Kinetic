@@ -185,6 +185,12 @@
   display: flex;
 }
 
+/* Page 6 (Completion Status) - no scrollbar needed */
+.sprint-card-page[data-page="6"] {
+  overflow-y: visible;
+  padding-bottom: 20px;
+}
+
 /* Mission Header */
 .mission-header {
   font-family: var(--font-title);
