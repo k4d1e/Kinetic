@@ -1,0 +1,36 @@
+// routes/sprintCards.js - Sprint Card API routes
+const express = require('express');
+const router = express.Router();
+const { requireAuth } = require('../middleware/authMiddleware');
+const {
+  saveCompletion,
+  getHistory,
+  getCardDetails
+} = require('../controllers/sprintCardController');
+
+// All sprint card routes require authentication
+router.use(requireAuth);
+
+/**
+ * @route   POST /api/sprint-cards/complete
+ * @desc    Save completed sprint card with step details
+ * @access  Private
+ */
+router.post('/complete', saveCompletion);
+
+/**
+ * @route   GET /api/sprint-cards/history
+ * @desc    Get user's completed sprint cards
+ * @query   propertyId - Optional property filter
+ * @access  Private
+ */
+router.get('/history', getHistory);
+
+/**
+ * @route   GET /api/sprint-cards/:cardId
+ * @desc    Get detailed view of specific completed card
+ * @access  Private
+ */
+router.get('/:cardId', getCardDetails);
+
+module.exports = router;

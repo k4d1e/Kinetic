@@ -146,6 +146,83 @@ class KineticAPI {
       console.error('Error logging out:', error);
     }
   }
+
+  /**
+   * Save completed sprint card with step details
+   * @param {Object} completionData - Card completion data
+   * @returns {Promise<Object>} - Save response with cardId
+   */
+  async saveCompletedSprintCard(completionData) {
+    try {
+      const response = await fetch(`${this.baseURL}/api/sprint-cards/complete`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(completionData)
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to save completed sprint card');
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error saving completed sprint card:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get user's completed sprint cards
+   * @param {number|null} propertyId - Optional property filter
+   * @returns {Promise<Array>} - List of completed cards
+   */
+  async getCompletedSprintCards(propertyId = null) {
+    try {
+      const queryParam = propertyId ? `?propertyId=${propertyId}` : '';
+      const response = await fetch(
+        `${this.baseURL}/api/sprint-cards/history${queryParam}`,
+        { credentials: 'include' }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to fetch completed cards');
+      }
+
+      const data = await response.json();
+      return data.cards;
+    } catch (error) {
+      console.error('Error fetching completed sprint cards:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get detailed view of a specific completed card
+   * @param {number} cardId - Completed card ID
+   * @returns {Promise<Object>} - Card details with steps
+   */
+  async getCompletedCardDetails(cardId) {
+    try {
+      const response = await fetch(
+        `${this.baseURL}/api/sprint-cards/${cardId}`,
+        { credentials: 'include' }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to fetch card details');
+      }
+
+      const data = await response.json();
+      return data.card;
+    } catch (error) {
+      console.error('Error fetching card details:', error);
+      throw error;
+    }
+  }
 }
 
 // Export for use in other modules

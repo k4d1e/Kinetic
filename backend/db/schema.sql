@@ -54,6 +54,52 @@ CREATE TABLE IF NOT EXISTS gsc_analytics_cache (
 CREATE INDEX IF NOT EXISTS idx_analytics_cache_property_id ON gsc_analytics_cache(property_id);
 CREATE INDEX IF NOT EXISTS idx_analytics_cache_expires_at ON gsc_analytics_cache(expires_at);
 
+-- Sprint Action Cards table: Store metadata about each type of action card
+CREATE TABLE IF NOT EXISTS sprint_action_cards (
+  id SERIAL PRIMARY KEY,
+  card_type VARCHAR(100) UNIQUE NOT NULL,
+  display_name VARCHAR(255) NOT NULL,
+  total_steps INTEGER NOT NULL,
+  description TEXT,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Completed Sprint Cards table: Track user's completed action cards
+CREATE TABLE IF NOT EXISTS completed_sprint_cards (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  property_id INTEGER REFERENCES gsc_properties(id) ON DELETE CASCADE,
+  card_type_id INTEGER REFERENCES sprint_action_cards(id) ON DELETE CASCADE,
+  sprint_index INTEGER NOT NULL,
+  started_at TIMESTAMP NOT NULL,
+  completed_at TIMESTAMP NOT NULL,
+  duration_ms INTEGER,
+  progress_percentage INTEGER DEFAULT 95,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Sprint Card Steps table: Track individual steps within completed cards
+CREATE TABLE IF NOT EXISTS sprint_card_steps (
+  id SERIAL PRIMARY KEY,
+  completed_card_id INTEGER REFERENCES completed_sprint_cards(id) ON DELETE CASCADE,
+  step_number INTEGER NOT NULL,
+  step_name VARCHAR(255) NOT NULL,
+  step_description TEXT,
+  completed_at TIMESTAMP NOT NULL,
+  UNIQUE(completed_card_id, step_number)
+);
+
+-- Create indexes for sprint card tables
+CREATE INDEX IF NOT EXISTS idx_completed_cards_user_id ON completed_sprint_cards(user_id);
+CREATE INDEX IF NOT EXISTS idx_completed_cards_property_id ON completed_sprint_cards(property_id);
+CREATE INDEX IF NOT EXISTS idx_completed_cards_sprint_index ON completed_sprint_cards(sprint_index);
+CREATE INDEX IF NOT EXISTS idx_sprint_steps_completed_card_id ON sprint_card_steps(completed_card_id);
+
+-- Insert initial action card type
+INSERT INTO sprint_action_cards (card_type, display_name, total_steps, description) VALUES
+('meta_surgeon_protocol', 'Meta Surgeon Protocol', 4, 'Inject 4 Truth Layers to establish entity identity')
+ON CONFLICT (card_type) DO NOTHING;
+
 -- Function to update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -72,3 +118,6 @@ COMMENT ON TABLE users IS 'Stores Google OAuth authenticated users';
 COMMENT ON TABLE gsc_properties IS 'Stores Google Search Console properties linked to users';
 COMMENT ON TABLE sessions IS 'Stores Express session data (managed by connect-pg-simple)';
 COMMENT ON TABLE gsc_analytics_cache IS 'Caches fetched GSC analytics data to reduce API calls';
+COMMENT ON TABLE sprint_action_cards IS 'Metadata about different types of sprint action cards';
+COMMENT ON TABLE completed_sprint_cards IS 'User-specific records of completed sprint cards';
+COMMENT ON TABLE sprint_card_steps IS 'Individual steps completed within each sprint card';

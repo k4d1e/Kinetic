@@ -4,6 +4,9 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Initialize API client
+  const api = new KineticAPI();
+  
   // State Management
   const sprintState = {
     circles: [
@@ -14,7 +17,10 @@ document.addEventListener('DOMContentLoaded', () => {
     ],
     currentCircle: null,
     currentPage: 1,
-    progressPercentages: [0, 25, 45, 65, 95, 95] // Pages 1-6
+    progressPercentages: [0, 25, 45, 65, 95, 95], // Pages 1-6
+    startTime: null,
+    completedSteps: [],
+    currentPropertyId: null
   };
 
   // DOM Elements
@@ -72,12 +78,43 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /**
+   * Get Step Name from Step Number
+   */
+  function getStepName(stepNumber) {
+    const stepNames = {
+      1: 'Global Identity',
+      2: 'Territory Claim',
+      3: 'Commercial Definition',
+      4: 'Reputation Sync'
+    };
+    return stepNames[stepNumber] || `Step ${stepNumber}`;
+  }
+
+  /**
+   * Get Step Description from Step Number
+   */
+  function getStepDescription(stepNumber) {
+    const descriptions = {
+      1: 'Hard-code brand DNA (Logo, Phone, Social Profiles) into site pages',
+      2: 'Define exact GEO Circle for each city serviced',
+      3: 'Define products/services with price ranges',
+      4: 'Aggregate 5-star reviews into CollectionPage format'
+    };
+    return descriptions[stepNumber] || '';
+  }
+
+  /**
    * Show Sprint Plan Card
    * Display the card container and load the appropriate protocol
    */
   function showSprintCard(sprintIndex) {
     sprintState.currentCircle = sprintIndex;
     sprintState.currentPage = 1;
+    sprintState.startTime = Date.now();
+    sprintState.completedSteps = [];
+    
+    // Get current property ID from global state (set during calibration)
+    sprintState.currentPropertyId = window.currentPropertyId || null;
     
     // Reset to page 1
     showPage(1);
@@ -90,13 +127,28 @@ document.addEventListener('DOMContentLoaded', () => {
       cardContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }, 100);
     
-    console.log(`✓ Showing sprint card for circle ${sprintIndex}`);
+    console.log(`✓ Showing sprint card for circle ${sprintIndex}`, {
+      startTime: new Date(sprintState.startTime).toISOString(),
+      propertyId: sprintState.currentPropertyId
+    });
   }
 
   /**
    * Navigate Between Card Pages
    */
   function navigateToNextPage() {
+    // Capture step completion before advancing (for pages 2-5, which are steps 1-4)
+    if (sprintState.currentPage >= 2 && sprintState.currentPage <= 5) {
+      const stepNumber = sprintState.currentPage - 1; // Page 2 = Step 1, etc.
+      sprintState.completedSteps.push({
+        stepNumber,
+        name: getStepName(stepNumber),
+        description: getStepDescription(stepNumber),
+        completedAt: new Date().toISOString()
+      });
+      console.log(`✓ Step ${stepNumber} completed:`, getStepName(stepNumber));
+    }
+    
     if (sprintState.currentPage < 6) {
       sprintState.currentPage++;
       showPage(sprintState.currentPage);
@@ -180,14 +232,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /**
    * Handle Complete Button Click (Page 5)
-   * Advances to completion status page
+   * Advances to completion status page and saves to database
    */
-  function handleComplete() {
-    console.log('Complete button clicked - advancing to status page');
-    navigateToNextPage(); // Go to page 6
+  async function handleComplete() {
+    console.log('Complete button clicked - saving completion and advancing to status page');
     
-    // Note: Unlock is manual for now - can be triggered via console:
-    // window.unlockNextSprintCircle()
+    // Navigate to page 6 first
+    navigateToNextPage();
+    
+    // Build completion data
+    const completionData = {
+      cardType: 'meta_surgeon_protocol',
+      propertyId: sprintState.currentPropertyId,
+      sprintIndex: sprintState.currentCircle,
+      startedAt: new Date(sprintState.startTime).toISOString(),
+      completedAt: new Date().toISOString(),
+      duration: Date.now() - sprintState.startTime,
+      progressPercentage: 95,
+      steps: sprintState.completedSteps
+    };
+    
+    // Validate we have required data
+    if (!completionData.propertyId) {
+      console.warn('⚠ Cannot save: No property ID available. Card completion will not be persisted.');
+      // Still show success page but don't save
+      return;
+    }
+    
+    try {
+      // Save to backend
+      const result = await api.saveCompletedSprintCard(completionData);
+      console.log('✓ Sprint card completion saved:', result);
+      
+      // Show subtle success indicator (could enhance with a notification)
+      console.log(`✓ Card ID ${result.cardId} saved successfully`);
+      
+      // Unlock next circle after successful save
+      setTimeout(() => {
+        unlockNextCircle(sprintState.currentCircle);
+      }, 2000);
+      
+    } catch (error) {
+      console.error('❌ Failed to save sprint card completion:', error);
+      // Still show page 6, but warn user
+      alert('Card completed but could not save to history. Please check your connection.');
+    }
   }
 
   // ========================================
