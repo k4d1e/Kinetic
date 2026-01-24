@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ],
     currentCircle: null,
     currentPage: 1,
-    progressPercentages: [0, 0, 35, 65, 95, 95] // Pages 1-6
+    progressPercentages: [0, 25, 45, 65, 95, 95] // Pages 1-6
   };
 
   // DOM Elements
