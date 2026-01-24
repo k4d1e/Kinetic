@@ -131,7 +131,7 @@
 }
 
 .sprint-plan-card {
-  background-color: var(--color-dark-blue);
+  background-color: var(--color-darkest-blue);
   border-radius: 20px;
   padding: 40px;
   max-width: 640px;
@@ -152,16 +152,17 @@
 .mission-header {
   font-family: var(--font-title);
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--color-primary-green);
-  margin-bottom: 8px;
+  margin-bottom: 1px;
   letter-spacing: 1px;
+  opacity: 0.5;
 }
 
 .mission-title {
-  font-family: var(--font-main);
+  font-family: var(--font-orbitron);
   font-size: 22px;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--color-text-white);
   margin-bottom: 15px;
 }
@@ -198,23 +199,33 @@
   font-size: 9px;
   color: var(--color-accent-orange);
   font-weight: 600;
-  text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 /* Strategist Insight */
 .strategist-insight {
-  font-family: var(--font-main);
+  font-family: var(--font-orbitron);
   font-size: 18px;
-  font-weight: 700;
-  color: var(--color-primary-green);
+  font-weight: 800;
+  color: var(--color-bright-green);
   margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.strategist-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--color-bright-green);
+  flex-shrink: 0;
 }
 
 .insight-blockquote {
-  font-family: var(--font-main);
-  font-size: 14px;
-  color: var(--color-text-blue);
+  font-family: var(--font-orbitron);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-dark-blue);
   line-height: 1.6;
   padding-left: 15px;
   border-left: 3px solid var(--color-accent-orange);
@@ -224,7 +235,7 @@
 
 /* Step Headers and Body */
 .step-header {
-  font-family: var(--font-main);
+  font-family: var(--font-orbitron);
   font-size: 18px;
   font-weight: 700;
   color: var(--color-text-blue);
@@ -232,9 +243,10 @@
 }
 
 .step-body {
-  font-family: var(--font-main);
-  font-size: 14px;
-  color: var(--color-text-blue);
+  font-family: var(--font-orbitron);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-dark-blue);
   line-height: 1.6;
   margin-bottom: 20px;
   flex: 1;
@@ -249,7 +261,7 @@
 }
 
 .instruction-label {
-  font-family: var(--font-main);
+  font-family: var(--font-orbitron);
   font-size: 14px;
   font-weight: 600;
   color: var(--color-primary-green);
@@ -290,7 +302,7 @@
 }
 
 .status-line {
-  font-family: var(--font-main);
+  font-family: var(--font-orbitron);
   font-size: 14px;
   font-weight: 600;
   color: var(--color-primary-green);
@@ -317,6 +329,7 @@
   border: none;
   padding: 12px 24px;
   border-radius: 25px;
+  font-family: var(--font-orbitron);
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
@@ -340,6 +353,7 @@
   border: none;
   padding: 12px 30px;
   border-radius: 25px;
+  font-family: var(--font-orbitron);
   font-weight: 600;
   font-size: 15px;
   cursor: pointer;
@@ -365,6 +379,7 @@
   border: none;
   padding: 12px 30px;
   border-radius: 25px;
+  font-family: var(--font-orbitron);
   font-weight: 600;
   font-size: 15px;
   cursor: pointer;
