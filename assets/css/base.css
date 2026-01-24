@@ -10,12 +10,23 @@
   font-display: swap; /* Improves loading performance */
 }
 
+/* Orbitron Font Import */
+@font-face {
+  font-family: 'Orbitron';
+  src: url('../fonts/Orbitron/Orbitron-VariableFont_wght.ttf') format('truetype');
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
     /* Brand Colors */
     --color-primary-green: #4DAA7F;
+    --color-bright-green: #199931;
     --color-accent-orange: #E88B60;
     --color-action-blue: #4FA0C0;
     --color-dark-blue: #0D4895;
+    --color-darkest-blue: #041428;
     --color-alert-red: #D93025;
     --color-tech-gold: #E5B80B; 
     --color-tech-gold-dim: #8A6E0A;
@@ -25,6 +36,7 @@
     --color-text-white: #FFFFFF;
     --color-text-dark: #333333;
     --color-text-blue: #14b2ec;
+    --color-text-dark-blue: #3782ea;
     --color-nav-bg: #AAAAAA;
 
     /* Backgrounds */
@@ -34,6 +46,7 @@
     /* Typography */
     --font-title: 'QOBAR', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-orbitron: 'Orbitron', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --font-size-h2: 24px;
     --font-size-card-title: 28px;
     --font-size-body: 14px;
