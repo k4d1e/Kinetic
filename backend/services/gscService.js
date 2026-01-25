@@ -98,14 +98,18 @@ async function analyzeQuickWins(pool, userId, siteUrl) {
     console.log(`📊 Total GSC rows fetched: ${data.rows.length}`);
     
     // Filter for position 6-20 with at least 30 impressions
-    const quickWins = data.rows
+    const quickWinOpportunities = data.rows
       .filter(row => {
         const position = row.position;
         const impressions = row.impressions;
         return position >= 6.0 && position <= 20.0 && impressions >= 10;
       })
-      .sort((a, b) => b.impressions - a.impressions) // sort by highest number of impressions
-      .slice(0, 50) // Limit to top 50 opportunities
+      .sort((a, b) => b.impressions - a.impressions); // sort by highest number of impressions
+    
+    console.log(`📊 Quick Wins: Found ${quickWinOpportunities.length} total opportunities (before limit)`);
+    
+    const quickWins = quickWinOpportunities
+      .slice(0, 1000) // Limit to top 1000 opportunities
       .map(row => ({
         keyword: row.keys[0],
         page: row.keys[1],
@@ -116,7 +120,7 @@ async function analyzeQuickWins(pool, userId, siteUrl) {
         needsKD: true // Flag to fetch KD from Ahrefs
       }));
 
-    console.log(`✓ Found ${quickWins.length} keywords matching position 6-20 with ≥30 impressions`);
+    console.log(`✓ Found ${quickWins.length} Quick Wins opportunities (after limit)`);
     console.log(`📈 Before KD filtering: ${quickWins.length} opportunities`);
     return quickWins;
   } catch (error) {
@@ -161,17 +165,20 @@ async function analyzeCannibalization(pool, userId, siteUrl) {
     });
 
     // Find keywords with multiple pages ranking
-    const cannibalization = Object.entries(keywordPages)
+    const cannibalizationIssues = Object.entries(keywordPages)
       .filter(([keyword, pages]) => pages.length >= 2)
       .map(([keyword, pages]) => ({
         keyword,
         pageCount: pages.length,
         pages: pages.sort((a, b) => a.position - b.position).slice(0, 3)
       }))
-      .sort((a, b) => b.pageCount - a.pageCount)
-      .slice(0, 30);
+      .sort((a, b) => b.pageCount - a.pageCount);
+    
+    console.log(`📊 Cannibalization: Found ${cannibalizationIssues.length} total issues (before limit)`);
+    
+    const cannibalization = cannibalizationIssues.slice(0, 1000);
 
-    console.log(`✓ Found ${cannibalization.length} cannibalization issues`);
+    console.log(`✓ Found ${cannibalization.length} cannibalization issues (after limit)`);
     return cannibalization;
   } catch (error) {
     console.error('Error analyzing cannibalization:', error);
@@ -355,8 +362,10 @@ async function analyzeUntappedMarkets(pool, userId, siteUrl) {
       return potentialDiff !== 0 ? potentialDiff : b.clusterVolume - a.clusterVolume;
     });
 
-    console.log(`✓ Found ${opportunities.length} untapped market opportunities`);
-    return opportunities.slice(0, 20); // Return top 20
+    console.log(`📊 Untapped Markets: Found ${opportunities.length} total opportunities (before limit)`);
+    const limitedOpportunities = opportunities.slice(0, 500); // Return top 500
+    console.log(`✓ Found ${limitedOpportunities.length} untapped market opportunities (after limit)`);
+    return limitedOpportunities;
 
   } catch (error) {
     console.error('Error analyzing untapped markets:', error);
@@ -547,8 +556,10 @@ async function analyzeAIVisibility(pool, userId, siteUrl) {
     // Sort by GEO score (lowest first - most opportunity)
     opportunities.sort((a, b) => a.geoScore - b.geoScore);
 
-    console.log(`✓ Found ${opportunities.length} AI visibility opportunities`);
-    return opportunities.slice(0, 20); // Return top 20
+    console.log(`📊 AI Visibility: Found ${opportunities.length} total opportunities (before limit)`);
+    const limitedOpportunities = opportunities.slice(0, 500); // Return top 500
+    console.log(`✓ Found ${limitedOpportunities.length} AI visibility opportunities (after limit)`);
+    return limitedOpportunities;
 
   } catch (error) {
     console.error('Error analyzing AI visibility:', error);
