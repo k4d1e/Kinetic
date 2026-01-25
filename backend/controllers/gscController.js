@@ -7,7 +7,9 @@ const {
   analyzeUntappedMarkets,
   analyzeAIVisibility,
   analyzeLocalSEO,
-  getCachedOrFetch
+  getCachedOrFetch,
+  saveLastSelectedProperty,
+  getLastSelectedProperty
 } = require('../services/gscService');
 
 /**
@@ -66,6 +68,9 @@ async function startCalibration(req, res) {
     }
 
     const propertyId = propertyResult.rows[0].id;
+
+    // Save as last selected property
+    await saveLastSelectedProperty(pool, userId, siteUrl, propertyId);
 
     // Start background calibration (in real app, this would be a queue/worker)
     res.json({
@@ -245,9 +250,33 @@ async function getMetricData(req, res) {
   }
 }
 
+/**
+ * Get user's last selected property
+ */
+async function getUserLastSelectedProperty(req, res) {
+  try {
+    const pool = req.app.locals.pool;
+    const userId = req.user.id;
+    
+    const preference = await getLastSelectedProperty(pool, userId);
+    
+    res.json({
+      success: true,
+      lastSelectedProperty: preference
+    });
+  } catch (error) {
+    console.error('Error fetching last selected property:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to fetch preference'
+    });
+  }
+}
+
 module.exports = {
   getProperties,
   startCalibration,
   getAnalytics,
-  getMetricData
+  getMetricData,
+  getUserLastSelectedProperty
 };

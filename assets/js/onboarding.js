@@ -37,104 +37,63 @@ class OnboardingStateMachine {
     console.log(`State transition: ${this.state} -> ${newState}`);
     this.state = newState;
     this.notify();
-    this.saveState(); // Persist state changes
   }
 
   setSelectedProperty(property) {
     this.selectedProperty = property;
-    this.saveState(); // Persist property selection
   }
 
-  // Persistence: Save state to localStorage
-  saveState() {
-    try {
-      const state = {
-        selectedProperty: this.selectedProperty,
-        calibrationComplete: this.calibrationComplete,
-        timestamp: Date.now()
-      };
-      localStorage.setItem('kinetic_onboarding_state', JSON.stringify(state));
-    } catch (error) {
-      console.error('Error saving state:', error);
-    }
-  }
-
-  // Persistence: Load state from localStorage
-  loadState() {
-    try {
-      const saved = localStorage.getItem('kinetic_onboarding_state');
-      if (!saved) return false;
-
-      const state = JSON.parse(saved);
-      
-      // Check if state is still valid (within 24 hours)
-      const MAX_AGE = 24 * 60 * 60 * 1000; // 24 hours
-      if (Date.now() - state.timestamp > MAX_AGE) {
-        console.log('⚠️ Saved state expired, clearing...');
-        this.clearState();
-        return false;
-      }
-
-      // Restore state
-      this.selectedProperty = state.selectedProperty;
-      this.calibrationComplete = state.calibrationComplete;
-      console.log('✓ Restored saved state:', state);
-      return true;
-    } catch (error) {
-      console.error('Error loading state:', error);
-      return false;
-    }
-  }
-
-  // Persistence: Clear saved state
-  clearState() {
-    localStorage.removeItem('kinetic_onboarding_state');
+  // Persistence: Clear cached module data from localStorage
+  clearModuleCache() {
     localStorage.removeItem('kinetic_quick_wins_data');
     localStorage.removeItem('kinetic_cannibalization_data');
+    localStorage.removeItem('kinetic_untapped_markets_data');
+    localStorage.removeItem('kinetic_ai_visibility_data');
+    localStorage.removeItem('kinetic_local_seo_data');
   }
 
   // Action: Reset session and restart onboarding
   async resetSession() {
     console.log('🔄 Resetting session...');
-    this.clearState();
+    this.clearModuleCache();
     this.selectedProperty = null;
     this.calibrationComplete = false;
     this.properties = [];
     
-    // Reload the page to restart
+    // Backend session will persist, but we clear local cache
+    // User will re-select property on next load
     window.location.reload();
   }
 
   // Action: Check if user is already authenticated
   async checkExistingAuth() {
     try {
-      // First, try to load saved state
-      const hasState = this.loadState();
-      
       const { authenticated, user } = await this.api.checkAuth();
       if (authenticated) {
         this.user = user;
         console.log('✓ User already authenticated:', user.email);
         
-        // If we have a saved calibrated state, skip onboarding entirely
-        if (hasState && this.calibrationComplete && this.selectedProperty) {
-          console.log('✓ Restoring previous session:', this.selectedProperty);
-          // DON'T set state to SUCCESS - just restore data directly
-          await this.restoreCachedData();
-          return;
-        }
+        // Fetch last selected property from backend
+        const lastSelected = await this.api.getLastSelectedProperty();
         
-        // Otherwise, fetch properties and continue
-        this.setState(STATES.FETCHING_PROPERTIES);
-        await this.fetchProperties();
+        if (lastSelected && lastSelected.siteUrl) {
+          console.log('✓ Found last selected property:', lastSelected.siteUrl);
+          this.selectedProperty = lastSelected.siteUrl;
+          
+          // Try to restore from cache
+          await this.restoreCachedData();
+        } else {
+          // No previous selection, show property selection
+          this.setState(STATES.FETCHING_PROPERTIES);
+          await this.fetchProperties();
+        }
       } else {
         // Not authenticated - show onboarding
         console.log('No existing authentication found, showing onboarding');
-        this.notify(); // Trigger render with current IDLE state
+        this.notify();
       }
     } catch (error) {
       console.error('Error checking auth:', error);
-      // On error, show onboarding
       this.notify();
     }
   }
@@ -196,7 +155,7 @@ class OnboardingStateMachine {
       // Small delay for UX
       await this.delay(1000);
       
-      // Start calibration on backend
+      // Start calibration on backend (this now saves to DB)
       await this.api.startCalibration(siteUrl);
       
       // Transition to SUCCESS state where checklist runs
@@ -208,45 +167,15 @@ class OnboardingStateMachine {
     }
   }
 
-  // Restore cached data from localStorage
+  // Always fetch fresh data (no localStorage caching)
   async restoreCachedData() {
     try {
-      const quickWinsData = localStorage.getItem('kinetic_quick_wins_data');
-      const cannibalizationData = localStorage.getItem('kinetic_cannibalization_data');
-
-      if (quickWinsData && cannibalizationData) {
-        const quickWins = JSON.parse(quickWinsData);
-        const cannibalization = JSON.parse(cannibalizationData);
-        
-        console.log(`✓ Restored ${quickWins.length} Quick Wins + ${cannibalization.length} Cannibalization cards from cache`);
-        
-        // Populate the module using the cached data
-        if (window.populateModule1Cards) {
-          window.populateModule1Cards(quickWins, cannibalization);
-        }
-        
-        // Ensure onboarding is hidden (it should be by default now)
-        const overlay = document.getElementById('onboarding-overlay');
-        if (overlay) {
-          overlay.classList.remove('visible');
-        }
-        
-        // Ensure no blur effect on main content
-        document.body.classList.remove('onboarding-active');
-        
-        console.log('✓ Session restored - skipped onboarding');
-        
-        // Dispatch custom event to signal onboarding is complete (skipped)
-        window.dispatchEvent(new CustomEvent('onboardingComplete'));
-        console.log('✓ Dispatched onboardingComplete event (from cache restore)');
-      } else {
-        console.log('⚠️ No cached data found, showing onboarding...');
-        // If no cache, show onboarding and fetch fresh data
-        this.setState(STATES.FETCHING_PROPERTIES);
-        await this.fetchProperties();
-      }
+      console.log('⚠️ No cached data - fetching fresh data via onboarding...');
+      // Always show onboarding and fetch fresh data
+      this.setState(STATES.FETCHING_PROPERTIES);
+      await this.fetchProperties();
     } catch (error) {
-      console.error('Error restoring cached data:', error);
+      console.error('Error in data fetch:', error);
       // Fallback to showing onboarding
       this.setState(STATES.FETCHING_PROPERTIES);
       await this.fetchProperties();
@@ -524,11 +453,6 @@ class OnboardingUI {
   }
 
   closeOnboarding() {
-    // Mark calibration as complete and save state
-    this.stateMachine.calibrationComplete = true;
-    this.stateMachine.saveState();
-    console.log('✓ Calibration complete - state saved');
-    
     // Remove visible class to fade out the modal
     if (this.elements.overlay) {
       this.elements.overlay.classList.remove('visible');
@@ -536,7 +460,6 @@ class OnboardingUI {
     
     // Show main content (remove blur)
     document.body.classList.remove('onboarding-active');
-    // Note: Quick Wins already loaded during calibration checklist
     
     // Dispatch custom event to signal onboarding is complete
     window.dispatchEvent(new CustomEvent('onboardingComplete'));
@@ -701,6 +624,13 @@ async function loadOnboardingModal() {
 
 // Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', async () => {
+  // Clear localStorage on hard refresh (but DB state persists)
+  if (!sessionStorage.getItem('page_loaded_once')) {
+    console.log('🔄 Hard refresh detected - clearing cached module data');
+    localStorage.clear(); // Clear all localStorage
+    sessionStorage.setItem('page_loaded_once', 'true');
+  }
+  
   // Ensure onboarding-active class is removed on page load (in case it persisted)
   document.body.classList.remove('onboarding-active');
   

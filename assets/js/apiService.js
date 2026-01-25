@@ -148,6 +148,29 @@ class KineticAPI {
   }
 
   /**
+   * Get user's last selected property from backend
+   * @returns {Promise<Object|null>} - Last selected property or null
+   */
+  async getLastSelectedProperty() {
+    try {
+      const response = await fetch(
+        `${this.baseURL}/api/gsc/last-selected-property`,
+        { credentials: 'include' }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch last selected property');
+      }
+
+      const data = await response.json();
+      return data.lastSelectedProperty;
+    } catch (error) {
+      console.error('Error fetching last selected property:', error);
+      return null;
+    }
+  }
+
+  /**
    * Save completed sprint card with step details
    * @param {Object} completionData - Card completion data
    * @returns {Promise<Object>} - Save response with cardId

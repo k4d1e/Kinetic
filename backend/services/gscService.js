@@ -849,6 +849,58 @@ function extractServicesFromQueries(rows) {
   return Array.from(servicesFound);
 }
 
+/**
+ * Save user's last selected property
+ * @param {Pool} pool - PostgreSQL connection pool
+ * @param {number} userId - User ID
+ * @param {string} siteUrl - GSC property URL
+ * @param {number} propertyId - Property ID from gsc_properties table
+ */
+async function saveLastSelectedProperty(pool, userId, siteUrl, propertyId) {
+  try {
+    const preferenceValue = { siteUrl, propertyId };
+    
+    await pool.query(
+      `INSERT INTO user_preferences (user_id, preference_key, preference_value, updated_at)
+       VALUES ($1, $2, $3, NOW())
+       ON CONFLICT (user_id, preference_key)
+       DO UPDATE SET preference_value = $3, updated_at = NOW()`,
+      [userId, 'last_selected_property', JSON.stringify(preferenceValue)]
+    );
+    
+    console.log(`✓ Saved last selected property for user ${userId}: ${siteUrl}`);
+    return true;
+  } catch (error) {
+    console.error('Error saving last selected property:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get user's last selected property
+ * @param {Pool} pool - PostgreSQL connection pool
+ * @param {number} userId - User ID
+ * @returns {Object|null} - { siteUrl, propertyId } or null
+ */
+async function getLastSelectedProperty(pool, userId) {
+  try {
+    const result = await pool.query(
+      `SELECT preference_value FROM user_preferences 
+       WHERE user_id = $1 AND preference_key = $2`,
+      [userId, 'last_selected_property']
+    );
+    
+    if (result.rows.length === 0) {
+      return null;
+    }
+    
+    return result.rows[0].preference_value;
+  } catch (error) {
+    console.error('Error getting last selected property:', error);
+    throw error;
+  }
+}
+
 module.exports = {
   fetchUserProperties,
   fetchSearchAnalytics,
@@ -858,5 +910,7 @@ module.exports = {
   analyzeAIVisibility,
   analyzeLocalSEO,
   getCachedOrFetch,
-  getDateDaysAgo
+  getDateDaysAgo,
+  saveLastSelectedProperty,
+  getLastSelectedProperty
 };

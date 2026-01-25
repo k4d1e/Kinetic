@@ -6,7 +6,8 @@ const {
   getProperties,
   startCalibration,
   getAnalytics,
-  getMetricData
+  getMetricData,
+  getUserLastSelectedProperty
 } = require('../controllers/gscController');
 
 // All GSC routes require authentication
@@ -41,5 +42,12 @@ router.get('/analytics', getAnalytics);
  * @access  Private
  */
 router.get('/data/:metric', getMetricData);
+
+/**
+ * @route   GET /api/gsc/last-selected-property
+ * @desc    Get user's last selected property
+ * @access  Private
+ */
+router.get('/last-selected-property', getUserLastSelectedProperty);
 
 module.exports = router;
