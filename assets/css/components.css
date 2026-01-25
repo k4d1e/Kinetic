@@ -1000,7 +1000,7 @@
   
   /* --- Card Styles --- */
   .seo-card {
-    background-color: var(--color-card-bg);
+    background-color: var(--color-darkest-blue);
     width: 370px;
     /* Removed min-height - let cards size naturally to content */
     padding: 25px 20px 15px 20px; /* Reduced bottom padding for tighter layout */
@@ -1158,7 +1158,7 @@
   
   /* --- Market Card Specifics --- */
 .market-card {
-    background-color: var(--color-card-bg);
+    background-color: var(--color-darkest-blue);
     width: 280px;
     padding: 30px 20px;
     border-radius: 20px;
@@ -1242,7 +1242,7 @@ color: var(--color-accent-orange); /* Reused variable */
 
   /* --- AI Card Specifics --- */
 .ai-card {
-    background-color: var(--color-card-bg);
+    background-color: var(--color-darkest-blue);
     width: 280px;
     padding: 30px 20px;
     border-radius: 20px;
@@ -1422,7 +1422,7 @@ color: var(--color-accent-orange); /* Reused variable */
     container-type: inline-size;
     border-radius: var(--radius-card);
     transition: border-radius 0.3s ease;
-    background-color: var(--color-local-header-bg);
+    background-color: var(--color-darkest-blue);
     padding: 15px 20px;
     display: flex;
     justify-content: space-between;
@@ -1478,7 +1478,7 @@ color: var(--color-accent-orange); /* Reused variable */
   
   /* --- Accordion Body --- */
   .accordion-body {
-    background-color: var(--color-local-purple);
+    background-color: var(--color-darkest-blue);
     display: grid;
     grid-template-rows: 0fr;
     transition: grid-template-rows 0.4s ease-out;
