@@ -171,6 +171,56 @@ class KineticAPI {
   }
 
   /**
+   * Get calibration cards from database
+   * @param {string} siteUrl - GSC property URL
+   * @returns {Promise<Object>} - Object with all module cards
+   */
+  async getCalibrationCards(siteUrl) {
+    try {
+      const response = await fetch(
+        `${this.baseURL}/api/gsc/calibration-cards?siteUrl=${encodeURIComponent(siteUrl)}`,
+        { credentials: 'include' }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to fetch calibration cards');
+      }
+
+      const data = await response.json();
+      return data.cards;
+    } catch (error) {
+      console.error('Error fetching calibration cards:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Check if calibration exists for a property
+   * @param {string} siteUrl - GSC property URL
+   * @returns {Promise<Object>} - { exists: boolean }
+   */
+  async hasCalibration(siteUrl) {
+    try {
+      const response = await fetch(
+        `${this.baseURL}/api/gsc/has-calibration?siteUrl=${encodeURIComponent(siteUrl)}`,
+        { credentials: 'include' }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to check calibration');
+      }
+
+      const data = await response.json();
+      return { exists: data.exists };
+    } catch (error) {
+      console.error('Error checking calibration:', error);
+      return { exists: false };
+    }
+  }
+
+  /**
    * Save completed sprint card with step details
    * @param {Object} completionData - Card completion data
    * @returns {Promise<Object>} - Save response with cardId
