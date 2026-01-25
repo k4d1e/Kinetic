@@ -7,7 +7,9 @@ const {
   startCalibration,
   getAnalytics,
   getMetricData,
-  getUserLastSelectedProperty
+  getUserLastSelectedProperty,
+  getCalibrationCards,
+  hasCalibration
 } = require('../controllers/gscController');
 
 // All GSC routes require authentication
@@ -49,5 +51,21 @@ router.get('/data/:metric', getMetricData);
  * @access  Private
  */
 router.get('/last-selected-property', getUserLastSelectedProperty);
+
+/**
+ * @route   GET /api/gsc/calibration-cards
+ * @desc    Get calibration cards from database
+ * @query   siteUrl - The GSC property URL
+ * @access  Private
+ */
+router.get('/calibration-cards', getCalibrationCards);
+
+/**
+ * @route   GET /api/gsc/has-calibration
+ * @desc    Check if calibration exists for a property
+ * @query   siteUrl - The GSC property URL
+ * @access  Private
+ */
+router.get('/has-calibration', hasCalibration);
 
 module.exports = router;

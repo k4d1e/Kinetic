@@ -43,24 +43,14 @@ class OnboardingStateMachine {
     this.selectedProperty = property;
   }
 
-  // Persistence: Clear cached module data from localStorage
-  clearModuleCache() {
-    localStorage.removeItem('kinetic_quick_wins_data');
-    localStorage.removeItem('kinetic_cannibalization_data');
-    localStorage.removeItem('kinetic_untapped_markets_data');
-    localStorage.removeItem('kinetic_ai_visibility_data');
-    localStorage.removeItem('kinetic_local_seo_data');
-  }
-
   // Action: Reset session and restart onboarding
   async resetSession() {
     console.log('🔄 Resetting session...');
-    this.clearModuleCache();
     this.selectedProperty = null;
     this.calibrationComplete = false;
     this.properties = [];
     
-    // Backend session will persist, but we clear local cache
+    // Backend session will persist, but we clear local state
     // User will re-select property on next load
     window.location.reload();
   }
@@ -80,8 +70,21 @@ class OnboardingStateMachine {
           console.log('✓ Found last selected property:', lastSelected.siteUrl);
           this.selectedProperty = lastSelected.siteUrl;
           
-          // Try to restore from cache
-          await this.restoreCachedData();
+          // Check if calibration exists in database
+          const calibrationCheck = await this.api.hasCalibration(lastSelected.siteUrl);
+          
+          if (calibrationCheck.exists) {
+            console.log('✓ Calibration exists in database - will restore cards');
+            // Restore from database and skip onboarding
+            await this.restoreFromDatabase(lastSelected.siteUrl);
+            // Don't show onboarding modal
+            this.hideOnboardingModal();
+          } else {
+            console.log('⚠️ No calibration found - showing property selection');
+            // No calibration - show property selection
+            this.setState(STATES.FETCHING_PROPERTIES);
+            await this.fetchProperties();
+          }
         } else {
           // No previous selection, show property selection
           this.setState(STATES.FETCHING_PROPERTIES);
@@ -96,6 +99,76 @@ class OnboardingStateMachine {
       console.error('Error checking auth:', error);
       this.notify();
     }
+  }
+
+  // Restore calibration data from database
+  async restoreFromDatabase(siteUrl) {
+    try {
+      console.log('📦 Restoring calibration from database...');
+      
+      // Fetch all cards from database
+      const cards = await this.api.getCalibrationCards(siteUrl);
+      
+      // Store in window (same as calibration flow)
+      window.quickWinsData = cards.quickWins || [];
+      window.cannibalizationData = cards.cannibalization || [];
+      window.untappedMarketsData = cards.untappedMarkets || [];
+      window.aiVisibilityData = cards.aiVisibility || [];
+      window.localSEOData = cards.localSEO || [];
+      
+      console.log('✓ Restored from database:');
+      console.log(`  - Quick Wins: ${window.quickWinsData.length} cards`);
+      console.log(`  - Cannibalization: ${window.cannibalizationData.length} cards`);
+      console.log(`  - Untapped Markets: ${window.untappedMarketsData.length} cards`);
+      console.log(`  - AI Visibility: ${window.aiVisibilityData.length} cards`);
+      console.log(`  - Local SEO: ${window.localSEOData.length} cards`);
+      
+      // Populate modules immediately
+      this.populateAllModules();
+      
+      // Dispatch onboarding complete event
+      window.dispatchEvent(new CustomEvent('onboardingComplete'));
+      console.log('✓ Dispatched onboardingComplete event (from database)');
+    } catch (error) {
+      console.error('Error restoring from database:', error);
+      // Fallback to showing onboarding
+      this.setState(STATES.FETCHING_PROPERTIES);
+      await this.fetchProperties();
+    }
+  }
+  
+  // Hide onboarding modal (for returning users)
+  hideOnboardingModal() {
+    const overlay = document.getElementById('onboarding-overlay');
+    if (overlay) {
+      overlay.classList.remove('visible');
+    }
+    document.body.classList.remove('onboarding-active');
+  }
+  
+  // Populate all modules with restored data
+  populateAllModules() {
+    // Module 1: Quick Wins + Cannibalization
+    if (typeof populateModule1Cards === 'function') {
+      populateModule1Cards(window.quickWinsData, window.cannibalizationData);
+    }
+    
+    // Module 2: Untapped Markets
+    if (window.populateUntappedMarketsCards) {
+      window.populateUntappedMarketsCards(window.untappedMarketsData);
+    }
+    
+    // Module 3: AI Visibility
+    if (window.populateAIVisibilityCards) {
+      window.populateAIVisibilityCards(window.aiVisibilityData);
+    }
+    
+    // Module 4: Local SEO
+    if (window.populateLocalSEOCards) {
+      window.populateLocalSEOCards(window.localSEOData);
+    }
+    
+    console.log('✓ All modules populated from database');
   }
 
   // Action: Check if returning from OAuth redirect
@@ -149,36 +222,33 @@ class OnboardingStateMachine {
   async startCalibration(siteUrl) {
     try {
       this.selectedProperty = siteUrl;
-      this.calibrationComplete = false; // Will be set to true after checklist completes
+      this.calibrationComplete = false;
       this.setState(STATES.CONNECTING);
       
       // Small delay for UX
       await this.delay(1000);
       
-      // Start calibration on backend (this now saves to DB)
-      await this.api.startCalibration(siteUrl);
+      // Check if calibration exists in database
+      const calibrationCheck = await this.api.hasCalibration(siteUrl);
       
-      // Transition to SUCCESS state where checklist runs
-      this.setState(STATES.SUCCESS);
+      if (calibrationCheck.exists) {
+        console.log('✓ Calibration exists - restoring from database');
+        // Restore from database instead of running calibration
+        await this.restoreFromDatabase(siteUrl);
+        // Skip to end - no need to show checklist
+        this.closeOnboarding();
+      } else {
+        console.log('⚠️ No calibration found - running fresh calibration');
+        // Run fresh calibration (will auto-save to DB)
+        await this.api.startCalibration(siteUrl);
+        
+        // Transition to SUCCESS state where checklist runs
+        this.setState(STATES.SUCCESS);
+      }
     } catch (error) {
       console.error('Error starting calibration:', error);
       alert('Failed to start calibration. Please try again.');
       this.setState(STATES.SELECT_PROPERTY);
-    }
-  }
-
-  // Always fetch fresh data (no localStorage caching)
-  async restoreCachedData() {
-    try {
-      console.log('⚠️ No cached data - fetching fresh data via onboarding...');
-      // Always show onboarding and fetch fresh data
-      this.setState(STATES.FETCHING_PROPERTIES);
-      await this.fetchProperties();
-    } catch (error) {
-      console.error('Error in data fetch:', error);
-      // Fallback to showing onboarding
-      this.setState(STATES.FETCHING_PROPERTIES);
-      await this.fetchProperties();
     }
   }
 
@@ -468,6 +538,12 @@ class OnboardingUI {
 
   async loadQuickWinsModule() {
     try {
+      // Check if already restored from database
+      if (window.quickWinsData && window.quickWinsData.length > 0) {
+        console.log('✓ Quick Wins already restored from database');
+        return; // Skip fetch
+      }
+      
       const siteURL = this.stateMachine.selectedProperty;
 
       // fetch quick wins data with cache refresh during calibration
@@ -475,9 +551,6 @@ class OnboardingUI {
 
       // Store in window for later merging with cannibalization
       window.quickWinsData = quickWins || [];
-      
-      // Cache to localStorage
-      localStorage.setItem('kinetic_quick_wins_data', JSON.stringify(quickWins || []));
       
       console.log('✓ Quick Wins data loaded:', quickWins.length, 'opportunities');
     } catch (error) {
@@ -489,6 +562,14 @@ class OnboardingUI {
 
   async loadCannibalizationModule() {
     try {
+      // Check if already restored from database
+      if (window.cannibalizationData && window.cannibalizationData.length > 0) {
+        console.log('✓ Cannibalization already restored from database');
+        // Still need to populate cards even if restored
+        this.populateModule1Cards();
+        return;
+      }
+      
       const siteURL = this.stateMachine.selectedProperty;
 
       // fetch cannibalization data with cache refresh during calibration
@@ -496,9 +577,6 @@ class OnboardingUI {
 
       // Store in window for later merging
       window.cannibalizationData = cannibalization || [];
-      
-      // Cache to localStorage
-      localStorage.setItem('kinetic_cannibalization_data', JSON.stringify(cannibalization || []));
       
       console.log('✓ Cannibalization data loaded:', cannibalization.length, 'issues');
       
@@ -514,6 +592,16 @@ class OnboardingUI {
 
   async loadUntappedMarketsModule() {
     try {
+      // Check if already restored from database
+      if (window.untappedMarketsData && window.untappedMarketsData.length > 0) {
+        console.log('✓ Untapped Markets already restored from database');
+        // Still need to populate cards
+        if (window.populateUntappedMarketsCards) {
+          window.populateUntappedMarketsCards(window.untappedMarketsData);
+        }
+        return;
+      }
+      
       const siteURL = this.stateMachine.selectedProperty;
 
       // fetch untapped markets data with cache refresh during calibration
@@ -521,9 +609,6 @@ class OnboardingUI {
 
       // Store in window
       window.untappedMarketsData = untappedMarkets || [];
-      
-      // Cache to localStorage
-      localStorage.setItem('kinetic_untapped_markets_data', JSON.stringify(untappedMarkets || []));
       
       console.log('✓ Untapped Markets data loaded:', untappedMarkets.length, 'opportunities');
       
@@ -539,6 +624,16 @@ class OnboardingUI {
 
   async loadAIVisibilityModule() {
     try {
+      // Check if already restored from database
+      if (window.aiVisibilityData && window.aiVisibilityData.length > 0) {
+        console.log('✓ AI Visibility already restored from database');
+        // Still need to populate cards
+        if (window.populateAIVisibilityCards) {
+          window.populateAIVisibilityCards(window.aiVisibilityData);
+        }
+        return;
+      }
+      
       const siteURL = this.stateMachine.selectedProperty;
 
       // fetch AI visibility data with cache refresh during calibration
@@ -546,9 +641,6 @@ class OnboardingUI {
 
       // Store in window
       window.aiVisibilityData = aiVisibility || [];
-      
-      // Cache to localStorage
-      localStorage.setItem('kinetic_ai_visibility_data', JSON.stringify(aiVisibility || []));
       
       console.log('✓ AI Visibility data loaded:', aiVisibility.length, 'opportunities');
       
@@ -564,6 +656,16 @@ class OnboardingUI {
 
   async loadLocalSEOModule() {
     try {
+      // Check if already restored from database
+      if (window.localSEOData && window.localSEOData.length > 0) {
+        console.log('✓ Local SEO already restored from database');
+        // Still need to populate cards
+        if (window.populateLocalSEOCards) {
+          window.populateLocalSEOCards(window.localSEOData);
+        }
+        return;
+      }
+      
       const siteURL = this.stateMachine.selectedProperty;
 
       // fetch local SEO data with cache refresh during calibration
@@ -571,9 +673,6 @@ class OnboardingUI {
 
       // Store in window
       window.localSEOData = localSEO || [];
-      
-      // Cache to localStorage
-      localStorage.setItem('kinetic_local_seo_data', JSON.stringify(localSEO || []));
       
       console.log('✓ Local SEO data loaded:', localSEO.length, 'cities');
       
@@ -624,13 +723,6 @@ async function loadOnboardingModal() {
 
 // Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', async () => {
-  // Clear localStorage on hard refresh (but DB state persists)
-  if (!sessionStorage.getItem('page_loaded_once')) {
-    console.log('🔄 Hard refresh detected - clearing cached module data');
-    localStorage.clear(); // Clear all localStorage
-    sessionStorage.setItem('page_loaded_once', 'true');
-  }
-  
   // Ensure onboarding-active class is removed on page load (in case it persisted)
   document.body.classList.remove('onboarding-active');
   
