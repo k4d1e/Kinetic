@@ -26,6 +26,16 @@ CREATE TABLE IF NOT EXISTS gsc_properties (
   UNIQUE(user_id, site_url)
 );
 
+-- User Preferences: Store user-specific app preferences
+CREATE TABLE IF NOT EXISTS user_preferences (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  preference_key VARCHAR(100) NOT NULL,
+  preference_value JSONB NOT NULL,
+  updated_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE(user_id, preference_key)
+);
+
 -- Sessions table: Store user sessions (used by connect-pg-simple)
 CREATE TABLE IF NOT EXISTS sessions (
   sid VARCHAR PRIMARY KEY,
@@ -38,6 +48,8 @@ CREATE INDEX IF NOT EXISTS idx_users_google_id ON users(google_id);
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_gsc_properties_user_id ON gsc_properties(user_id);
 CREATE INDEX IF NOT EXISTS idx_gsc_properties_site_url ON gsc_properties(site_url);
+CREATE INDEX IF NOT EXISTS idx_user_preferences_user_id ON user_preferences(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_preferences_key ON user_preferences(preference_key);
 CREATE INDEX IF NOT EXISTS idx_sessions_expire ON sessions(expire);
 
 -- Optional: GSC analytics cache table for storing fetched data
