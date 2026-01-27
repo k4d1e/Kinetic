@@ -107,9 +107,10 @@ CREATE INDEX IF NOT EXISTS idx_completed_cards_property_id ON completed_sprint_c
 CREATE INDEX IF NOT EXISTS idx_completed_cards_sprint_index ON completed_sprint_cards(sprint_index);
 CREATE INDEX IF NOT EXISTS idx_sprint_steps_completed_card_id ON sprint_card_steps(completed_card_id);
 
--- Insert initial action card type
+-- Insert initial action card types
 INSERT INTO sprint_action_cards (card_type, display_name, total_steps, description) VALUES
-('meta_surgeon_protocol', 'Meta Surgeon Protocol', 4, 'Inject 4 Truth Layers to establish entity identity')
+('meta_surgeon_protocol', 'Meta Surgeon Protocol', 4, 'Inject 4 Truth Layers to establish entity identity'),
+('looms_gap_analysis', 'Loom''s Gap Analysis', 6, 'Identify missing warp threads - domains linking to competitors but not you')
 ON CONFLICT (card_type) DO NOTHING;
 
 -- Module Card Types table: Store metadata for each calibration module type
@@ -170,6 +171,83 @@ $$ language 'plpgsql';
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+-- E.V.O. Analysis Cache table: Store complete dimensional synthesis results
+CREATE TABLE IF NOT EXISTS evo_analysis_cache (
+  id SERIAL PRIMARY KEY,
+  property_id INTEGER REFERENCES gsc_properties(id) ON DELETE CASCADE,
+  analysis_type VARCHAR(50) NOT NULL, -- 'full_synthesis', 'substrate', etc.
+  dimensional_data JSONB NOT NULL,
+  emergence_patterns JSONB,
+  system_intelligence JSONB,
+  analyzed_at TIMESTAMP DEFAULT NOW(),
+  expires_at TIMESTAMP,
+  UNIQUE(property_id, analysis_type)
+);
+
+-- Dimensional health tracking over time
+CREATE TABLE IF NOT EXISTS dimensional_health_history (
+  id SERIAL PRIMARY KEY,
+  property_id INTEGER REFERENCES gsc_properties(id) ON DELETE CASCADE,
+  dimension_name VARCHAR(50) NOT NULL,
+  health_score INTEGER NOT NULL, -- 0-100
+  metrics JSONB NOT NULL,
+  measured_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Emergence pattern detection history
+CREATE TABLE IF NOT EXISTS emergence_patterns_history (
+  id SERIAL PRIMARY KEY,
+  property_id INTEGER REFERENCES gsc_properties(id) ON DELETE CASCADE,
+  pattern_type VARCHAR(100) NOT NULL,
+  severity VARCHAR(20),
+  dimensions_affected TEXT[],
+  insight TEXT,
+  detected_at TIMESTAMP DEFAULT NOW()
+);
+
+-- E.V.O. action recommendations tracking
+CREATE TABLE IF NOT EXISTS evo_recommendations (
+  id SERIAL PRIMARY KEY,
+  property_id INTEGER REFERENCES gsc_properties(id) ON DELETE CASCADE,
+  recommendation_type VARCHAR(100) NOT NULL,
+  priority INTEGER,
+  action_description TEXT,
+  dimensions_affected TEXT[],
+  estimated_impact JSONB,
+  status VARCHAR(50) DEFAULT 'pending', -- 'pending', 'in_progress', 'completed'
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Create indexes for E.V.O. tables
+CREATE INDEX IF NOT EXISTS idx_evo_cache_property_id ON evo_analysis_cache(property_id);
+CREATE INDEX IF NOT EXISTS idx_evo_cache_expires_at ON evo_analysis_cache(expires_at);
+CREATE INDEX IF NOT EXISTS idx_dimensional_health_property_id ON dimensional_health_history(property_id);
+CREATE INDEX IF NOT EXISTS idx_dimensional_health_dimension ON dimensional_health_history(dimension_name);
+CREATE INDEX IF NOT EXISTS idx_emergence_patterns_property_id ON emergence_patterns_history(property_id);
+CREATE INDEX IF NOT EXISTS idx_emergence_patterns_type ON emergence_patterns_history(pattern_type);
+CREATE INDEX IF NOT EXISTS idx_evo_recommendations_property_id ON evo_recommendations(property_id);
+CREATE INDEX IF NOT EXISTS idx_evo_recommendations_status ON evo_recommendations(status);
+
+-- Loom's Gap Analysis Cache: Store competitor backlink gap analysis results
+CREATE TABLE IF NOT EXISTS looms_gap_cache (
+  id SERIAL PRIMARY KEY,
+  property_id INTEGER REFERENCES gsc_properties(id) ON DELETE CASCADE,
+  user_domain VARCHAR(255) NOT NULL,
+  competitors JSONB NOT NULL,
+  gap_domains JSONB NOT NULL,
+  thread_resonance_scores JSONB NOT NULL,
+  thread_starvation VARCHAR(20), -- 'MILD', 'MODERATE', 'SEVERE'
+  total_gaps INTEGER DEFAULT 0,
+  high_authority_gaps INTEGER DEFAULT 0,
+  analyzed_at TIMESTAMP DEFAULT NOW(),
+  expires_at TIMESTAMP,
+  UNIQUE(property_id)
+);
+
+-- Create indexes for Loom's Gap Analysis
+CREATE INDEX IF NOT EXISTS idx_looms_gap_property_id ON looms_gap_cache(property_id);
+CREATE INDEX IF NOT EXISTS idx_looms_gap_expires_at ON looms_gap_cache(expires_at);
+
 -- Comments for documentation
 COMMENT ON TABLE users IS 'Stores Google OAuth authenticated users';
 COMMENT ON TABLE gsc_properties IS 'Stores Google Search Console properties linked to users';
@@ -181,3 +259,7 @@ COMMENT ON TABLE sprint_card_steps IS 'Individual steps completed within each sp
 COMMENT ON TABLE module_card_types IS 'Metadata about different types of calibration module cards';
 COMMENT ON TABLE calibration_sessions IS 'Tracks calibration runs for each user + property combination';
 COMMENT ON TABLE module_cards IS 'Stores individual calibration cards as JSONB for flexible schema';
+COMMENT ON TABLE evo_analysis_cache IS 'Caches E.V.O. dimensional analysis results';
+COMMENT ON TABLE dimensional_health_history IS 'Tracks dimensional health scores over time';
+COMMENT ON TABLE emergence_patterns_history IS 'Records detected emergence patterns across dimensions';
+COMMENT ON TABLE evo_recommendations IS 'Stores E.V.O. generated action recommendations';

@@ -296,6 +296,113 @@ class KineticAPI {
       throw error;
     }
   }
+
+  /**
+   * E.V.O. DIMENSIONAL ANALYSIS METHODS
+   */
+
+  /**
+   * Get complete E.V.O. synthesis (all 6 dimensions + emergence patterns)
+   * @param {string} siteUrl - GSC property URL
+   * @param {boolean} refresh - Force cache refresh
+   * @returns {Promise<Object>} - Complete E.V.O. analysis
+   */
+  async getEVOSynthesis(siteUrl, refresh = false) {
+    try {
+      const refreshParam = refresh ? '&refresh=true' : '';
+      const response = await fetch(
+        `${this.baseURL}/api/gsc/evo/synthesis?siteUrl=${encodeURIComponent(siteUrl)}${refreshParam}`,
+        { credentials: 'include' }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to fetch E.V.O. synthesis');
+      }
+
+      const data = await response.json();
+      return data.analysis;
+    } catch (error) {
+      console.error('Error fetching E.V.O. synthesis:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get individual dimensional analysis
+   * @param {string} dimension - One of: substrate, lattice, synapse, resonance, weave, elixir
+   * @param {string} siteUrl - GSC property URL
+   * @returns {Promise<Object>} - Dimensional analysis data
+   */
+  async getDimension(dimension, siteUrl) {
+    try {
+      const response = await fetch(
+        `${this.baseURL}/api/gsc/evo/${dimension}?siteUrl=${encodeURIComponent(siteUrl)}`,
+        { credentials: 'include' }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || `Failed to fetch ${dimension} dimension`);
+      }
+
+      const data = await response.json();
+      return data.data;
+    } catch (error) {
+      console.error(`Error fetching ${dimension} dimension:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get emergence patterns across dimensions
+   * @param {string} siteUrl - GSC property URL
+   * @returns {Promise<Array>} - Emergence patterns
+   */
+  async getEmergencePatterns(siteUrl) {
+    try {
+      const response = await fetch(
+        `${this.baseURL}/api/gsc/evo-patterns?siteUrl=${encodeURIComponent(siteUrl)}`,
+        { credentials: 'include' }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to fetch emergence patterns');
+      }
+
+      const data = await response.json();
+      return data.patterns;
+    } catch (error) {
+      console.error('Error fetching emergence patterns:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get unified system intelligence
+   * @param {string} siteUrl - GSC property URL
+   * @returns {Promise<Object>} - System intelligence
+   */
+  async getSystemIntelligence(siteUrl) {
+    try {
+      const response = await fetch(
+        `${this.baseURL}/api/gsc/evo-intelligence?siteUrl=${encodeURIComponent(siteUrl)}`,
+        { credentials: 'include' }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to fetch system intelligence');
+      }
+
+      const data = await response.json();
+      return data.intelligence;
+    } catch (error) {
+      console.error('Error fetching system intelligence:', error);
+      throw error;
+    }
+  }
 }
 
 // Export for use in other modules

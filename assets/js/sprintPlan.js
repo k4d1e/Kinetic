@@ -23,16 +23,26 @@ document.addEventListener('DOMContentLoaded', () => {
     currentPropertyId: null
   };
 
-  // DOM Elements
-  const sprintCircles = document.querySelectorAll('.sprint-circle');
-  const cardContainer = document.querySelector('.sprint-plan-card-container');
-  const cardPages = document.querySelectorAll('.sprint-card-page');
+  // Card Type Mapping (Sprint Circle Index -> Card Type)
+  const cardTypeMapping = {
+    0: 'meta_surgeon_protocol',
+    1: 'looms_gap_analysis',
+    2: 'future_card_type',
+    3: 'future_card_type'
+  };
   
-  // Button Elements
-  const continueBtn = document.querySelector('.btn-continue');
-  const nextStepBtns = document.querySelectorAll('.btn-next-step');
-  const completeBtn = document.querySelector('.btn-complete');
-  const executionAssistBtns = document.querySelectorAll('.btn-execution-assist');
+  // Current active card state
+  let currentCardType = null;
+  let loomsGapData = null;
+  
+  // DOM Elements (these will be dynamically selected based on card type)
+  const sprintCircles = document.querySelectorAll('.sprint-circle');
+  let cardContainer = null;
+  let cardPages = null;
+  let continueBtn = null;
+  let nextStepBtns = null;
+  let completeBtn = null;
+  let executionAssistBtns = null;
 
   /**
    * Initialize Sprint Circles
@@ -107,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
    * Show Sprint Plan Card
    * Display the card container and load the appropriate protocol
    */
-  function showSprintCard(sprintIndex) {
+  async function showSprintCard(sprintIndex) {
     sprintState.currentCircle = sprintIndex;
     sprintState.currentPage = 1;
     sprintState.startTime = Date.now();
@@ -115,6 +125,34 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Get current property ID from global state (set during calibration)
     sprintState.currentPropertyId = window.currentPropertyId || null;
+    
+    // Determine card type
+    currentCardType = cardTypeMapping[sprintIndex] || 'meta_surgeon_protocol';
+    
+    // Select appropriate card container
+    if (currentCardType === 'looms_gap_analysis') {
+      cardContainer = document.querySelector('#looms-gap-card-container');
+      
+      // Fetch and populate Loom's Gap data
+      await loadLoomsGapData();
+    } else {
+      cardContainer = document.querySelector('.sprint-plan-card-container:not(#looms-gap-card-container)');
+    }
+    
+    if (!cardContainer) {
+      console.error(`Card container not found for type: ${currentCardType}`);
+      return;
+    }
+    
+    // Update DOM element references for this card
+    cardPages = cardContainer.querySelectorAll('.sprint-card-page');
+    continueBtn = cardContainer.querySelector('.btn-continue');
+    nextStepBtns = cardContainer.querySelectorAll('.btn-next-step');
+    completeBtn = cardContainer.querySelector('.btn-complete');
+    executionAssistBtns = cardContainer.querySelectorAll('.btn-execution-assist');
+    
+    // Attach event listeners for this card's buttons
+    attachCardEventListeners();
     
     // Reset to page 1
     showPage(1);
@@ -128,9 +166,197 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 100);
     
     console.log(`✓ Showing sprint card for circle ${sprintIndex}`, {
+      cardType: currentCardType,
       startTime: new Date(sprintState.startTime).toISOString(),
       propertyId: sprintState.currentPropertyId
     });
+  }
+  
+  /**
+   * Load and populate Loom's Gap Analysis data
+   */
+  async function loadLoomsGapData() {
+    if (!sprintState.currentPropertyId) {
+      console.error('No property ID available for Loom\'s Gap Analysis');
+      alert('Please select a property first');
+      return;
+    }
+    
+    try {
+      console.log('🧵 Fetching Loom\'s Gap Analysis data...');
+      
+      // Show loading indicator (if we want to add one)
+      const response = await fetch('/api/sprint-cards/looms-gap', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          propertyId: sprintState.currentPropertyId,
+          refresh: false,
+          country: 'us'
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.message || 'Failed to load gap analysis');
+      }
+      
+      loomsGapData = result.data;
+      console.log('✓ Loom\'s Gap data loaded:', loomsGapData);
+      
+      // Populate the card with data
+      populateLoomsGapCard(loomsGapData);
+      
+    } catch (error) {
+      console.error('❌ Error loading Loom\'s Gap data:', error);
+      alert('Failed to load gap analysis. Please try again.\n\nError: ' + error.message);
+    }
+  }
+  
+  /**
+   * Populate Loom's Gap card with fetched data
+   */
+  function populateLoomsGapCard(data) {
+    // Page 1: Summary stats
+    const gapCount = document.getElementById('looms-gap-count');
+    const starvation = document.getElementById('looms-starvation');
+    if (gapCount) gapCount.textContent = data.totalGaps || 0;
+    if (starvation) starvation.textContent = data.threadStarvation || 'MILD';
+    
+    // Page 2: Competitors table
+    const competitorsTableBody = document.getElementById('competitors-table-body');
+    if (competitorsTableBody && data.competitors) {
+      competitorsTableBody.innerHTML = '';
+      data.competitors.slice(0, 10).forEach((comp, idx) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${idx + 1}</td>
+          <td style="font-weight: 600;">${comp.domain}</td>
+          <td>${comp.commonKeywords || 0}</td>
+          <td>${comp.domainRating || 0}</td>
+        `;
+        competitorsTableBody.appendChild(row);
+      });
+    }
+    
+    // Page 3: Gap domains (high authority)
+    const highAuthCount = document.getElementById('high-authority-count');
+    const gapDomainsTableBody = document.getElementById('gap-domains-table-body');
+    
+    if (highAuthCount) {
+      highAuthCount.textContent = data.highAuthorityGaps || 0;
+    }
+    
+    if (gapDomainsTableBody && data.gapDomains) {
+      gapDomainsTableBody.innerHTML = '';
+      const highAuthGaps = data.gapDomains.filter(d => d.domainRating >= 50).slice(0, 20);
+      highAuthGaps.forEach((gap) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td style="font-weight: 600;">${gap.domain}</td>
+          <td style="color: var(--color-accent-orange); font-weight: 700;">${gap.domainRating}</td>
+          <td>${gap.competitorsLinkedCount}</td>
+          <td style="color: var(--color-primary); font-weight: 700;">${gap.threadResonance}</td>
+        `;
+        gapDomainsTableBody.appendChild(row);
+      });
+    }
+    
+    // Page 4: Thread Resonance rankings
+    const resonanceTableBody = document.getElementById('resonance-table-body');
+    if (resonanceTableBody && data.gapDomains) {
+      resonanceTableBody.innerHTML = '';
+      data.gapDomains.slice(0, 20).forEach((gap, idx) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td style="font-weight: 700; color: var(--color-accent-orange);">${idx + 1}</td>
+          <td style="font-weight: 600;">${gap.domain}</td>
+          <td style="color: var(--color-primary); font-weight: 700; font-size: 18px;">${gap.threadResonance}</td>
+          <td>${gap.domainRating}</td>
+          <td>${gap.competitorsLinkedCount}</td>
+        `;
+        resonanceTableBody.appendChild(row);
+      });
+    }
+    
+    // Page 5: Anchor patterns (simplified - showing top domains as examples)
+    const anchorPatternsList = document.getElementById('anchor-patterns-list');
+    if (anchorPatternsList && data.gapDomains) {
+      anchorPatternsList.innerHTML = '';
+      const topGaps = data.gapDomains.slice(0, 5);
+      topGaps.forEach((gap) => {
+        const patternCard = document.createElement('div');
+        patternCard.style.cssText = 'padding: 15px; background: rgba(255,255,255,0.5); border-radius: 8px; border: 1px solid rgba(0,0,0,0.1);';
+        patternCard.innerHTML = `
+          <h4 style="margin: 0 0 8px 0; color: var(--color-dark-blue); font-size: 15px; font-weight: 700;">${gap.domain}</h4>
+          <p style="margin: 0; font-size: 13px; color: var(--color-dark-blue);">
+            <strong>Links to:</strong> ${gap.competitorsLinked.join(', ')}
+          </p>
+          <p style="margin: 5px 0 0 0; font-size: 13px; color: var(--color-dark-blue);">
+            <strong>Opportunity:</strong> Target with resource guides, comparison content, or tool pages
+          </p>
+        `;
+        anchorPatternsList.appendChild(patternCard);
+      });
+    }
+    
+    console.log('✓ Loom\'s Gap card populated with data');
+  }
+  
+  /**
+   * Attach event listeners to current card's buttons
+   */
+  function attachCardEventListeners() {
+    // Continue button (Page 1)
+    if (continueBtn) {
+      continueBtn.removeEventListener('click', navigateToNextPage); // Remove old listener
+      continueBtn.addEventListener('click', navigateToNextPage);
+    }
+    
+    // Next Step buttons (Pages 2-4)
+    if (nextStepBtns) {
+      nextStepBtns.forEach((btn) => {
+        btn.removeEventListener('click', navigateToNextPage);
+        btn.addEventListener('click', navigateToNextPage);
+      });
+    }
+    
+    // Complete button (Page 5/6)
+    if (completeBtn) {
+      completeBtn.removeEventListener('click', handleComplete);
+      completeBtn.addEventListener('click', handleComplete);
+    }
+    
+    // Execution Assist buttons
+    if (executionAssistBtns) {
+      executionAssistBtns.forEach((btn) => {
+        btn.removeEventListener('click', handleExecutionAssist);
+        btn.addEventListener('click', handleExecutionAssist);
+      });
+    }
+  }
+  
+  /**
+   * Handle Execution Assist button clicks
+   */
+  function handleExecutionAssist(event) {
+    const currentPage = event.target.closest('.sprint-card-page');
+    const pageNumber = parseInt(currentPage.getAttribute('data-page'));
+    
+    console.log(`Execution Assist clicked for page ${pageNumber}`);
+    
+    if (window.ExecutionAssist) {
+      window.ExecutionAssist.openModal(currentPage);
+    } else {
+      console.error('ExecutionAssist module not loaded');
+    }
   }
 
   /**
@@ -192,9 +418,13 @@ document.addEventListener('DOMContentLoaded', () => {
    * Hide the card container and reset to page 1
    */
   function closeSprintCard() {
-    cardContainer.style.display = 'none';
+    if (cardContainer) {
+      cardContainer.style.display = 'none';
+    }
     sprintState.currentPage = 1;
     showPage(1);
+    currentCardType = null;
+    loomsGapData = null;
     console.log('✓ Sprint card closed');
   }
 
@@ -242,7 +472,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Build completion data
     const completionData = {
-      cardType: 'meta_surgeon_protocol',
+      cardType: currentCardType || 'meta_surgeon_protocol',
       propertyId: sprintState.currentPropertyId,
       sprintIndex: sprintState.currentCircle,
       startedAt: new Date(sprintState.startTime).toISOString(),
@@ -304,42 +534,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ========================================
-  // Event Listeners
+  // Event Listeners (Note: Card-specific listeners are attached in attachCardEventListeners)
   // ========================================
-
-  // Continue button (Page 1)
-  if (continueBtn) {
-    continueBtn.addEventListener('click', navigateToNextPage);
-  }
-
-  // Next Step buttons (Pages 2-4)
-  nextStepBtns.forEach((btn) => {
-    btn.addEventListener('click', navigateToNextPage);
-  });
-
-  // Complete button (Page 5)
-  if (completeBtn) {
-    completeBtn.addEventListener('click', handleComplete);
-  }
-
-  // Execution Assist buttons - Generate and show prompt
-  executionAssistBtns.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const currentPage = btn.closest('.sprint-card-page');
-      const pageNumber = parseInt(currentPage.getAttribute('data-page'));
-      
-      console.log(`Execution Assist clicked for page ${pageNumber}`);
-      
-      // Use the executionAssist module to handle
-      if (window.ExecutionAssist) {
-        window.ExecutionAssist.openModal(currentPage);
-      } else {
-        console.error('ExecutionAssist module not loaded');
-      }
-    });
-  });
-
-  // Make instruction labels clickable
+  
+  // Make instruction labels clickable (for Meta Surgeon card)
   const instructionLabels = document.querySelectorAll('.instruction-label');
   instructionLabels.forEach((label) => {
     label.style.cursor = 'pointer';
