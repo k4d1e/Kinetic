@@ -90,8 +90,16 @@
                     </div>
                     
                     <div class="instruction-container">
-                        <div class="instruction-label">Target Files</div>
-                        <div class="instruction-label">Cursor Instruction</div>
+                        <div class="instruction-label" data-step="1">
+                            <svg class="instruction-x-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                            <svg class="instruction-checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            Cursor Instruction
+                        </div>
                     </div>
                     
                     <div class="card-footer">
@@ -103,7 +111,7 @@
                                 </g>
                             </svg>
                         </button>
-                        <button class="btn-next-step">
+                        <button class="btn-next-step" data-step="1" disabled>
                             Next Step
                             <svg class="btn-arrow-icon" xmlns="http://www.w3.org/2000/svg" version="1.0" viewBox="0 0 600.000000 600.000000" preserveAspectRatio="xMidYMid meet">
                                 <g transform="translate(0.000000,600.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none">
@@ -129,8 +137,16 @@
                     </div>
                     
                     <div class="instruction-container">
-                        <div class="instruction-label">Target Files</div>
-                        <div class="instruction-label">Cursor Instruction</div>
+                        <div class="instruction-label" data-step="2">
+                            <svg class="instruction-x-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                            <svg class="instruction-checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            Cursor Instruction
+                        </div>
                     </div>
                     
                     <div class="card-footer">
@@ -142,7 +158,7 @@
                                 </g>
                             </svg>
                         </button>
-                        <button class="btn-next-step">
+                        <button class="btn-next-step" data-step="2" disabled>
                             Next Step
                             <svg class="btn-arrow-icon" xmlns="http://www.w3.org/2000/svg" version="1.0" viewBox="0 0 600.000000 600.000000" preserveAspectRatio="xMidYMid meet">
                                 <g transform="translate(0.000000,600.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none">
@@ -168,8 +184,16 @@
                     </div>
                     
                     <div class="instruction-container">
-                        <div class="instruction-label">Target Files</div>
-                        <div class="instruction-label">Cursor Instruction</div>
+                        <div class="instruction-label" data-step="3">
+                            <svg class="instruction-x-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                            <svg class="instruction-checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            Cursor Instruction
+                        </div>
                     </div>
                     
                     <div class="card-footer">
@@ -181,7 +205,7 @@
                                 </g>
                             </svg>
                         </button>
-                        <button class="btn-next-step">
+                        <button class="btn-next-step" data-step="3" disabled>
                             Next Step
                             <svg class="btn-arrow-icon" xmlns="http://www.w3.org/2000/svg" version="1.0" viewBox="0 0 600.000000 600.000000" preserveAspectRatio="xMidYMid meet">
                                 <g transform="translate(0.000000,600.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none">
@@ -207,7 +231,16 @@
                     </div>
                     
                     <div class="instruction-container">
-                        <div class="instruction-label">Cursor Instruction</div>
+                        <div class="instruction-label" data-step="4">
+                            <svg class="instruction-x-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                            <svg class="instruction-checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            Cursor Instruction
+                        </div>
                     </div>
                     
                     <div class="card-footer">
@@ -910,6 +943,48 @@
         </div>
     </div>
 
+    <!-- Execution Assist Modal -->
+    <div id="execution-assist-modal" class="execution-assist-modal-overlay">
+        <div class="execution-assist-modal-content">
+            <button class="execution-assist-modal-close" aria-label="Close execution assist modal">&times;</button>
+            
+            <div class="execution-assist-header">
+                <svg class="execution-assist-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <h2 class="execution-assist-title">Cursor Instruction</h2>
+            </div>
+            
+            <div class="execution-assist-context">
+                <div class="context-item">
+                    <span class="context-label">Mission:</span>
+                    <span class="context-value" id="assist-mission"></span>
+                </div>
+                <div class="context-item">
+                    <span class="context-label">Step:</span>
+                    <span class="context-value" id="assist-step"></span>
+                </div>
+            </div>
+            
+            <div class="execution-assist-prompt-container">
+                <div class="prompt-label">Generated Prompt:</div>
+                <div class="execution-assist-prompt-wrapper">
+                    <pre class="execution-assist-prompt" id="assist-prompt"></pre>
+                    <button class="prompt-copy-icon" id="prompt-copy-icon" aria-label="Copy prompt to clipboard">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="copy-success-message" id="copy-success">
+                ✓ Copied! Paste into Cursor to generate your plan.
+            </div>
+        </div>
+    </div>
+
     <script src="assets/js/buttons.js"></script>
     <script src="assets/js/apiService.js"></script>
     <script src="assets/js/quickWins.js"></script>
@@ -917,6 +992,7 @@
     <script src="assets/js/accordion.js"></script>
     <script src="assets/js/typingEffect.js"></script>
     <script src="assets/js/checklistAnimation.js"></script>
+    <script src="assets/js/executionAssist.js"></script>
     <script src="assets/js/sprintPlan.js"></script>
     <script src="assets/js/completedCards.js"></script>
 

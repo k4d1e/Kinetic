@@ -298,11 +298,43 @@ document.addEventListener('DOMContentLoaded', () => {
     completeBtn.addEventListener('click', handleComplete);
   }
 
-  // Execution Assist buttons (Placeholder - no functionality yet)
+  // Execution Assist buttons - Generate and show prompt
   executionAssistBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
-      console.log('Execution Assist clicked - placeholder for future functionality');
-      // TODO: Add instruction display/copy functionality
+      const currentPage = btn.closest('.sprint-card-page');
+      const pageNumber = parseInt(currentPage.getAttribute('data-page'));
+      
+      console.log(`Execution Assist clicked for page ${pageNumber}`);
+      
+      // Use the executionAssist module to handle
+      if (window.ExecutionAssist) {
+        window.ExecutionAssist.openModal(currentPage);
+      } else {
+        console.error('ExecutionAssist module not loaded');
+      }
+    });
+  });
+
+  // Make instruction labels clickable
+  const instructionLabels = document.querySelectorAll('.instruction-label');
+  instructionLabels.forEach((label) => {
+    label.style.cursor = 'pointer';
+    label.style.transition = 'color 0.3s ease';
+    
+    label.addEventListener('click', () => {
+      const currentPage = label.closest('.sprint-card-page');
+      if (window.ExecutionAssist) {
+        window.ExecutionAssist.openModal(currentPage);
+      }
+    });
+    
+    // Add hover effect
+    label.addEventListener('mouseenter', () => {
+      label.style.color = 'var(--color-primary-green)';
+    });
+    
+    label.addEventListener('mouseleave', () => {
+      label.style.color = '';
     });
   });
 

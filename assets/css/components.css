@@ -332,10 +332,45 @@
   font-weight: 600;
   color: var(--color-primary-green);
   margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
 }
 
 .instruction-label:last-child {
   margin-bottom: 0;
+}
+
+.instruction-x-icon {
+  width: 16px;
+  height: 16px;
+  stroke: var(--color-primary-green);
+  opacity: 0.3;
+  transition: opacity 0.3s ease;
+  display: block;
+}
+
+.instruction-checkmark {
+  width: 16px;
+  height: 16px;
+  stroke: var(--color-primary-green);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  display: none;
+  position: absolute;
+  left: 0;
+}
+
+.instruction-label.copied .instruction-x-icon {
+  opacity: 0;
+  display: none;
+}
+
+.instruction-label.copied .instruction-checkmark {
+  opacity: 1;
+  display: block;
+  position: static;
 }
 
 /* Completion Checklist (Page 6) */
@@ -491,6 +526,24 @@
 .btn-continue:active,
 .btn-next-step:active {
   transform: translateY(0);
+}
+
+.btn-next-step:disabled {
+  background-color: rgba(79, 160, 192, 0.3);
+  color: rgba(255, 255, 255, 0.5);
+  cursor: not-allowed;
+  opacity: 0.6;
+  box-shadow: none;
+  transform: none;
+}
+
+.btn-next-step:disabled:hover {
+  background-color: rgba(79, 160, 192, 0.3);
+  transform: none;
+}
+
+.btn-next-step:disabled .btn-arrow-icon {
+  opacity: 0.5;
 }
 
 .btn-complete {
@@ -2955,4 +3008,285 @@ datalist option:hover {
 
 .ai-visibility-list-container::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-blue);
+}
+
+/* ========================================
+   Execution Assist Modal
+   ======================================== */
+
+.execution-assist-modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 10000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.execution-assist-modal-overlay.active {
+  display: flex;
+  opacity: 1;
+  justify-content: flex-end;
+  align-items: center;
+  padding-right: 40px;
+}
+
+.execution-assist-modal-content {
+  position: relative;
+  width: 500px;
+  max-height: 90vh;
+  background: linear-gradient(135deg, #0d1b3e 0%, #1e3a5f 100%);
+  border-radius: 12px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  overflow: hidden;
+}
+
+.execution-assist-modal-overlay.active .execution-assist-modal-content {
+  transform: translateX(0);
+}
+
+.execution-assist-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 36px;
+  color: var(--color-text-blue);
+  cursor: pointer;
+  z-index: 10001;
+  transition: color 0.3s ease;
+  line-height: 1;
+  padding: 0;
+  width: 36px;
+  height: 36px;
+}
+
+.execution-assist-modal-close:hover {
+  color: var(--color-signal-orange);
+}
+
+.execution-assist-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid rgba(79, 160, 192, 0.3);
+}
+
+.execution-assist-icon {
+  width: 28px;
+  height: 28px;
+  color: var(--color-primary-green);
+  flex-shrink: 0;
+}
+
+.execution-assist-title {
+  font-family: var(--font-orbitron);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--color-primary-green);
+  margin: 0;
+}
+
+.execution-assist-context {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  border-left: 3px solid var(--color-signal-orange);
+}
+
+.context-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.context-label {
+  font-family: var(--font-press-start);
+  font-size: 8px;
+  color: var(--color-signal-orange);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.context-value {
+  font-family: var(--font-orbitron);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-blue);
+  line-height: 1.4;
+}
+
+.execution-assist-prompt-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  overflow: hidden;
+}
+
+.prompt-label {
+  font-family: var(--font-orbitron);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-blue);
+  letter-spacing: 0.5px;
+}
+
+.execution-assist-prompt-wrapper {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.execution-assist-prompt {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  background-color: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(79, 160, 192, 0.2);
+  border-radius: 8px;
+  padding: 20px;
+  font-family: var(--font-orbitron);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.6;
+  color: var(--color-text-green);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 0;
+}
+
+.prompt-copy-icon {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  background-color: rgba(0, 0, 0, 0.7);
+  border: 1px solid var(--color-primary-green);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.3s ease;
+  padding: 0;
+  backdrop-filter: blur(4px);
+}
+
+.execution-assist-prompt-wrapper:hover .prompt-copy-icon {
+  opacity: 1;
+}
+
+.prompt-copy-icon:hover {
+  background-color: var(--color-primary-green);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(77, 170, 127, 0.4);
+}
+
+.prompt-copy-icon:active {
+  transform: scale(0.95);
+}
+
+.prompt-copy-icon svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--color-primary-green);
+  transition: stroke 0.3s ease;
+}
+
+.prompt-copy-icon:hover svg {
+  stroke: white;
+}
+
+.copy-success-message {
+  display: none;
+  padding: 12px 20px;
+  background-color: rgba(77, 170, 127, 0.2);
+  border: 1px solid var(--color-primary-green);
+  border-radius: 6px;
+  font-family: var(--font-orbitron);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-primary-green);
+  text-align: center;
+  animation: fadeInOut 3s ease;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  90% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+/* Custom scrollbar for prompt container */
+.execution-assist-prompt::-webkit-scrollbar {
+  width: 8px;
+}
+
+.execution-assist-prompt::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+
+.execution-assist-prompt::-webkit-scrollbar-thumb {
+  background: var(--color-signal-orange);
+  border-radius: 4px;
+}
+
+.execution-assist-prompt::-webkit-scrollbar-thumb:hover {
+  background: #ff9944;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .execution-assist-modal-overlay.active {
+    padding-right: 20px;
+  }
+  
+  .execution-assist-modal-content {
+    width: 450px;
+  }
+}
+
+@media (max-width: 768px) {
+  .execution-assist-modal-overlay.active {
+    padding: 20px;
+    justify-content: center;
+  }
+  
+  .execution-assist-modal-content {
+    width: 100%;
+    max-width: 500px;
+  }
 }
