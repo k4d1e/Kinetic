@@ -5,7 +5,8 @@ const { requireAuth } = require('../middleware/authMiddleware');
 const {
   saveCompletion,
   getHistory,
-  getCardDetails
+  getCardDetails,
+  generateLoomsGap
 } = require('../controllers/sprintCardController');
 
 // All sprint card routes require authentication
@@ -32,5 +33,13 @@ router.get('/history', getHistory);
  * @access  Private
  */
 router.get('/:cardId', getCardDetails);
+
+/**
+ * @route   POST /api/sprint-cards/looms-gap
+ * @desc    Generate Loom's Gap Analysis (competitor backlink gaps)
+ * @body    propertyId, refresh (optional), country (optional)
+ * @access  Private
+ */
+router.post('/looms-gap', generateLoomsGap);
 
 module.exports = router;

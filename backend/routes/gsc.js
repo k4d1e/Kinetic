@@ -12,6 +12,13 @@ const {
   hasCalibration
 } = require('../controllers/gscController');
 
+const {
+  getEVOSynthesis,
+  getDimensionAnalysis,
+  getEmergencePatterns,
+  getSystemIntelligence
+} = require('../controllers/evoController');
+
 // All GSC routes require authentication
 router.use(requireAuth);
 
@@ -67,5 +74,43 @@ router.get('/calibration-cards', getCalibrationCards);
  * @access  Private
  */
 router.get('/has-calibration', hasCalibration);
+
+/**
+ * E.V.O. DIMENSIONAL ANALYSIS ROUTES
+ */
+
+/**
+ * @route   GET /api/gsc/evo/synthesis
+ * @desc    Get complete E.V.O. dimensional synthesis
+ * @query   siteUrl - The GSC property URL
+ * @query   refresh - Force cache refresh (optional)
+ * @access  Private
+ */
+router.get('/evo/synthesis', getEVOSynthesis);
+
+/**
+ * @route   GET /api/gsc/evo/:dimension
+ * @desc    Get individual dimensional analysis
+ * @param   dimension - One of: substrate, lattice, synapse, resonance, weave, elixir
+ * @query   siteUrl - The GSC property URL
+ * @access  Private
+ */
+router.get('/evo/:dimension', getDimensionAnalysis);
+
+/**
+ * @route   GET /api/gsc/evo/emergence-patterns
+ * @desc    Get emergence patterns across dimensions
+ * @query   siteUrl - The GSC property URL
+ * @access  Private
+ */
+router.get('/evo-patterns', getEmergencePatterns);
+
+/**
+ * @route   GET /api/gsc/evo/system-intelligence
+ * @desc    Get unified system intelligence
+ * @query   siteUrl - The GSC property URL
+ * @access  Private
+ */
+router.get('/evo-intelligence', getSystemIntelligence);
 
 module.exports = router;
