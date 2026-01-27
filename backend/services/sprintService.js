@@ -179,8 +179,43 @@ async function getCompletedCardDetails(pool, cardId, userId) {
   }
 }
 
+/**
+ * Get sprint progress for a property
+ * Returns which sprint circles have been completed
+ * @param {Pool} pool - PostgreSQL connection pool
+ * @param {number} userId - User ID
+ * @param {number} propertyId - GSC property ID
+ * @returns {Promise<Object>} - Progress state with completed sprint indices
+ */
+async function getSprintProgress(pool, userId, propertyId) {
+  try {
+    const result = await pool.query(
+      `SELECT DISTINCT sprint_index 
+       FROM completed_sprint_cards 
+       WHERE user_id = $1 AND property_id = $2
+       ORDER BY sprint_index`,
+      [userId, propertyId]
+    );
+    
+    const completedSprints = result.rows.map(row => row.sprint_index);
+    
+    console.log(`✓ Fetched sprint progress for user ${userId}, property ${propertyId}: ${completedSprints.join(', ')}`);
+    
+    return {
+      completedSprints,
+      nextAvailableSprint: completedSprints.length > 0 
+        ? Math.max(...completedSprints) + 1 
+        : 0
+    };
+  } catch (error) {
+    console.error('Error fetching sprint progress:', error);
+    throw error;
+  }
+}
+
 module.exports = {
   saveCompletedCard,
   getCompletedCards,
-  getCompletedCardDetails
+  getCompletedCardDetails,
+  getSprintProgress
 };

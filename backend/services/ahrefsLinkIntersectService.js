@@ -17,11 +17,27 @@
  */
 async function callAhrefsMCP(toolName, args) {
   try {
-    // Ahrefs API key from environment or config
-    const apiKey = process.env.AHREFS_API_KEY || 'n-eB.MbAOsd7LEWgStWIpQOSh6TptcVR6SWExMXA0RlFvK3ZkZnc2WjE2dzArM1oydVZJVXY0SnJjTEl5RHJaaHBuMDhDcjc4QXJES05wcFFkZGNMM2JheHpqTk9lbGIwVnJlNlNkUWNhSGFZK1BnUHJwdFNRYlo4Y0Vva3JzL01ZTnVwUFZEQ3ZJUGtMdkU.WoHG';
+    // Ahrefs API token from environment
+    const apiKey = process.env.AHREFS_API_TOKEN;
     
-    // Convert tool name to API endpoint format (e.g., 'site-explorer-organic-competitors' -> 'site_explorer_organic_competitors')
-    const endpoint = toolName.replace(/-/g, '_');
+    if (!apiKey) {
+      throw new Error('AHREFS_API_TOKEN not set in environment variables');
+    }
+    
+    // Convert tool name to API endpoint format
+    // 'site-explorer-organic-competitors' -> 'site-explorer/organic-competitors'
+    // Split on the first hyphen group to get category/endpoint structure
+    const parts = toolName.split('-');
+    let endpoint;
+    if (parts.length >= 3) {
+      // Format: category-subcategory-action -> category-subcategory/action
+      const category = parts.slice(0, 2).join('-'); // e.g., 'site-explorer'
+      const action = parts.slice(2).join('-');        // e.g., 'organic-competitors'
+      endpoint = `${category}/${action}`;
+    } else {
+      // Fallback: just use as-is with slash replacement
+      endpoint = toolName.replace(/-/g, '/');
+    }
     
     // Build query parameters
     const queryParams = new URLSearchParams();
@@ -62,15 +78,32 @@ async function callAhrefsMCP(toolName, args) {
 
 /**
  * Get domain from URL
- * @param {string} url - Full URL or domain
+ * @param {string} url - Full URL or domain (also handles GSC formats like 'sc-domain:example.com')
  * @returns {string} - Clean domain without protocol or www
  */
 function getDomainFromUrl(url) {
   try {
-    const urlObj = new URL(url.startsWith('http') ? url : `https://${url}`);
+    // Handle Google Search Console domain formats
+    // e.g., 'sc-domain:example.com', 'sc-set:123456', or 'https://example.com/'
+    let cleanUrl = url;
+    
+    // Strip GSC prefixes (sc-domain:, sc-set:, etc.)
+    if (cleanUrl.startsWith('sc-domain:')) {
+      cleanUrl = cleanUrl.replace('sc-domain:', '');
+    } else if (cleanUrl.startsWith('sc-set:')) {
+      // For sc-set, we can't extract a domain - throw error
+      throw new Error('Cannot extract domain from GSC property set format (sc-set:)');
+    }
+    
+    // Now process as normal URL/domain
+    const urlObj = new URL(cleanUrl.startsWith('http') ? cleanUrl : `https://${cleanUrl}`);
     return urlObj.hostname.replace(/^www\./, '');
   } catch (error) {
-    return url.replace(/^https?:\/\/(www\.)?/, '').split('/')[0];
+    // Fallback: strip common prefixes and extract domain
+    return url
+      .replace(/^sc-domain:/, '')
+      .replace(/^https?:\/\/(www\.)?/, '')
+      .split('/')[0];
   }
 }
 
@@ -333,28 +366,32 @@ async function analyzeLoomsGap(siteUrl, country = 'us', manualCompetitors = []) 
   try {
     const userDomain = getDomainFromUrl(siteUrl);
     
-    // Step 1: Auto-discover competitors (1 API call)
-    console.log('\n[Step 1/4] Auto-discovering competitors...');
-    let competitors = await autoDiscoverCompetitors(userDomain, country, 10);
+    // Step 1: Competitor discovery
+    let competitors = [];
     
-    // Merge with manual competitors if provided
     if (manualCompetitors && manualCompetitors.length > 0) {
-      console.log(`\n📝 Adding ${manualCompetitors.length} manual competitors...`);
-      const manualCompObjs = manualCompetitors.map(domain => ({
+      // Use manual competitors only (skip auto-discovery)
+      console.log(`\n[Step 1/4] Using ${manualCompetitors.length} manual competitors...`);
+      competitors = manualCompetitors.map(domain => ({
         domain: getDomainFromUrl(domain),
         commonKeywords: 0,
         intersections: 0,
         domainRating: 0,
         manual: true
       }));
-      competitors = [...competitors, ...manualCompObjs];
+      console.log(`✓ Manual competitors loaded: ${competitors.map(c => c.domain).join(', ')}`);
+    } else {
+      // Auto-discover competitors (requires higher-tier Ahrefs plan)
+      console.log('\n[Step 1/4] Auto-discovering competitors...');
+      competitors = await autoDiscoverCompetitors(userDomain, country, 10);
     }
     
     if (competitors.length === 0) {
       console.log('⚠️  No competitors found. Cannot perform gap analysis.');
+      console.log('💡 Tip: Enter manual competitors in the textarea on Page 1 to bypass auto-discovery.');
       return {
         success: false,
-        error: 'No competitors discovered',
+        error: 'No competitors found. Please enter manual competitors.',
         userDomain,
         competitors: [],
         gapDomains: [],

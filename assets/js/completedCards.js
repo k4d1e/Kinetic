@@ -276,6 +276,7 @@ function initModalListeners() {
 // Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', () => {
   initModalListeners();
+  loadCompletedCardsArchive(); // Load completed cards on page load
   console.log('✓ Completed cards module initialized');
 });
 

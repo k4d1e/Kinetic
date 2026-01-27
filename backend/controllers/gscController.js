@@ -61,16 +61,35 @@ async function startCalibration(req, res) {
     }
 
     // Verify user has access to this property
-    const propertyResult = await pool.query(
+    let propertyResult = await pool.query(
       'SELECT id FROM gsc_properties WHERE user_id = $1 AND site_url = $2',
       [userId, siteUrl]
     );
 
+    // If property not found in database, fetch and save properties from GSC
     if (propertyResult.rows.length === 0) {
-      return res.status(403).json({
-        error: 'Forbidden',
-        message: 'You do not have access to this property'
-      });
+      console.log('⚠️  Property not found in database, fetching from GSC...');
+      try {
+        await fetchUserProperties(pool, userId);
+        // Try again after fetching
+        propertyResult = await pool.query(
+          'SELECT id FROM gsc_properties WHERE user_id = $1 AND site_url = $2',
+          [userId, siteUrl]
+        );
+        
+        if (propertyResult.rows.length === 0) {
+          return res.status(403).json({
+            error: 'Forbidden',
+            message: 'This property was not found in your Google Search Console account. Please verify you have access to this property in GSC.'
+          });
+        }
+      } catch (fetchError) {
+        console.error('Error fetching properties:', fetchError);
+        return res.status(500).json({
+          error: 'Internal Server Error',
+          message: 'Failed to verify property access. Please try refreshing the property list.'
+        });
+      }
     }
 
     const propertyId = propertyResult.rows[0].id;
