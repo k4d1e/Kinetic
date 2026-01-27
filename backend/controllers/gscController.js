@@ -456,7 +456,8 @@ async function hasCalibration(req, res) {
 
     res.json({
       success: true,
-      exists
+      exists,
+      propertyId
     });
   } catch (error) {
     console.error('Error checking calibration:', error);

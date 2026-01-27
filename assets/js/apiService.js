@@ -213,7 +213,7 @@ class KineticAPI {
       }
 
       const data = await response.json();
-      return { exists: data.exists };
+      return { exists: data.exists, propertyId: data.propertyId };
     } catch (error) {
       console.error('Error checking calibration:', error);
       return { exists: false };

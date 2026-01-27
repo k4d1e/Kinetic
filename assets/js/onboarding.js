@@ -69,12 +69,17 @@ class OnboardingStateMachine {
         if (lastSelected && lastSelected.siteUrl) {
           console.log('✓ Found last selected property:', lastSelected.siteUrl);
           this.selectedProperty = lastSelected.siteUrl;
+          window.currentPropertyId = lastSelected.propertyId;
           
           // Check if calibration exists in database
           const calibrationCheck = await this.api.hasCalibration(lastSelected.siteUrl);
           
           if (calibrationCheck.exists) {
             console.log('✓ Calibration exists in database - will restore cards');
+            // Set property ID if returned from calibration check
+            if (calibrationCheck.propertyId) {
+              window.currentPropertyId = calibrationCheck.propertyId;
+            }
             // Restore from database and skip onboarding
             await this.restoreFromDatabase(lastSelected.siteUrl);
             // Don't show onboarding modal
@@ -233,6 +238,10 @@ class OnboardingStateMachine {
       
       if (calibrationCheck.exists) {
         console.log('✓ Calibration exists - restoring from database');
+        // Set property ID from calibration check
+        if (calibrationCheck.propertyId) {
+          window.currentPropertyId = calibrationCheck.propertyId;
+        }
         // Restore from database instead of running calibration
         await this.restoreFromDatabase(siteUrl);
         // Skip to end - no need to show checklist
@@ -240,7 +249,8 @@ class OnboardingStateMachine {
       } else {
         console.log('⚠️ No calibration found - running fresh calibration');
         // Run fresh calibration (will auto-save to DB)
-        await this.api.startCalibration(siteUrl);
+        const calibrationResponse = await this.api.startCalibration(siteUrl);
+        window.currentPropertyId = calibrationResponse.propertyId;
         
         // Transition to SUCCESS state where checklist runs
         this.setState(STATES.SUCCESS);
