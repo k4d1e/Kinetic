@@ -64,6 +64,91 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /**
+   * Load Sprint Progress from Database
+   * Fetch and apply saved sprint circle states for the current property
+   */
+  async function loadSprintProgress(propertyId) {
+    if (!propertyId) {
+      console.log('No property ID provided, using default sprint state');
+      return;
+    }
+    
+    try {
+      console.log(`🔄 Loading sprint progress for property ${propertyId}...`);
+      
+      const backendURL = window.kineticAPI ? window.kineticAPI.baseURL : 'http://localhost:8000';
+      const response = await fetch(`${backendURL}/api/sprint-cards/progress?propertyId=${propertyId}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.message || 'Failed to load sprint progress');
+      }
+      
+      const { completedSprints, nextAvailableSprint } = result.progress;
+      
+      console.log(`✓ Sprint progress loaded:`, {
+        completed: completedSprints,
+        nextAvailable: nextAvailableSprint
+      });
+      
+      // Update sprint state and DOM based on loaded progress
+      applySprintProgress(completedSprints, nextAvailableSprint);
+      
+    } catch (error) {
+      console.error('❌ Error loading sprint progress:', error);
+      // Don't alert user - just use default state on error
+      console.log('Using default sprint state due to error');
+    }
+  }
+
+  /**
+   * Apply Sprint Progress to UI
+   * Update sprint circles based on saved completion state
+   */
+  function applySprintProgress(completedSprints, nextAvailableSprint) {
+    sprintCircles.forEach((circle, index) => {
+      let status;
+      
+      if (completedSprints.includes(index)) {
+        // This sprint is completed
+        status = 'completed';
+        sprintState.circles[index].status = 'completed';
+        sprintState.circles[index].completed = true;
+      } else if (index === nextAvailableSprint) {
+        // This is the next available sprint
+        status = 'active';
+        sprintState.circles[index].status = 'active';
+        sprintState.circles[index].completed = false;
+        
+        // Add click listener to active circle
+        circle.addEventListener('click', () => handleCircleClick(index));
+      } else {
+        // This sprint is locked
+        status = 'locked';
+        sprintState.circles[index].status = 'locked';
+        sprintState.circles[index].completed = false;
+      }
+      
+      // Update DOM
+      circle.setAttribute('data-status', status);
+      updateCircleVisual(circle, status);
+    });
+    
+    console.log(`✓ Applied sprint progress: ${completedSprints.length} completed, next available: ${nextAvailableSprint}`);
+  }
+
+  /**
    * Update Circle Visual State
    */
   function updateCircleVisual(circle, status) {
@@ -132,9 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Select appropriate card container
     if (currentCardType === 'looms_gap_analysis') {
       cardContainer = document.querySelector('#looms-gap-card-container');
-      
-      // Fetch and populate Loom's Gap data
-      await loadLoomsGapData();
+      // Don't load data yet - let user enter competitors first!
     } else {
       cardContainer = document.querySelector('.sprint-plan-card-container:not(#looms-gap-card-container)');
     }
@@ -144,12 +227,17 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     
+    console.log('✓ Card container found:', cardContainer.id || cardContainer.className);
+    
     // Update DOM element references for this card
     cardPages = cardContainer.querySelectorAll('.sprint-card-page');
     continueBtn = cardContainer.querySelector('.btn-continue');
     nextStepBtns = cardContainer.querySelectorAll('.btn-next-step');
     completeBtn = cardContainer.querySelector('.btn-complete');
     executionAssistBtns = cardContainer.querySelectorAll('.btn-execution-assist');
+    
+    console.log(`✓ Found ${cardPages.length} pages in card`);
+    console.log(`✓ Continue button found:`, !!continueBtn);
     
     // Attach event listeners for this card's buttons
     attachCardEventListeners();
@@ -159,6 +247,55 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Display the card container
     cardContainer.style.display = 'block';
+    
+    // Force proper positioning for Loom's Gap card (override CSS)
+    if (currentCardType === 'looms_gap_analysis') {
+      cardContainer.style.cssText = `
+        display: block !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        max-width: 900px !important;
+        padding: 20px !important;
+        position: relative !important;
+        left: 0 !important;
+        transform: none !important;
+        background-color: #ff00ff !important;
+        border: 5px solid #00ff00 !important;
+        min-height: 600px !important;
+        height: auto !important;
+        z-index: 10000 !important;
+        width: 900px !important;
+      `;
+      
+      // Also fix inner card
+      const innerCard = cardContainer.querySelector('.sprint-plan-card');
+      if (innerCard) {
+        innerCard.style.cssText = `
+          max-width: none !important;
+          max-height: none !important;
+          min-height: 600px !important;
+          width: 100% !important;
+          height: auto !important;
+        `;
+      }
+      
+      // Fix pages
+      const pages = cardContainer.querySelectorAll('.sprint-card-page');
+      pages.forEach(page => {
+        if (page.getAttribute('data-page') === '1') {
+          page.style.cssText = `
+            display: flex !important;
+            flex-direction: column !important;
+            min-height: 500px !important;
+            height: auto !important;
+          `;
+        }
+      });
+      
+      console.log('✓ Loom\'s Gap card dimensions forced with !important');
+    }
+    
+    console.log('✓ Card display set to block');
     
     // Smooth scroll to the card
     setTimeout(() => {
@@ -185,16 +322,34 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       console.log('🧵 Fetching Loom\'s Gap Analysis data...');
       
-      // Show loading indicator (if we want to add one)
-      const response = await fetch('/api/sprint-cards/looms-gap', {
+      // Collect manual competitors from textarea
+      const competitorTextarea = document.getElementById('manual-competitors');
+      const competitorText = competitorTextarea ? competitorTextarea.value.trim() : '';
+      const competitors = competitorText
+        ? competitorText
+            .split('\n')
+            .map(line => line.trim())
+            .filter(line => line.length > 0)
+        : [];
+      
+      console.log(`📋 Manual competitors entered: ${competitors.length}`);
+      if (competitors.length > 0) {
+        console.log('   Competitors:', competitors.join(', '));
+      }
+      
+      // Use the backend URL (port 8000, not 8080)
+      const backendURL = window.kineticAPI ? window.kineticAPI.baseURL : 'http://localhost:8000';
+      const response = await fetch(`${backendURL}/api/sprint-cards/looms-gap`, {
         method: 'POST',
+        credentials: 'include', // Important for session cookies
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           propertyId: sprintState.currentPropertyId,
           refresh: false,
-          country: 'us'
+          country: 'us',
+          competitors: competitors // Send manual competitors to backend
         })
       });
       
@@ -317,7 +472,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Continue button (Page 1)
     if (continueBtn) {
       continueBtn.removeEventListener('click', navigateToNextPage); // Remove old listener
-      continueBtn.addEventListener('click', navigateToNextPage);
+      
+      // Special handling for Loom's Gap card: load data when clicking "Show Me The Gaps"
+      if (currentCardType === 'looms_gap_analysis') {
+        continueBtn.addEventListener('click', async () => {
+          // Load the gap analysis data with the user's entered competitors
+          await loadLoomsGapData();
+          // If data loaded successfully, navigate to next page
+          if (loomsGapData) {
+            navigateToNextPage();
+          }
+        });
+      } else {
+        continueBtn.addEventListener('click', navigateToNextPage);
+      }
     }
     
     // Next Step buttons (Pages 2-4)
@@ -565,6 +733,18 @@ document.addEventListener('DOMContentLoaded', () => {
   // ========================================
   initSprintCircles();
 
+  // Listen for property selection to load sprint progress
+  window.addEventListener('propertySelected', async (event) => {
+    const propertyId = event.detail.propertyId;
+    console.log(`Property selected: ${propertyId}, loading sprint progress...`);
+    await loadSprintProgress(propertyId);
+  });
+
+  // Load sprint progress on initial load if property is already selected
+  if (window.currentPropertyId) {
+    loadSprintProgress(window.currentPropertyId);
+  }
+
   // ========================================
   // Global API for Manual Control
   // ========================================
@@ -576,6 +756,8 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log('No active sprint circle to unlock from');
     }
   };
+
+  window.loadSprintProgress = loadSprintProgress; // Expose for external calls
 
   window.sprintPlanState = sprintState; // For debugging
 

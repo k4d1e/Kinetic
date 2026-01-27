@@ -134,6 +134,14 @@ class OnboardingStateMachine {
       // Dispatch onboarding complete event
       window.dispatchEvent(new CustomEvent('onboardingComplete'));
       console.log('✓ Dispatched onboardingComplete event (from database)');
+      
+      // Dispatch property selected event for sprint progress loading
+      if (window.currentPropertyId) {
+        window.dispatchEvent(new CustomEvent('propertySelected', { 
+          detail: { propertyId: window.currentPropertyId } 
+        }));
+        console.log('✓ Dispatched propertySelected event');
+      }
     } catch (error) {
       console.error('Error restoring from database:', error);
       // Fallback to showing onboarding
@@ -544,6 +552,14 @@ class OnboardingUI {
     // Dispatch custom event to signal onboarding is complete
     window.dispatchEvent(new CustomEvent('onboardingComplete'));
     console.log('✓ Dispatched onboardingComplete event');
+    
+    // Dispatch property selected event for sprint progress loading
+    if (window.currentPropertyId) {
+      window.dispatchEvent(new CustomEvent('propertySelected', { 
+        detail: { propertyId: window.currentPropertyId } 
+      }));
+      console.log('✓ Dispatched propertySelected event');
+    }
   }
 
   async loadQuickWinsModule() {

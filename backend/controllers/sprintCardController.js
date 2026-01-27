@@ -2,7 +2,8 @@
 const {
   saveCompletedCard,
   getCompletedCards,
-  getCompletedCardDetails
+  getCompletedCardDetails,
+  getSprintProgress
 } = require('../services/sprintService');
 
 const { analyzeLoomsGap } = require('../services/ahrefsLinkIntersectService');
@@ -117,7 +118,7 @@ async function generateLoomsGap(req, res) {
   try {
     const pool = req.app.locals.pool;
     const userId = req.user.id;
-    const { propertyId, refresh = false, country = 'us' } = req.body;
+    const { propertyId, refresh = false, country = 'us', competitors = [] } = req.body;
     
     // Validate required fields
     if (!propertyId) {
@@ -142,8 +143,15 @@ async function generateLoomsGap(req, res) {
     
     const siteUrl = propertyResult.rows[0].site_url;
     
-    // Check cache first (unless refresh requested)
-    if (!refresh) {
+    // Log manual competitors if provided
+    if (competitors.length > 0) {
+      console.log(`📋 Manual competitors provided: ${competitors.length}`);
+      console.log(`   Competitors: ${competitors.join(', ')}`);
+    }
+    
+    // Check cache first (unless refresh requested or manual competitors provided)
+    // Skip cache if manual competitors are provided since they might be different
+    if (!refresh && competitors.length === 0) {
       const cacheResult = await pool.query(
         `SELECT * FROM looms_gap_cache 
          WHERE property_id = $1 AND expires_at > NOW()`,
@@ -170,9 +178,9 @@ async function generateLoomsGap(req, res) {
       }
     }
     
-    // Run fresh analysis
+    // Run fresh analysis with manual competitors
     console.log(`🧵 Running fresh Loom's Gap Analysis for ${siteUrl}...`);
-    const analysisResult = await analyzeLoomsGap(siteUrl, country);
+    const analysisResult = await analyzeLoomsGap(siteUrl, country, competitors);
     
     if (!analysisResult.success) {
       return res.status(500).json({
@@ -241,9 +249,43 @@ async function generateLoomsGap(req, res) {
   }
 }
 
+/**
+ * Get sprint progress for a property
+ * @route GET /api/sprint-cards/progress
+ * @query propertyId - Required property ID
+ */
+async function getProgress(req, res) {
+  try {
+    const pool = req.app.locals.pool;
+    const userId = req.user.id;
+    const propertyId = req.query.propertyId ? parseInt(req.query.propertyId) : null;
+    
+    if (!propertyId) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'Missing required parameter: propertyId'
+      });
+    }
+    
+    const progress = await getSprintProgress(pool, userId, propertyId);
+    
+    res.json({
+      success: true,
+      progress
+    });
+  } catch (error) {
+    console.error('Error fetching sprint progress:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to fetch sprint progress'
+    });
+  }
+}
+
 module.exports = {
   saveCompletion,
   getHistory,
   getCardDetails,
-  generateLoomsGap
+  generateLoomsGap,
+  getProgress
 };
