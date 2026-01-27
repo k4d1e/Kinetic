@@ -267,10 +267,34 @@ document.addEventListener('DOMContentLoaded', () => {
       // Show subtle success indicator (could enhance with a notification)
       console.log(`✓ Card ID ${result.cardId} saved successfully`);
       
-      // Unlock next circle after successful save
-      setTimeout(() => {
+      // Listen for animation completion event
+      const animationCompleteHandler = async () => {
+        console.log('✓ Animation complete, unlocking next circle');
         unlockNextCircle(sprintState.currentCircle);
-      }, 2000);
+        
+        // Refresh completed cards archive
+        if (window.loadCompletedCardsArchive) {
+          await window.loadCompletedCardsArchive(sprintState.currentPropertyId);
+          
+          // Scroll to archive section
+          const archiveSection = document.querySelector('.completed-cards-section');
+          if (archiveSection && archiveSection.style.display !== 'none') {
+            setTimeout(() => {
+              archiveSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 500);
+          }
+        }
+        
+        // Close the sprint card after 1 second
+        setTimeout(() => {
+          closeSprintCard();
+        }, 1000);
+        
+        // Remove listener
+        window.removeEventListener('sprintCardAnimationComplete', animationCompleteHandler);
+      };
+      
+      window.addEventListener('sprintCardAnimationComplete', animationCompleteHandler);
       
     } catch (error) {
       console.error('❌ Failed to save sprint card completion:', error);

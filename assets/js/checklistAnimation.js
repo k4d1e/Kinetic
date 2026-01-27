@@ -8,10 +8,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const sprintChecklist = page6.querySelector('.sprint-checklist');
     const checklistItems = page6.querySelectorAll('.sprint-checklist .checklist-item');
     
-    if (checklistItems.length === 0) {
-        return; // Exit if no checklist items found
-    }
-    
     let animationStarted = false;
     let currentIndex = 0;
     const animationDuration = 1300; // 1.3 seconds between items
@@ -43,6 +39,15 @@ document.addEventListener('DOMContentLoaded', function() {
             return; // Prevent multiple starts
         }
         animationStarted = true;
+        
+        // If no checklist items, run simplified animation
+        if (checklistItems.length === 0) {
+            // Blink dots animate for 3 seconds, then hide and show status lines
+            setTimeout(() => {
+                showStatusLines();
+            }, 3000); // 3 seconds
+            return;
+        }
         
         // Make checklist visible
         if (sprintChecklist) {
@@ -79,52 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     item.classList.remove('shown', 'active');
                 });
                 
-                // Hide the blinking dots after animation completes
-                const blinkDots = document.querySelectorAll('.blink-dot');
-                blinkDots.forEach(dot => {
-                    dot.style.display = 'none';
-                });
-                
-                // Show the hidden status lines after checklist animation completes
-                const statusLines = document.querySelectorAll('.status-container .status-line');
-                if (statusLines.length > 1) {
-                    // Show second status line
-                    setTimeout(() => {
-                        statusLines[1].style.display = 'block';
-                        
-                        // Show third status line after a brief delay
-                        setTimeout(() => {
-                            statusLines[2].style.display = 'block';
-                            
-                            // After success message appears, update progress line to 100% and change colors
-                            setTimeout(() => {
-                                const progressLine = document.querySelector('.progress-line');
-                                const entitySignalLabel = document.querySelector('.entity-signal-label');
-                                const notificationDot = document.querySelector('.notification-dot');
-                                
-                                if (progressLine) {
-                                    // Update the fill percentage
-                                    progressLine.style.setProperty('--progress-fill', '100%');
-                                    // Add a custom CSS variable for the green color
-                                    progressLine.style.setProperty('--progress-color', 'var(--color-bright-green)');
-                                    // Add a class to change the color
-                                    progressLine.classList.add('complete');
-                                }
-                                
-                                if (entitySignalLabel) {
-                                    entitySignalLabel.style.color = 'var(--color-bright-green)';
-                                }
-                                
-                                if (notificationDot) {
-                                    setTimeout(() => {
-                                        notificationDot.style.backgroundColor = 'var(--color-bright-green)';
-                                        notificationDot.style.boxShadow = '0 0 12px rgba(0, 255, 0, 0.8)';
-                                    }, 400);
-                                }
-                            }, 100);
-                        }, 800);
-                    }, 500);
-                }
+                showStatusLines();
             }, hideDelay);
             return;
         }
@@ -140,6 +100,59 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => {
                 moveToNextItem();
             }, animationDuration);
+        }
+    }
+    
+    function showStatusLines() {
+        // Hide the blinking dots after animation completes
+        const blinkDots = document.querySelectorAll('.blink-dot');
+        blinkDots.forEach(dot => {
+            dot.style.display = 'none';
+        });
+        
+        // Show the hidden status lines after checklist animation completes
+        const statusLines = document.querySelectorAll('.status-container .status-line');
+        if (statusLines.length > 1) {
+            // Show second status line
+            setTimeout(() => {
+                statusLines[1].style.display = 'block';
+                
+                // Show third status line after a brief delay
+                setTimeout(() => {
+                    statusLines[2].style.display = 'block';
+                    
+                    // After success message appears, update progress line to 100% and change colors
+                    setTimeout(() => {
+                        const progressLine = document.querySelector('.progress-line');
+                        const entitySignalLabel = document.querySelector('.entity-signal-label');
+                        const notificationDot = document.querySelector('.notification-dot');
+                        
+                        if (progressLine) {
+                            // Update the fill percentage
+                            progressLine.style.setProperty('--progress-fill', '100%');
+                            // Add a custom CSS variable for the green color
+                            progressLine.style.setProperty('--progress-color', 'var(--color-bright-green)');
+                            // Add a class to change the color
+                            progressLine.classList.add('complete');
+                        }
+                        
+                        if (entitySignalLabel) {
+                            entitySignalLabel.style.color = 'var(--color-bright-green)';
+                        }
+                        
+                        if (notificationDot) {
+                            setTimeout(() => {
+                                notificationDot.style.backgroundColor = 'var(--color-bright-green)';
+                                notificationDot.style.boxShadow = '0 0 12px rgba(0, 255, 0, 0.8)';
+                                
+                                // Dispatch completion animation finished event
+                                window.dispatchEvent(new CustomEvent('sprintCardAnimationComplete'));
+                                console.log('✓ Sprint card animation complete event dispatched');
+                            }, 400);
+                        }
+                    }, 100);
+                }, 800);
+            }, 500);
         }
     }
 });
