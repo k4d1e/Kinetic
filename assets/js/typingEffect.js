@@ -8,7 +8,19 @@ document.addEventListener('DOMContentLoaded', function() {
         return; // Exit if elements don't exist
     }
     
-    const greetingText = 'Good Morning, Kadie';
+    // Determine greeting based on time of day
+    const currentHour = new Date().getHours();
+    let greeting;
+    
+    if (currentHour >= 5 && currentHour < 12) {
+        greeting = 'Good Morning';
+    } else if (currentHour >= 12 && currentHour < 17) {
+        greeting = 'Good Afternoon';
+    } else {
+        greeting = 'Good Evening';
+    }
+    
+    const greetingText = `${greeting}, Kadie`;
     const sprintText = 'Your SEO Sprint Plan';
     const typingSpeed = 100; // milliseconds per character
     
