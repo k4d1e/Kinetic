@@ -1248,9 +1248,21 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Cache is indexed by step number, not page number
       const cachedData = evoDataCache[stepNumber];
       console.log('📦 Cached data:', cachedData);
+      console.log('📊 dimensionData:', cachedData?.dimensionData);
+      console.log('📋 insights:', cachedData?.dimensionData?.insights);
       
-      if (!cachedData || !cachedData.dimensionData || !cachedData.dimensionData.insights) {
-        console.error('❌ No E.V.O. data available for indexation prompt');
+      if (!cachedData) {
+        console.error('❌ No cached data');
+        return;
+      }
+      
+      if (!cachedData.dimensionData) {
+        console.error('❌ No dimensionData');
+        return;
+      }
+      
+      if (!cachedData.dimensionData.insights || cachedData.dimensionData.insights.length === 0) {
+        console.error('❌ No insights in dimensionData');
         return;
       }
       
