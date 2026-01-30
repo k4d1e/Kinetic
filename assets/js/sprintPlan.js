@@ -1248,30 +1248,31 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Cache is indexed by step number, not page number
       const cachedData = evoDataCache[stepNumber];
       console.log('📦 Cached data:', cachedData);
-      console.log('📊 dimensionData:', cachedData?.dimensionData);
-      console.log('📋 insights:', cachedData?.dimensionData?.insights);
       
       if (!cachedData) {
         console.error('❌ No cached data');
         return;
       }
       
-      if (!cachedData.dimensionData) {
-        console.error('❌ No dimensionData');
+      if (!cachedData.dimensionData || !cachedData.dimensionData.health) {
+        console.error('❌ No health data');
         return;
       }
       
-      if (!cachedData.dimensionData.insights || cachedData.dimensionData.insights.length === 0) {
-        console.error('❌ No insights in dimensionData');
+      // Insights are in health.insights, not directly in dimensionData
+      const insights = cachedData.dimensionData.health.insights || [];
+      console.log('📋 insights:', insights);
+      
+      if (insights.length === 0) {
+        console.error('❌ No insights available');
         return;
       }
       
       console.log('🔍 Looking for diagnosed cause at index:', causeIndex);
-      console.log('📊 Available insights:', cachedData.dimensionData.insights);
       
       // Find the diagnosed cause with strategies
       let targetCause = null;
-      for (const insight of cachedData.dimensionData.insights) {
+      for (const insight of insights) {
         console.log('🔎 Checking insight:', insight);
         if (insight.diagnosedCauses && insight.diagnosedCauses[causeIndex]) {
           targetCause = insight.diagnosedCauses[causeIndex];
