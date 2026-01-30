@@ -427,6 +427,23 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     }
     
+    // 6. Configure buttons for GSC protocols
+    if (protocolType === 'gsc_indexation_protocol') {
+      // For GSC protocols, show Analysis buttons by default and hide Execution Assist
+      const analysisButtons = cardContainer.querySelectorAll('.btn-analysis');
+      const executionAssistButtons = cardContainer.querySelectorAll('.btn-execution-assist');
+      
+      analysisButtons.forEach(btn => {
+        btn.style.display = 'flex';
+      });
+      
+      executionAssistButtons.forEach(btn => {
+        btn.style.display = 'none';
+      });
+      
+      console.log(`✓ GSC protocol detected - Analysis buttons shown by default`);
+    }
+    
     console.log(`✓ Card populated successfully with ${protocolType} content`);
   }
   
