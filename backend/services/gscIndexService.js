@@ -33,15 +33,15 @@ async function fetchIndexCoverage(pool, userId, siteUrl, progressCallback = null
     // Get sitemap URLs to check coverage
     const sitemapData = await fetchSitemapStatus(pool, userId, siteUrl);
     
-    // Get all URLs from sitemaps for inspection
-    const allUrls = await getSampleUrlsFromSitemaps(sitemapData);
+    // Get sample URLs from sitemaps for inspection (dev: first 5 only)
+    const sampleUrls = await getSampleUrlsFromSitemaps(sitemapData);
     
-    // Inspect all URLs to determine exact coverage
+    // Inspect sampled URLs to determine coverage
     const inspectionResults = await inspectMultipleUrls(
       pool, 
       userId, 
       siteUrl, 
-      allUrls,
+      sampleUrls,
       progressCallback
     );
     
@@ -235,9 +235,9 @@ async function inspectMultipleUrls(pool, userId, siteUrl, urls, progressCallback
 }
 
 /**
- * Get all URLs from sitemaps for inspection
+ * Get sample URLs from sitemaps for inspection (DEVELOPMENT: first 5 URLs only)
  * @param {Array} sitemaps - Sitemap data
- * @returns {Array<string>} - All URLs from sitemaps
+ * @returns {Array<string>} - Sample URLs from sitemaps (max 5 for development)
  */
 async function getSampleUrlsFromSitemaps(sitemaps) {
   if (!sitemaps || sitemaps.length === 0) {
@@ -291,14 +291,12 @@ async function getSampleUrlsFromSitemaps(sitemaps) {
   // Remove duplicates
   const uniqueUrls = [...new Set(allUrls)];
   
-  console.log(`✓ Will inspect all ${uniqueUrls.length} URLs from sitemap`);
+  // DEVELOPMENT: Sample first 5 URLs only for faster testing
+  const sampleUrls = uniqueUrls.slice(0, 5);
   
-  // Warn if extremely large site (may take significant time)
-  if (uniqueUrls.length > 500) {
-    console.log(`⚠️  Large site detected: ${uniqueUrls.length} URLs. Inspection may take ${Math.ceil(uniqueUrls.length / 5)} seconds...`);
-  }
+  console.log(`✓ Sampled ${sampleUrls.length} URLs from ${uniqueUrls.length} total URLs (dev mode)`);
   
-  return uniqueUrls;
+  return sampleUrls;
 }
 
 /**
