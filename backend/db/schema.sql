@@ -109,8 +109,7 @@ CREATE INDEX IF NOT EXISTS idx_sprint_steps_completed_card_id ON sprint_card_ste
 
 -- Insert initial action card types
 INSERT INTO sprint_action_cards (card_type, display_name, total_steps, description) VALUES
-('meta_surgeon_protocol', 'Meta Surgeon Protocol', 4, 'Inject 4 Truth Layers to establish entity identity'),
-('looms_gap_analysis', 'Loom''s Gap Analysis', 6, 'Identify missing warp threads - domains linking to competitors but not you')
+('meta_surgeon_protocol', 'Meta Surgeon Protocol', 4, 'Inject 4 Truth Layers to establish entity identity')
 ON CONFLICT (card_type) DO NOTHING;
 
 -- Module Card Types table: Store metadata for each calibration module type
@@ -227,26 +226,6 @@ CREATE INDEX IF NOT EXISTS idx_emergence_patterns_property_id ON emergence_patte
 CREATE INDEX IF NOT EXISTS idx_emergence_patterns_type ON emergence_patterns_history(pattern_type);
 CREATE INDEX IF NOT EXISTS idx_evo_recommendations_property_id ON evo_recommendations(property_id);
 CREATE INDEX IF NOT EXISTS idx_evo_recommendations_status ON evo_recommendations(status);
-
--- Loom's Gap Analysis Cache: Store competitor backlink gap analysis results
-CREATE TABLE IF NOT EXISTS looms_gap_cache (
-  id SERIAL PRIMARY KEY,
-  property_id INTEGER REFERENCES gsc_properties(id) ON DELETE CASCADE,
-  user_domain VARCHAR(255) NOT NULL,
-  competitors JSONB NOT NULL,
-  gap_domains JSONB NOT NULL,
-  thread_resonance_scores JSONB NOT NULL,
-  thread_starvation VARCHAR(20), -- 'MILD', 'MODERATE', 'SEVERE'
-  total_gaps INTEGER DEFAULT 0,
-  high_authority_gaps INTEGER DEFAULT 0,
-  analyzed_at TIMESTAMP DEFAULT NOW(),
-  expires_at TIMESTAMP,
-  UNIQUE(property_id)
-);
-
--- Create indexes for Loom's Gap Analysis
-CREATE INDEX IF NOT EXISTS idx_looms_gap_property_id ON looms_gap_cache(property_id);
-CREATE INDEX IF NOT EXISTS idx_looms_gap_expires_at ON looms_gap_cache(expires_at);
 
 -- Comments for documentation
 COMMENT ON TABLE users IS 'Stores Google OAuth authenticated users';

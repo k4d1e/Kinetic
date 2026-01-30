@@ -32,7 +32,7 @@
         </div>
 
         <!-- Sprint Plan Card Container -->
-        <div class="sprint-plan-card-container" style="display: none;">
+        <div class="sprint-plan-card-container" style="display: block;">
             <div class="sprint-plan-card">
                 <div class="notification-dot"></div>
                 
@@ -283,43 +283,43 @@
             <!-- End Sprint Plan Card -->
         </div>
         <!-- End Sprint Plan Card Container -->
-        
-        <!-- Loom's Gap Analysis Sprint Card Container -->
-        <div class="sprint-plan-card-container" id="looms-gap-card-container" style="display: none;">
-            <div class="sprint-plan-card">
-                <div class="notification-dot"></div>
-                
-                <!-- Shared Header Section -->
-                <div class="sprint-card-header">
-                    <div class="mission-header">MISSION:</div>
-                    <div class="mission-title">Loom's Gap Analysis</div>
-                    
-                    <div class="progress-line-container">
-                        <div class="progress-line" style="--progress-fill: 0%;"></div>
-                        <div class="entity-signal-label">Thread Weave Integrity</div>
-                    </div>
-                </div>
-                
-                <!-- Pages Container -->
-                <div class="sprint-pages-container">
-                    <!-- Note: Page content is very similar to loomsGapCard.html but embedded for performance -->
-                    <!-- See assets/html/loomsGapCard.html for standalone version -->
-                    
-                    <!-- Page 1: Mission Introduction -->
-                    <div class="sprint-card-page looms-gap-page" data-page="1">
-                        <div class="strategist-insight">
-                            <svg class="strategist-icon" xmlns="http://www.w3.org/2000/svg" version="1.0" viewBox="0 0 600.000000 600.000000" preserveAspectRatio="xMidYMid meet">
-                                <g transform="translate(0.000000,600.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none">
-                                    <path d="M2770 5183 c-508 -49 -943 -246 -1299 -588 -397 -381 -618 -848 -663 -1401 -14 -174 0 -383 38 -574 112 -550 446 -1046 922 -1363 270 -181 604 -303 937 -342 549 -64 1112 93 1554 435 86 67 253 225 317 300 262 309 427 671 496 1085 20 123 17 525 -5 645 -61 330 -161 587 -332 846 -316 482 -832 825 -1395 927 -176 33 -418 45 -570 30z m1070 -713 c11 -6 51 -72 89 -148 70 -137 70 -137 133 -174 35 -20 100 -55 146 -77 91 -46 112 -72 96 -119 -7 -22 -38 -42 -154 -102 l-145 -75 -72 -140 c-78 -155 -100 -177 -153 -155 -22 9 -42 39 -95 143 -37 73 -72 138 -78 145 -5 7 -72 44 -147 83 -116 58 -140 74 -151 100 -21 53 -1 73 156 153 l140 71 75 144 c82 158 106 180 160 151z m-843 -302 c11 -13 43 -87 71 -165 65 -179 99 -254 154 -340 66 -102 141 -187 223 -254 133 -109 203 -147 425 -229 85 -32 167 -63 182 -70 51 -24 54 -93 6 -124 -13 -8 -95 -41 -184 -74 -188 -70 -253 -102 -349 -170 -102 -71 -177 -143 -244 -233 -88 -117 -126 -190 -203 -397 -38 -103 -77 -193 -86 -199 -23 -18 -71 -17 -96 3 -19 16 -14 37 44 193 54 145 85 208 146 303 80 125 126 177 222 251 98 75 157 108 344 192 88 40 162 76 165 81 3 4 -60 39 -140 76 -166 79 -233 118 -330 197 -113 92 -188 177 -263 299 -53 86 -84 154 -139 303 -60 162 -65 187 -40 203 21 14 66 0 87 -26z"/>
-                                </g>
-                            </svg>
-                            E.V.O. Insight:
-                        </div>
-                        <div class="insight-blockquote">
-                            "The loom reveals a harsh truth: <span id="looms-gap-count" style="color: var(--color-accent-orange);">127 domains</span> link to your competitors but not to you. These are not random prospects—they are <strong>pre-aligned warp threads</strong>. The weave recognizes your niche, but your pattern is incomplete. Thread Starvation Level: <span id="looms-starvation" style="color: var(--color-accent-orange);">SEVERE</span>."
-                        </div>
-                        
-                        <!-- Manual Competitor Input -->
+    </section>
+
+    <!-- Completed Sprint Cards Archive Section -->
+    <section class="completed-cards-section" style="display: none;">
+        <h2 class="archive-title">Completed Action Cards</h2>
+        <div class="completed-cards-grid">
+            <!-- Dynamically populated by completedCards.js -->
+        </div>
+    </section>
+
+    <!-- Sprint Card Detail Modal -->
+    <div class="sprint-card-modal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button class="modal-close" aria-label="Close modal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <div class="modal-body">
+                <!-- Content dynamically populated -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Action Button -->
+    <button class="btn-cta">Launch Mission</button>
+
+    <!-- Completed Sprint Cards Archive Section -->
+    <section class="completed-cards-section" style="display: none;">
+        <h2 class="archive-title">Completed Action Cards</h2>
+        <div class="completed-cards-grid">
+            <!-- Dynamically populated by completedCards.js -->
+        </div>
+    </section>
+
                         <div class="competitor-input-section" style="margin: 20px 0; padding: 15px; background: rgba(0, 255, 255, 0.05); border: 1px solid rgba(0, 255, 255, 0.2); border-radius: 8px;">
                             <label for="manual-competitors" style="display: block; margin-bottom: 8px; color: var(--color-accent-cyan); font-size: 14px; font-weight: 600;">
                                 🎯 Enter Your Competitors (one per line):
@@ -347,7 +347,46 @@
                     </div>
 
                     <!-- Page 2: Competitors (simplified inline version) -->
-                    <div class="sprint-card-page looms-gap-page" data-page="2" style="display: none;">
+    <!-- Sprint Card Detail Modal -->
+    <div class="sprint-card-modal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button class="modal-close" aria-label="Close modal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <div class="modal-header">
+                <h3 class="modal-title"><!-- Populated dynamically --></h3>
+                <div class="modal-meta">
+                    <span class="completion-date"><!-- Populated dynamically --></span>
+                    <span class="completion-duration"><!-- Populated dynamically --></span>
+                </div>
+            </div>
+            <div class="modal-body">
+                <!-- Content dynamically populated -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Action Button -->
+    <button class="btn-cta">Launch Mission</button>
+
+    <!--Scripts -->
+    <script src="assets/js/buttons.js"></script>
+    <script src="assets/js/apiService.js"></script>
+    <script src="assets/js/quickWins.js"></script>
+    <script src="assets/js/onboarding.js"></script>
+    <script src="assets/js/accordion.js"></script>
+    <script src="assets/js/typingEffect.js"></script>
+    <script src="assets/js/checklistAnimation.js"></script>
+    <script src="assets/js/executionAssist.js"></script>
+    <script src="assets/js/sprintPlan.js"></script>
+    <script src="assets/js/completedCards.js"></script>
+
+</body>
+</html>
                         <div class="step-header">
                             <svg class="step-icon" xmlns="http://www.w3.org/2000/svg" version="1.0" viewBox="0 0 600.000000 600.000000" preserveAspectRatio="xMidYMid meet">
                                 <g transform="translate(0.000000,600.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none">
@@ -387,41 +426,6 @@
                     </div>
 
                     <!-- Pages 3-6: Gap domains, resonance, anchors, execution (truncated for brevity) -->
-                    <!-- The full card HTML would be too large to embed inline -->
-                    <!-- JS will populate these dynamically from API data -->
-                    <div class="sprint-card-page looms-gap-page" data-page="3" style="display: none;">
-                        <p>Gap domains page - populated by JS</p>
-                        <div id="gap-domains-table-body"></div>
-                        <div id="high-authority-count"></div>
-                        <div class="card-footer"><button class="btn-next-step">Next</button></div>
-                    </div>
-                    <div class="sprint-card-page looms-gap-page" data-page="4" style="display: none;">
-                        <p>Resonance page - populated by JS</p>
-                        <div id="resonance-table-body"></div>
-                        <div class="card-footer"><button class="btn-next-step">Next</button></div>
-                    </div>
-                    <div class="sprint-card-page looms-gap-page" data-page="5" style="display: none;">
-                        <p>Anchor patterns page - populated by JS</p>
-                        <div id="anchor-patterns-list"></div>
-                        <div class="card-footer"><button class="btn-next-step">Next</button></div>
-                    </div>
-                    <div class="sprint-card-page looms-gap-page" data-page="6" style="display: none;">
-                        <p>Execution checklist page</p>
-                        <div class="card-footer"><button class="btn-complete">Mark Complete ✓</button></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- End Loom's Gap Card Container -->
-    </section>
-
-    <!-- Completed Sprint Cards Archive Section -->
-    <section class="completed-cards-section" style="display: none;">
-        <h2 class="archive-title">Completed Action Cards</h2>
-        <div class="completed-cards-grid">
-            <!-- Dynamically populated by completedCards.js -->
-        </div>
-    </section>
 
     <!-- Sprint Card Detail Modal -->
     <div class="sprint-card-modal" style="display: none;">
