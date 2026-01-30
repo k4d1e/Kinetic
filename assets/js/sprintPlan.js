@@ -1091,10 +1091,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                             </div>
                           `).join('')}
                           <button class="btn-indexation-execution-assist" data-cause-index="${index}">
-                            <svg class="btn-assist-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            Execution Assist
+                            <svg class="btn-plus-icon" xmlns="http://www.w3.org/2000/svg" version="1.0" viewBox="0 0 600.000000 600.000000" preserveAspectRatio="xMidYMid meet">
+                              <g transform="translate(0.000000,600.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none">
+                                <path d="M2760 5084 c-110 -13 -248 -39 -345 -64 -631 -166 -1162 -631 -1409 -1236 -224 -548 -205 -1156 54 -1689 307 -634 901 -1068 1601 -1170 138 -20 448 -20 587 0 702 100 1302 539 1611 1180 207 428 257 950 134 1420 -167 643 -647 1178 -1278 1425 -236 92 -443 131 -720 135 -110 2 -216 1 -235 -1z m263 -1005 c49 -13 115 -73 138 -124 17 -36 19 -73 19 -382 l0 -343 343 0 c341 0 342 0 394 -24 63 -30 107 -87 124 -160 22 -100 -34 -216 -126 -257 -36 -17 -73 -19 -382 -19 l-343 0 0 -323 c0 -350 -4 -386 -54 -451 -36 -48 -117 -86 -182 -86 -75 0 -150 41 -189 105 l-30 48 -5 351 -5 351 -356 5 -356 5 -48 30 c-72 45 -108 117 -103 207 3 55 9 75 34 110 38 54 82 84 145 97 30 7 178 11 364 11 l315 0 0 328 c0 188 4 342 10 363 14 52 49 99 95 131 57 38 124 48 198 27z"/>
+                              </g>
                             </svg>
-                            Generate Cursor Instructions
                           </button>
                         </div>
                       ` : ''}
