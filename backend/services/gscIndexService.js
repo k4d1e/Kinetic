@@ -307,7 +307,14 @@ function getExclusionReasons(results) {
       // Map GSC coverageState to normalized exclusion reasons
       const normalizedReason = normalizeCoverageState(result.coverageState, result.indexingState);
       if (normalizedReason) {
-        reasons[normalizedReason] = (reasons[normalizedReason] || 0) + 1;
+        if (!reasons[normalizedReason]) {
+          reasons[normalizedReason] = {
+            count: 0,
+            urls: []
+          };
+        }
+        reasons[normalizedReason].count += 1;
+        reasons[normalizedReason].urls.push(result.url);
       }
     }
   });
@@ -410,7 +417,8 @@ async function analyzeSubstrateHealth(indexCoverage, sitemaps) {
     if (exclusionReasons['EXCLUDED_BY_NOINDEX']) {
       diagnosedCauses.push({
         reason: 'Noindex Tags Detected',
-        count: exclusionReasons['EXCLUDED_BY_NOINDEX'],
+        count: exclusionReasons['EXCLUDED_BY_NOINDEX'].count,
+        urls: exclusionReasons['EXCLUDED_BY_NOINDEX'].urls,
         severity: 'high',
         fix: 'Remove noindex meta tags from pages that should be indexed'
       });
@@ -419,7 +427,8 @@ async function analyzeSubstrateHealth(indexCoverage, sitemaps) {
     if (exclusionReasons['BLOCKED_BY_ROBOTS_TXT']) {
       diagnosedCauses.push({
         reason: 'Robots.txt Blocking',
-        count: exclusionReasons['BLOCKED_BY_ROBOTS_TXT'],
+        count: exclusionReasons['BLOCKED_BY_ROBOTS_TXT'].count,
+        urls: exclusionReasons['BLOCKED_BY_ROBOTS_TXT'].urls,
         severity: 'high',
         fix: 'Update robots.txt to allow Googlebot access'
       });
@@ -428,7 +437,8 @@ async function analyzeSubstrateHealth(indexCoverage, sitemaps) {
     if (exclusionReasons['DUPLICATE']) {
       diagnosedCauses.push({
         reason: 'Duplicate Content',
-        count: exclusionReasons['DUPLICATE'],
+        count: exclusionReasons['DUPLICATE'].count,
+        urls: exclusionReasons['DUPLICATE'].urls,
         severity: 'medium',
         fix: 'Add canonical tags or consolidate duplicate pages'
       });
@@ -437,7 +447,8 @@ async function analyzeSubstrateHealth(indexCoverage, sitemaps) {
     if (exclusionReasons['CRAWLED_NOT_INDEXED']) {
       diagnosedCauses.push({
         reason: 'Crawled But Not Indexed',
-        count: exclusionReasons['CRAWLED_NOT_INDEXED'],
+        count: exclusionReasons['CRAWLED_NOT_INDEXED'].count,
+        urls: exclusionReasons['CRAWLED_NOT_INDEXED'].urls,
         severity: 'medium',
         fix: 'Improve content quality or add more internal links to these pages'
       });
@@ -446,7 +457,8 @@ async function analyzeSubstrateHealth(indexCoverage, sitemaps) {
     if (exclusionReasons['SOFT_404']) {
       diagnosedCauses.push({
         reason: 'Soft 404 Errors',
-        count: exclusionReasons['SOFT_404'],
+        count: exclusionReasons['SOFT_404'].count,
+        urls: exclusionReasons['SOFT_404'].urls,
         severity: 'medium',
         fix: 'Return proper 404 status codes or add substantial content'
       });
@@ -455,7 +467,8 @@ async function analyzeSubstrateHealth(indexCoverage, sitemaps) {
     if (exclusionReasons['PAGE_WITH_REDIRECT']) {
       diagnosedCauses.push({
         reason: 'Redirect Chains',
-        count: exclusionReasons['PAGE_WITH_REDIRECT'],
+        count: exclusionReasons['PAGE_WITH_REDIRECT'].count,
+        urls: exclusionReasons['PAGE_WITH_REDIRECT'].urls,
         severity: 'low',
         fix: 'Update internal links to point directly to final destination'
       });
@@ -464,7 +477,8 @@ async function analyzeSubstrateHealth(indexCoverage, sitemaps) {
     if (exclusionReasons['NOT_FOUND']) {
       diagnosedCauses.push({
         reason: '404 Not Found Errors',
-        count: exclusionReasons['NOT_FOUND'],
+        count: exclusionReasons['NOT_FOUND'].count,
+        urls: exclusionReasons['NOT_FOUND'].urls,
         severity: 'high',
         fix: 'Fix broken links or restore missing pages with 301 redirects'
       });
@@ -473,7 +487,8 @@ async function analyzeSubstrateHealth(indexCoverage, sitemaps) {
     if (exclusionReasons['SERVER_ERROR']) {
       diagnosedCauses.push({
         reason: 'Server Errors (5xx)',
-        count: exclusionReasons['SERVER_ERROR'],
+        count: exclusionReasons['SERVER_ERROR'].count,
+        urls: exclusionReasons['SERVER_ERROR'].urls,
         severity: 'high',
         fix: 'Investigate server logs and fix technical errors causing 500/503 responses'
       });
@@ -482,7 +497,8 @@ async function analyzeSubstrateHealth(indexCoverage, sitemaps) {
     if (exclusionReasons['ACCESS_DENIED']) {
       diagnosedCauses.push({
         reason: 'Access Denied (403)',
-        count: exclusionReasons['ACCESS_DENIED'],
+        count: exclusionReasons['ACCESS_DENIED'].count,
+        urls: exclusionReasons['ACCESS_DENIED'].urls,
         severity: 'medium',
         fix: 'Check server permissions and authentication requirements'
       });
