@@ -12,6 +12,11 @@ const {
 } = require('./gscCrawlService');
 
 const {
+  validateSitemaps,
+  analyzeSitemapHealth
+} = require('./gscSitemapService');
+
+const {
   analyzeCannibalization,
   analyzeLatticeHealth,
   analyzeQuickWins,
@@ -328,6 +333,65 @@ async function analyzeCrawlDimension(pool, userId, siteUrl) {
     
     return {
       crawlStats: {},
+      health: { score: 0, status: 'error', metrics: {}, insights: [] }
+    };
+  }
+}
+
+/**
+ * SITEMAP DIMENSION - Sitemap Structure & Quality
+ * Validates sitemap.xml files and ensures proper page discovery
+ */
+async function analyzeSitemapDimension(pool, userId, siteUrl) {
+  console.log('🗺️  Analyzing SITEMAP (Sitemap Quality)...');
+  
+  try {
+    // Initialize progress
+    setProgress(userId, 'sitemap', {
+      status: 'validating_sitemaps',
+      message: 'Validating sitemap structure...',
+      percent: 20
+    });
+    
+    const sitemapData = await validateSitemaps(pool, userId, siteUrl);
+    
+    setProgress(userId, 'sitemap', {
+      status: 'analyzing_sitemap_health',
+      message: 'Analyzing sitemap health...',
+      percent: 70
+    });
+    
+    const health = await analyzeSitemapHealth(sitemapData);
+    
+    setProgress(userId, 'sitemap', {
+      status: 'complete',
+      message: 'Sitemap analysis complete',
+      percent: 100
+    });
+    
+    console.log(`   └─ Score: ${health.score}/100 (${health.status})`);
+    
+    // Clear progress on completion
+    clearProgress(userId, 'sitemap');
+    
+    return {
+      sitemapData,
+      health
+    };
+  } catch (error) {
+    console.error('   └─ Error:', error.message);
+    
+    // Update progress with error
+    setProgress(userId, 'sitemap', {
+      status: 'error',
+      message: `Error: ${error.message}`,
+      percent: 0
+    });
+    
+    clearProgress(userId, 'sitemap');
+    
+    return {
+      sitemapData: { sitemaps: [], totalURLs: 0, validation: {} },
       health: { score: 0, status: 'error', metrics: {}, insights: [] }
     };
   }
@@ -758,6 +822,7 @@ module.exports = {
   synthesizeDimensions,
   analyzeSubstrateDimension,
   analyzeCrawlDimension,
+  analyzeSitemapDimension,
   analyzeLatticeDimension,
   analyzeSynapseDimension,
   analyzeResonanceDimension,
