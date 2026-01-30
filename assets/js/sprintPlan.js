@@ -909,7 +909,23 @@ document.addEventListener('DOMContentLoaded', async () => {
           <div class="evo-insight ${severityClass}">
             <div class="evo-insight-type">${insight.type || 'INSIGHT'}</div>
             <div class="evo-insight-message">${insight.message}</div>
-            ${insight.possibleCauses && insight.possibleCauses.length > 0 ? `
+            
+            ${insight.diagnosedCauses && insight.diagnosedCauses.length > 0 ? `
+              <div class="evo-diagnosed-causes">
+                <div class="evo-diagnosed-causes-label">E.V.O. Diagnosed Issues:</div>
+                <div class="evo-diagnosed-causes-list">
+                  ${insight.diagnosedCauses.map(cause => `
+                    <div class="evo-diagnosed-cause evo-diagnosed-${cause.severity}">
+                      <div class="evo-diagnosed-cause-header">
+                        <span class="evo-diagnosed-cause-reason">${cause.reason}</span>
+                        <span class="evo-diagnosed-cause-count">${cause.count} pages</span>
+                      </div>
+                      <div class="evo-diagnosed-cause-fix">→ ${cause.fix}</div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            ` : insight.possibleCauses && insight.possibleCauses.length > 0 ? `
               <div class="evo-insight-causes">
                 <div class="evo-insight-causes-label">Possible Causes:</div>
                 <ul class="evo-insight-causes-list">
@@ -917,6 +933,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </ul>
               </div>
             ` : ''}
+            
             ${insight.recommendation ? `<div class="evo-insight-recommendation">→ ${insight.recommendation}</div>` : ''}
           </div>
         `;
