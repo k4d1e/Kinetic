@@ -1090,6 +1090,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                               </ul>
                             </div>
                           `).join('')}
+                          <button class="btn-indexation-execution-assist" data-cause-index="${index}">
+                            <svg class="btn-assist-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Generate Cursor Instructions
+                          </button>
                         </div>
                       ` : ''}
                       ${cause.urls && cause.urls.length > 0 ? `
@@ -1215,6 +1221,164 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     }
   });
+
+  // Event delegation for Indexation Execution Assist button
+  document.addEventListener('click', function(e) {
+    if (e.target.closest('.btn-indexation-execution-assist')) {
+      e.preventDefault();
+      const button = e.target.closest('.btn-indexation-execution-assist');
+      const causeIndex = button.dataset.causeIndex;
+      
+      // Get the current E.V.O. data from cache
+      const currentPage = document.querySelector('.sprint-card-page[style*="display: block"]');
+      if (!currentPage) return;
+      
+      const pageNumber = parseInt(currentPage.getAttribute('data-page'));
+      const cachedData = evoDataCache[pageNumber];
+      
+      if (!cachedData || !cachedData.insights) {
+        console.error('No E.V.O. data available for indexation prompt');
+        return;
+      }
+      
+      // Find the diagnosed cause with strategies
+      let targetCause = null;
+      for (const insight of cachedData.insights) {
+        if (insight.diagnosedCauses && insight.diagnosedCauses[causeIndex]) {
+          targetCause = insight.diagnosedCauses[causeIndex];
+          break;
+        }
+      }
+      
+      if (!targetCause || !targetCause.strategies || !targetCause.urls) {
+        console.error('No strategies or URLs found for this cause');
+        return;
+      }
+      
+      // Generate and display the indexation prompt
+      openIndexationExecutionAssist(targetCause);
+    }
+  });
+
+  /**
+   * Generate Cursor Instructions for Indexation Strategy
+   * @param {Object} cause - The diagnosed cause with strategies and URLs
+   */
+  function openIndexationExecutionAssist(cause) {
+    const prompt = generateIndexationPrompt(cause);
+    
+    // Get modal elements
+    const modal = document.getElementById('execution-assist-modal');
+    if (!modal) {
+      console.error('Execution Assist modal not found');
+      return;
+    }
+    
+    // Populate modal content
+    document.getElementById('assist-mission').textContent = 'GSC Health Monitor';
+    document.getElementById('assist-step').textContent = 'Indexation Strategy Implementation';
+    document.getElementById('assist-prompt').textContent = prompt;
+    
+    // Store prompt for copying
+    if (window.ExecutionAssist) {
+      window.ExecutionAssist.currentPrompt = prompt;
+    }
+    
+    // Show modal
+    modal.classList.add('active');
+    
+    // Hide success message
+    const successMsg = document.getElementById('copy-success');
+    if (successMsg) {
+      successMsg.style.display = 'none';
+    }
+    
+    console.log('✓ Indexation execution assist modal opened');
+  }
+
+  /**
+   * Generate detailed Cursor prompt for indexation fixes
+   * @param {Object} cause - Diagnosed cause with strategies and URLs
+   * @returns {string} Formatted Cursor instruction prompt
+   */
+  function generateIndexationPrompt(cause) {
+    const urlCount = cause.urls.length;
+    const urlList = cause.urls.slice(0, 10).map((url, i) => `   ${i + 1}. ${url}`).join('\n');
+    const moreUrls = urlCount > 10 ? `\n   ... and ${urlCount - 10} more URLs` : '';
+    
+    // Group strategies by category for structured output
+    const strategyText = cause.strategies.map(strategy => {
+      const items = strategy.items.map(item => `      - ${item}`).join('\n');
+      return `   ${strategy.category}:\n${items}`;
+    }).join('\n\n');
+    
+    return `# Indexation Strategy Implementation
+
+## Context
+E.V.O. has diagnosed ${urlCount} pages that are "Crawled But Not Indexed" by Google. These pages need content improvements and optimization to signal relevance to Google's crawlers.
+
+## Target Pages (${urlCount > 10 ? 'showing first 10' : 'all'})
+${urlList}${moreUrls}
+
+## Implementation Strategy
+
+Apply the following optimizations to EACH of the affected pages:
+
+${strategyText}
+
+## Implementation Approach
+
+For EACH page listed above:
+
+1. **Analyze Current State**
+   - Review the existing content length and quality
+   - Check for unique value vs templated content
+   - Identify missing elements (images, CTAs, schema, etc.)
+
+2. **Apply Content Enhancements**
+   - Expand content to 800-1200 words with city-specific details
+   - Add location-specific information (neighborhoods, landmarks, service areas)
+   - Include unique images with descriptive alt text
+   - Add customer testimonials or case studies if available
+
+3. **Optimize Technical Elements**
+   - Update title tag: "[Service] in [City] | Oregon Exterior Experts"
+   - Write compelling meta description with city + service
+   - Add H1 with city + service keyword combination
+   - Implement LocalBusiness + Service schema markup
+   - Ensure mobile-friendly and fast loading
+
+4. **Enhance User Engagement**
+   - Add prominent CTA buttons (Get Quote, Call Now, Book Service)
+   - Include FAQ section with city-specific questions
+   - Add service area map if possible
+   - Display local contact information
+   - Add trust signals (certifications, years serving that city)
+
+5. **Build Internal Link Structure**
+   - Identify hub pages that should link to these pages
+   - Add contextual links from relevant blog posts
+   - Implement breadcrumb navigation
+   - Cross-link related service pages in the same city
+
+## Priority Order
+
+Start with pages that have:
+1. Highest traffic potential (major cities, popular services)
+2. Existing thin content (easiest to expand)
+3. Related pages already indexed (can benefit from cross-linking)
+
+## Expected Outcome
+
+After implementing these changes:
+- Each page should have 800-1200 words of unique, valuable content
+- Clear technical SEO signals (title, meta, schema, H1)
+- Strong user engagement elements (CTAs, FAQs, trust signals)
+- Robust internal linking structure
+- Location-specific relevance signals for Google
+
+Submit updated sitemap to Google Search Console and request indexing for priority pages after improvements are complete.`;
+  }
 
   // ========================================
   // Global API for Manual Control
