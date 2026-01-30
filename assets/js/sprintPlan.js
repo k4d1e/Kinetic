@@ -588,7 +588,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     
     // Set button to loading state
-    setAnalysisButtonLoading(currentPage, stepNumber, 'Starting analysis...');
+    setAnalysisButtonLoading(currentPage, stepNumber, 'Initializing E.V.O. analysis...');
     
     console.log(`🔍 Fetching E.V.O. ${evoInstructions.evoDimension} data for step ${stepNumber}...`);
     
@@ -635,25 +635,30 @@ document.addEventListener('DOMContentLoaded', async () => {
   /**
    * Set Analysis Button to Loading State with Progress
    */
-  function setAnalysisButtonLoading(currentPage, stepNumber, progressText = 'Analyzing...') {
+  function setAnalysisButtonLoading(currentPage, stepNumber, progressText = 'Preparing analysis...') {
     const analysisBtn = currentPage.querySelector(`.btn-analysis[data-step="${stepNumber}"]`);
+    const progressDiv = currentPage.querySelector(`.btn-analysis-progress[data-step="${stepNumber}"]`);
     
     if (analysisBtn) {
       analysisBtn.disabled = true;
       analysisBtn.classList.add('btn-analysis-loading');
-      
-      // Store original content
-      if (!analysisBtn.dataset.originalContent) {
-        analysisBtn.dataset.originalContent = analysisBtn.innerHTML;
+      // Button text stays as "Analysis" with spinner icon replacing chart icon
+      const chartIcon = analysisBtn.querySelector('.btn-chart-icon');
+      if (chartIcon) {
+        chartIcon.style.display = 'none';
       }
-      
-      // Replace with loading spinner and progress text
-      analysisBtn.innerHTML = `
-        <div class="btn-analysis-spinner"></div>
-        <span class="btn-analysis-progress-text">${progressText}</span>
-      `;
-      
-      console.log(`⏳ Analysis button loading for step ${stepNumber}: ${progressText}`);
+      // Add spinner before text
+      if (!analysisBtn.querySelector('.btn-analysis-spinner')) {
+        const spinner = document.createElement('div');
+        spinner.className = 'btn-analysis-spinner';
+        analysisBtn.insertBefore(spinner, analysisBtn.firstChild);
+      }
+    }
+    
+    if (progressDiv) {
+      progressDiv.style.display = 'block';
+      progressDiv.textContent = progressText;
+      console.log(`⏳ Analysis progress for step ${stepNumber}: ${progressText}`);
     }
   }
   
@@ -661,17 +666,19 @@ document.addEventListener('DOMContentLoaded', async () => {
    * Update Analysis Button Progress
    */
   function updateAnalysisButtonProgress(currentPage, stepNumber, progress) {
-    const analysisBtn = currentPage.querySelector(`.btn-analysis[data-step="${stepNumber}"]`);
+    const progressDiv = currentPage.querySelector(`.btn-analysis-progress[data-step="${stepNumber}"]`);
     
-    if (analysisBtn && analysisBtn.classList.contains('btn-analysis-loading')) {
-      const progressText = analysisBtn.querySelector('.btn-analysis-progress-text');
-      if (progressText) {
-        // Format progress message with time remaining
-        const timeText = progress.estimatedSecondsRemaining 
-          ? ` (~${Math.ceil(progress.estimatedSecondsRemaining / 60)}min remaining)`
-          : '';
-        progressText.textContent = `${progress.message || 'Analyzing...'}${timeText}`;
-      }
+    if (progressDiv && progressDiv.style.display !== 'none') {
+      // Format progress message with details
+      const percentText = progress.percent ? ` (${progress.percent}%)` : '';
+      const urlsText = progress.urlsCompleted && progress.urlsTotal 
+        ? ` ${progress.urlsCompleted}/${progress.urlsTotal}` 
+        : '';
+      const timeText = progress.estimatedSecondsRemaining 
+        ? ` • ~${Math.ceil(progress.estimatedSecondsRemaining / 60)}min remaining`
+        : '';
+      
+      progressDiv.textContent = `${progress.message || 'Analyzing...'}${urlsText}${percentText}${timeText}`;
     }
   }
 
@@ -680,18 +687,30 @@ document.addEventListener('DOMContentLoaded', async () => {
    */
   function setAnalysisButtonReady(currentPage, stepNumber) {
     const analysisBtn = currentPage.querySelector(`.btn-analysis[data-step="${stepNumber}"]`);
+    const progressDiv = currentPage.querySelector(`.btn-analysis-progress[data-step="${stepNumber}"]`);
     
     if (analysisBtn) {
       analysisBtn.disabled = false;
       analysisBtn.classList.remove('btn-analysis-loading');
       
-      // Restore original content
-      if (analysisBtn.dataset.originalContent) {
-        analysisBtn.innerHTML = analysisBtn.dataset.originalContent;
-        delete analysisBtn.dataset.originalContent;
+      // Remove spinner
+      const spinner = analysisBtn.querySelector('.btn-analysis-spinner');
+      if (spinner) {
+        spinner.remove();
+      }
+      
+      // Show chart icon again
+      const chartIcon = analysisBtn.querySelector('.btn-chart-icon');
+      if (chartIcon) {
+        chartIcon.style.display = '';
       }
       
       console.log(`✓ Analysis button ready for step ${stepNumber}`);
+    }
+    
+    if (progressDiv) {
+      progressDiv.style.display = 'none';
+      progressDiv.textContent = '';
     }
   }
   
