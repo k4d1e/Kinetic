@@ -1241,22 +1241,24 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       
       const pageNumber = parseInt(currentPage.getAttribute('data-page'));
-      console.log('📄 Current page number:', pageNumber);
+      const stepNumber = parseInt(currentPage.getAttribute('data-step'));
+      console.log('📄 Current page number:', pageNumber, 'Step number:', stepNumber);
       
-      const cachedData = evoDataCache[pageNumber];
+      // Cache is indexed by step number, not page number
+      const cachedData = evoDataCache[stepNumber];
       console.log('📦 Cached data:', cachedData);
       
-      if (!cachedData || !cachedData.insights) {
+      if (!cachedData || !cachedData.dimensionData || !cachedData.dimensionData.insights) {
         console.error('❌ No E.V.O. data available for indexation prompt');
         return;
       }
       
       console.log('🔍 Looking for diagnosed cause at index:', causeIndex);
-      console.log('📊 Available insights:', cachedData.insights);
+      console.log('📊 Available insights:', cachedData.dimensionData.insights);
       
       // Find the diagnosed cause with strategies
       let targetCause = null;
-      for (const insight of cachedData.insights) {
+      for (const insight of cachedData.dimensionData.insights) {
         console.log('🔎 Checking insight:', insight);
         if (insight.diagnosedCauses && insight.diagnosedCauses[causeIndex]) {
           targetCause = insight.diagnosedCauses[causeIndex];
