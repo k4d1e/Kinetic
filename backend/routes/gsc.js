@@ -90,6 +90,14 @@ router.get('/has-calibration', hasCalibration);
 router.get('/evo/synthesis', getEVOSynthesis);
 
 /**
+ * @route   GET /api/gsc/evo/progress/:dimension
+ * @desc    Get real-time progress for long-running dimension analysis
+ * @param   dimension - The dimension being analyzed (substrate, lattice, etc.)
+ * @access  Private
+ */
+router.get('/evo/progress/:dimension', getAnalysisProgress);
+
+/**
  * @route   GET /api/gsc/evo/:dimension
  * @desc    Get individual dimensional analysis
  * @param   dimension - One of: substrate, lattice, synapse, resonance, weave, elixir
@@ -113,13 +121,5 @@ router.get('/evo-patterns', getEmergencePatterns);
  * @access  Private
  */
 router.get('/evo-intelligence', getSystemIntelligence);
-
-/**
- * @route   GET /api/gsc/evo/progress/:dimension
- * @desc    Get real-time progress for long-running dimension analysis
- * @param   dimension - The dimension being analyzed (substrate, lattice, etc.)
- * @access  Private
- */
-router.get('/evo/progress/:dimension', getAnalysisProgress);
 
 module.exports = router;
