@@ -909,6 +909,14 @@ document.addEventListener('DOMContentLoaded', async () => {
           <div class="evo-insight ${severityClass}">
             <div class="evo-insight-type">${insight.type || 'INSIGHT'}</div>
             <div class="evo-insight-message">${insight.message}</div>
+            ${insight.possibleCauses && insight.possibleCauses.length > 0 ? `
+              <div class="evo-insight-causes">
+                <div class="evo-insight-causes-label">Possible Causes:</div>
+                <ul class="evo-insight-causes-list">
+                  ${insight.possibleCauses.map(cause => `<li>${cause}</li>`).join('')}
+                </ul>
+              </div>
+            ` : ''}
             ${insight.recommendation ? `<div class="evo-insight-recommendation">→ ${insight.recommendation}</div>` : ''}
           </div>
         `;
