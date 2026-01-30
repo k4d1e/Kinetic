@@ -583,9 +583,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Check if already cached
     if (evoDataCache[stepNumber]) {
       console.log(`Using cached E.V.O. data for step ${stepNumber}`);
-      updateAnalysisButtonVisibility(currentPage, stepNumber, evoDataCache[stepNumber], stepData);
+      setAnalysisButtonReady(currentPage, stepNumber);
       return;
     }
+    
+    // Set button to loading state
+    setAnalysisButtonLoading(currentPage, stepNumber);
     
     console.log(`🔍 Fetching E.V.O. ${evoInstructions.evoDimension} data for step ${stepNumber}...`);
     
@@ -609,27 +612,88 @@ document.addEventListener('DOMContentLoaded', async () => {
         healthThreshold
       };
       
-      // Show/hide buttons based on analysis
-      updateAnalysisButtonVisibility(currentPage, stepNumber, evoDataCache[stepNumber], stepData);
+      // Set button to ready state
+      setAnalysisButtonReady(currentPage, stepNumber);
+      
+      // Show/hide Execution Assist based on health
       updateExecutionAssistVisibility(pageNumber, needsFixes, dimensionData);
       
     } catch (error) {
       console.error('Error fetching E.V.O. data:', error);
+      setAnalysisButtonError(currentPage, stepNumber);
     }
   }
 
   /**
-   * Update Analysis Button Visibility
-   * Shows Analysis button when E.V.O. data is ready
+   * Set Analysis Button to Loading State
    */
-  function updateAnalysisButtonVisibility(currentPage, stepNumber, cachedData, stepData) {
+  function setAnalysisButtonLoading(currentPage, stepNumber) {
     const analysisBtn = currentPage.querySelector(`.btn-analysis[data-step="${stepNumber}"]`);
     
-    if (analysisBtn && cachedData) {
-      analysisBtn.style.display = 'flex';
-      console.log(`✓ Analysis button visible for step ${stepNumber}`);
+    if (analysisBtn) {
+      analysisBtn.disabled = true;
+      analysisBtn.classList.add('btn-analysis-loading');
+      
+      // Store original content
+      if (!analysisBtn.dataset.originalContent) {
+        analysisBtn.dataset.originalContent = analysisBtn.innerHTML;
+      }
+      
+      // Replace with loading spinner
+      analysisBtn.innerHTML = `
+        <div class="btn-analysis-spinner"></div>
+        Analyzing...
+      `;
+      
+      console.log(`⏳ Analysis button loading for step ${stepNumber}`);
     }
   }
+
+  /**
+   * Set Analysis Button to Ready State
+   */
+  function setAnalysisButtonReady(currentPage, stepNumber) {
+    const analysisBtn = currentPage.querySelector(`.btn-analysis[data-step="${stepNumber}"]`);
+    
+    if (analysisBtn) {
+      analysisBtn.disabled = false;
+      analysisBtn.classList.remove('btn-analysis-loading');
+      
+      // Restore original content
+      if (analysisBtn.dataset.originalContent) {
+        analysisBtn.innerHTML = analysisBtn.dataset.originalContent;
+        delete analysisBtn.dataset.originalContent;
+      }
+      
+      console.log(`✓ Analysis button ready for step ${stepNumber}`);
+    }
+  }
+
+  /**
+   * Set Analysis Button to Error State
+   */
+  function setAnalysisButtonError(currentPage, stepNumber) {
+    const analysisBtn = currentPage.querySelector(`.btn-analysis[data-step="${stepNumber}"]`);
+    
+    if (analysisBtn) {
+      analysisBtn.disabled = true;
+      analysisBtn.classList.remove('btn-analysis-loading');
+      analysisBtn.classList.add('btn-analysis-error');
+      
+      // Show error message
+      analysisBtn.innerHTML = `
+        <svg class="btn-error-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        Error
+      `;
+      
+      console.log(`❌ Analysis button error for step ${stepNumber}`);
+    }
+  }
+
 
   /**
    * Update Execution Assist Button Visibility
