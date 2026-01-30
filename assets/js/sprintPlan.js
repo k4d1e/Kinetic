@@ -995,13 +995,30 @@ document.addEventListener('DOMContentLoaded', async () => {
               <div class="evo-diagnosed-causes">
                 <div class="evo-diagnosed-causes-label">E.V.O. Diagnosed Issues:</div>
                 <div class="evo-diagnosed-causes-list">
-                  ${insight.diagnosedCauses.map(cause => `
+                  ${insight.diagnosedCauses.map((cause, index) => `
                     <div class="evo-diagnosed-cause evo-diagnosed-${cause.severity}">
                       <div class="evo-diagnosed-cause-header">
                         <span class="evo-diagnosed-cause-reason">${cause.reason}</span>
-                        <span class="evo-diagnosed-cause-count">${cause.count} pages</span>
+                        <span class="evo-diagnosed-cause-count">${cause.count} page${cause.count !== 1 ? 's' : ''}</span>
                       </div>
                       <div class="evo-diagnosed-cause-fix">→ ${cause.fix}</div>
+                      ${cause.urls && cause.urls.length > 0 ? `
+                        <div class="evo-diagnosed-urls">
+                          <button class="evo-diagnosed-urls-toggle" data-cause-index="${index}">
+                            <svg class="evo-toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                            View affected URLs
+                          </button>
+                          <div class="evo-diagnosed-urls-list" data-cause-index="${index}" style="display: none;">
+                            ${cause.urls.map(url => `
+                              <div class="evo-diagnosed-url">
+                                <a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>
+                              </div>
+                            `).join('')}
+                          </div>
+                        </div>
+                      ` : ''}
                     </div>
                   `).join('')}
                 </div>
@@ -1067,6 +1084,34 @@ document.addEventListener('DOMContentLoaded', async () => {
     const modal = document.getElementById('analysis-modal');
     if (e.target === modal) {
       closeAnalysisModal();
+    }
+  });
+
+  // Toggle URL lists in diagnosed causes (event delegation)
+  document.addEventListener('click', function(e) {
+    if (e.target.closest('.evo-diagnosed-urls-toggle')) {
+      e.preventDefault();
+      const button = e.target.closest('.evo-diagnosed-urls-toggle');
+      const causeIndex = button.dataset.causeIndex;
+      const modal = document.getElementById('analysis-modal');
+      const urlsList = modal.querySelector(`.evo-diagnosed-urls-list[data-cause-index="${causeIndex}"]`);
+      const icon = button.querySelector('.evo-toggle-icon');
+      
+      if (urlsList) {
+        const isHidden = urlsList.style.display === 'none' || !urlsList.style.display;
+        urlsList.style.display = isHidden ? 'block' : 'none';
+        if (icon) {
+          icon.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+        }
+        
+        // Update button text while preserving icon
+        const newText = isHidden ? 'Hide URLs' : 'View affected URLs';
+        button.childNodes.forEach(node => {
+          if (node.nodeType === 3) { // Text node
+            node.textContent = newText;
+          }
+        });
+      }
     }
   });
 

@@ -3711,6 +3711,71 @@ datalist option:hover {
   font-style: italic;
 }
 
+.evo-diagnosed-urls {
+  margin-top: 0.75rem;
+}
+
+.evo-diagnosed-urls-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: var(--color-accent-teal);
+  font-size: 0.75rem;
+  font-family: 'Press Start 2P', monospace;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.evo-diagnosed-urls-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--color-accent-teal);
+}
+
+.evo-toggle-icon {
+  width: 14px;
+  height: 14px;
+  stroke: var(--color-accent-teal);
+  transition: transform 0.3s ease;
+}
+
+.evo-diagnosed-urls-list {
+  margin-top: 0.75rem;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-left: 2px solid var(--color-accent-teal);
+  border-radius: 4px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.evo-diagnosed-url {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.evo-diagnosed-url:last-child {
+  border-bottom: none;
+}
+
+.evo-diagnosed-url a {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  word-break: break-all;
+  transition: color 0.2s ease;
+}
+
+.evo-diagnosed-url a:hover {
+  color: var(--color-accent-teal);
+  text-decoration: underline;
+}
+
 .evo-insight-recommendation {
   font-size: 0.85rem;
   line-height: 1.5;
