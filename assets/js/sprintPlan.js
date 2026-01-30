@@ -1276,14 +1276,20 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
     
+    // Get the current page number
+    const currentPage = document.querySelector('.sprint-card-page[style*="display: block"]');
+    const pageNumber = currentPage ? parseInt(currentPage.getAttribute('data-page')) : null;
+    const stepNumber = currentPage ? parseInt(currentPage.getAttribute('data-step')) : null;
+    
     // Populate modal content
     document.getElementById('assist-mission').textContent = 'GSC Health Monitor';
-    document.getElementById('assist-step').textContent = 'Indexation Strategy Implementation';
+    document.getElementById('assist-step').textContent = `Step ${stepNumber}: Indexation Strategy Implementation`;
     document.getElementById('assist-prompt').textContent = prompt;
     
-    // Store prompt for copying
+    // Store prompt and step number for copying
     if (window.ExecutionAssist) {
       window.ExecutionAssist.currentPrompt = prompt;
+      window.ExecutionAssist.currentStepNumber = stepNumber;
     }
     
     // Show modal
@@ -1295,7 +1301,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       successMsg.style.display = 'none';
     }
     
-    console.log('✓ Indexation execution assist modal opened');
+    console.log(`✓ Indexation execution assist modal opened for step ${stepNumber}`);
   }
 
   /**
