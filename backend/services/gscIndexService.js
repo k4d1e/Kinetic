@@ -1,6 +1,8 @@
 // services/gscIndexService.js - GSC Index Coverage & Crawl Analytics (Substrate Dimension)
 const { google } = require('googleapis');
 const { getOAuth2Client } = require('./googleAuth');
+const axios = require('axios');
+const xml2js = require('xml2js');
 
 /**
  * SUBSTRATE DIMENSION: The Mycological Foundation
@@ -191,10 +193,88 @@ async function inspectMultipleUrls(pool, userId, siteUrl, urls) {
  * @returns {Array<string>} - Sample URLs
  */
 async function getSampleUrlsFromSitemaps(sitemaps) {
-  // For now, return empty array - would need to fetch and parse sitemap XML
-  // In production, this would fetch sitemap XML and extract sample URLs
-  console.log('⚠️  URL sampling from sitemaps not yet implemented - using manual sample');
-  return [];
+  if (!sitemaps || sitemaps.length === 0) {
+    console.log('⚠️  No sitemaps available for sampling');
+    return [];
+  }
+  
+  const allUrls = [];
+  
+  // Fetch and parse each sitemap
+  for (const sitemap of sitemaps) {
+    try {
+      console.log(`📥 Fetching sitemap: ${sitemap.path}`);
+      
+      // Fetch sitemap XML
+      const response = await axios.get(sitemap.path, {
+        timeout: 10000,
+        headers: {
+          'User-Agent': 'KineticEVO/1.0 (+https://kinetic-evo.com)'
+        }
+      });
+      
+      // Parse XML
+      const parser = new xml2js.Parser();
+      const result = await parser.parseStringPromise(response.data);
+      
+      // Handle sitemap index (contains other sitemaps)
+      if (result.sitemapindex && result.sitemapindex.sitemap) {
+        console.log(`   └─ Sitemap index detected, skipping nested sitemaps for now`);
+        continue;
+      }
+      
+      // Extract URLs from regular sitemap
+      if (result.urlset && result.urlset.url) {
+        const urls = result.urlset.url.map(entry => entry.loc[0]);
+        console.log(`   └─ Found ${urls.length} URLs in sitemap`);
+        allUrls.push(...urls);
+      }
+      
+    } catch (error) {
+      console.error(`   └─ Error fetching sitemap ${sitemap.path}:`, error.message);
+      continue;
+    }
+  }
+  
+  if (allUrls.length === 0) {
+    console.log('⚠️  No URLs extracted from sitemaps');
+    return [];
+  }
+  
+  // Sample URLs intelligently:
+  // - Take first 5 URLs (homepage, main pages)
+  // - Take 5 random URLs from middle
+  // - Take last 5 URLs (recent content)
+  const sampleSize = Math.min(15, allUrls.length);
+  const sampledUrls = [];
+  
+  // First 5
+  sampledUrls.push(...allUrls.slice(0, Math.min(5, allUrls.length)));
+  
+  // Random 5 from middle
+  if (allUrls.length > 10) {
+    const middleStart = Math.floor(allUrls.length * 0.3);
+    const middleEnd = Math.floor(allUrls.length * 0.7);
+    const middleUrls = allUrls.slice(middleStart, middleEnd);
+    
+    for (let i = 0; i < Math.min(5, middleUrls.length); i++) {
+      const randomIndex = Math.floor(Math.random() * middleUrls.length);
+      sampledUrls.push(middleUrls[randomIndex]);
+      middleUrls.splice(randomIndex, 1);
+    }
+  }
+  
+  // Last 5
+  if (allUrls.length > 5) {
+    sampledUrls.push(...allUrls.slice(-Math.min(5, allUrls.length - sampledUrls.length)));
+  }
+  
+  // Remove duplicates
+  const uniqueSampledUrls = [...new Set(sampledUrls)].slice(0, sampleSize);
+  
+  console.log(`✓ Sampled ${uniqueSampledUrls.length} URLs from ${allUrls.length} total URLs`);
+  
+  return uniqueSampledUrls;
 }
 
 /**
