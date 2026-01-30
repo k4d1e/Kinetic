@@ -588,7 +588,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     
     // Set button to loading state
-    setAnalysisButtonLoading(currentPage, stepNumber, 'Initializing E.V.O. analysis...');
+    setAnalysisButtonLoading(currentPage, stepNumber, '');
     
     console.log(`🔍 Fetching E.V.O. ${evoInstructions.evoDimension} data for step ${stepNumber}...`);
     
@@ -669,16 +669,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const progressDiv = currentPage.querySelector(`.btn-analysis-progress[data-step="${stepNumber}"]`);
     
     if (progressDiv && progressDiv.style.display !== 'none') {
-      // Format progress message with details
-      const percentText = progress.percent ? ` (${progress.percent}%)` : '';
-      const urlsText = progress.urlsCompleted && progress.urlsTotal 
-        ? ` ${progress.urlsCompleted}/${progress.urlsTotal}` 
-        : '';
-      const timeText = progress.estimatedSecondsRemaining 
-        ? ` • ~${Math.ceil(progress.estimatedSecondsRemaining / 60)}min remaining`
-        : '';
-      
-      progressDiv.textContent = `${progress.message || 'Analyzing...'}${urlsText}${percentText}${timeText}`;
+      // Simple format: Progress: X/Y
+      if (progress.urlsCompleted && progress.urlsTotal) {
+        progressDiv.textContent = `Progress: ${progress.urlsCompleted}/${progress.urlsTotal}`;
+      }
     }
   }
 
@@ -720,7 +714,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   function pollAnalysisProgress(currentPage, stepNumber, dimension) {
     const interval = setInterval(async () => {
       try {
-        const response = await fetch(`/api/gsc/evo/progress/${dimension}`, {
+        const backendURL = window.kineticAPI ? window.kineticAPI.baseURL : 'http://localhost:8000';
+        const response = await fetch(`${backendURL}/api/gsc/evo/progress/${dimension}`, {
           credentials: 'include'
         });
         
