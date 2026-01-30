@@ -1049,9 +1049,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       Object.entries(metrics).forEach(([key, value]) => {
         // Convert camelCase to Title Case, preserving acronyms like URLs
         const label = key
-          .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')  // Handle acronyms: URLCount -> URL Count
-          .replace(/([a-z])([A-Z])/g, '$1 $2')         // Handle camelCase: myValue -> my Value
-          .replace(/([A-Z])([A-Z][a-z])/g, '$1 $2')   // Handle mixed: HTTPSOnly -> HTTPS Only
+          .replace(/([a-z\d])([A-Z])/g, '$1 $2')           // Insert space between lowercase/digit and uppercase
+          .replace(/([A-Z]+)([A-Z][a-z]{2,})/g, '$1 $2')   // Insert space before word after acronym (requires 2+ lowercase)
           .trim();
         const formattedLabel = label.charAt(0).toUpperCase() + label.slice(1);
         metricsHTML += `
