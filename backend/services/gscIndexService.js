@@ -25,23 +25,22 @@ async function fetchIndexCoverage(pool, userId, siteUrl) {
     const searchconsole = google.searchconsole({ version: 'v1', auth: oauth2Client });
 
     // Note: GSC API v1 doesn't directly expose index coverage in a single call
-    // We'll use URL inspection API for sampled URLs to infer coverage
-    // For production, consider using Search Console Insights API or bulk export
+    // We'll use URL inspection API for all sitemap URLs to get accurate coverage
     
     console.log(`📊 Fetching index coverage for ${siteUrl}...`);
     
     // Get sitemap URLs to check coverage
     const sitemapData = await fetchSitemapStatus(pool, userId, siteUrl);
     
-    // Sample URLs from sitemaps for inspection
-    const sampleUrls = await getSampleUrlsFromSitemaps(sitemapData);
+    // Get all URLs from sitemaps for inspection
+    const allUrls = await getSampleUrlsFromSitemaps(sitemapData);
     
-    // Inspect sample URLs to determine coverage patterns
+    // Inspect all URLs to determine exact coverage
     const inspectionResults = await inspectMultipleUrls(
       pool, 
       userId, 
       siteUrl, 
-      sampleUrls
+      allUrls
     );
     
     // Aggregate results
@@ -205,13 +204,13 @@ async function inspectMultipleUrls(pool, userId, siteUrl, urls) {
 }
 
 /**
- * Get sample URLs from sitemaps for inspection
+ * Get all URLs from sitemaps for inspection
  * @param {Array} sitemaps - Sitemap data
- * @returns {Array<string>} - Sample URLs
+ * @returns {Array<string>} - All URLs from sitemaps
  */
 async function getSampleUrlsFromSitemaps(sitemaps) {
   if (!sitemaps || sitemaps.length === 0) {
-    console.log('⚠️  No sitemaps available for sampling');
+    console.log('⚠️  No sitemaps available');
     return [];
   }
   
@@ -258,40 +257,17 @@ async function getSampleUrlsFromSitemaps(sitemaps) {
     return [];
   }
   
-  // Sample URLs intelligently:
-  // - Take first 5 URLs (homepage, main pages)
-  // - Take 5 random URLs from middle
-  // - Take last 5 URLs (recent content)
-  const sampleSize = Math.min(15, allUrls.length);
-  const sampledUrls = [];
-  
-  // First 5
-  sampledUrls.push(...allUrls.slice(0, Math.min(5, allUrls.length)));
-  
-  // Random 5 from middle
-  if (allUrls.length > 10) {
-    const middleStart = Math.floor(allUrls.length * 0.3);
-    const middleEnd = Math.floor(allUrls.length * 0.7);
-    const middleUrls = allUrls.slice(middleStart, middleEnd);
-    
-    for (let i = 0; i < Math.min(5, middleUrls.length); i++) {
-      const randomIndex = Math.floor(Math.random() * middleUrls.length);
-      sampledUrls.push(middleUrls[randomIndex]);
-      middleUrls.splice(randomIndex, 1);
-    }
-  }
-  
-  // Last 5
-  if (allUrls.length > 5) {
-    sampledUrls.push(...allUrls.slice(-Math.min(5, allUrls.length - sampledUrls.length)));
-  }
-  
   // Remove duplicates
-  const uniqueSampledUrls = [...new Set(sampledUrls)].slice(0, sampleSize);
+  const uniqueUrls = [...new Set(allUrls)];
   
-  console.log(`✓ Sampled ${uniqueSampledUrls.length} URLs from ${allUrls.length} total URLs`);
+  console.log(`✓ Will inspect all ${uniqueUrls.length} URLs from sitemap`);
   
-  return uniqueSampledUrls;
+  // Warn if extremely large site (may take significant time)
+  if (uniqueUrls.length > 500) {
+    console.log(`⚠️  Large site detected: ${uniqueUrls.length} URLs. Inspection may take ${Math.ceil(uniqueUrls.length / 5)} seconds...`);
+  }
+  
+  return uniqueUrls;
 }
 
 /**
@@ -374,33 +350,23 @@ async function analyzeSubstrateHealth(indexCoverage, sitemaps) {
   const totalSubmittedFromSitemap = sitemaps.reduce((sum, sm) => sum + sm.submitted, 0);
   const totalIndexedFromSitemap = sitemaps.reduce((sum, sm) => sum + sm.indexed, 0);
   
-  // Use URL Inspection data when available (more accurate, real-time)
-  // Project sample results to estimate full site metrics
+  // Use URL Inspection data when available (more accurate, real-time vs stale sitemap data)
+  // Since we now inspect ALL URLs, we use actual counts instead of projections
   let totalSubmitted = totalSubmittedFromSitemap;
   let totalIndexed = totalIndexedFromSitemap;
   let totalExcluded = totalSubmittedFromSitemap - totalIndexedFromSitemap;
   
-  // If we have URL inspection data with meaningful sample size, use it to project
+  // If we have URL inspection data, use the actual inspection results
   if (indexCoverage && indexCoverage.totalSampled > 0) {
-    console.log(`📊 Using URL Inspection data: ${indexCoverage.valid} valid, ${indexCoverage.excluded} excluded from ${indexCoverage.totalSampled} sampled`);
+    console.log(`📊 Using URL Inspection data: ${indexCoverage.valid} valid, ${indexCoverage.excluded} excluded from ${indexCoverage.totalSampled} inspected`);
     
-    // Calculate rates from inspection sample
-    const validRate = indexCoverage.valid / indexCoverage.totalSampled;
-    const excludedRate = indexCoverage.excluded / indexCoverage.totalSampled;
-    
-    // Project to full site if we have sitemap total
-    if (totalSubmittedFromSitemap > 0) {
-      totalIndexed = Math.round(totalSubmittedFromSitemap * validRate);
-      totalExcluded = Math.round(totalSubmittedFromSitemap * excludedRate);
-    } else {
-      // Use raw inspection counts if no sitemap data
-      totalSubmitted = indexCoverage.totalSampled;
-      totalIndexed = indexCoverage.valid;
-      totalExcluded = indexCoverage.excluded;
-    }
+    // Use actual inspection counts (since we now inspect all URLs)
+    totalSubmitted = indexCoverage.totalSampled;
+    totalIndexed = indexCoverage.valid;
+    totalExcluded = indexCoverage.excluded;
   }
   
-  console.log(`📊 Final metrics: ${totalIndexed} indexed / ${totalSubmitted} submitted (${totalExcluded} excluded)`);
+  console.log(`📊 Final metrics: ${totalIndexed} indexed / ${totalSubmitted} total (${totalExcluded} excluded)`);
   
   // Root Density: Percentage of submitted URLs that are indexed
   const rootDensity = totalSubmitted > 0 ? (totalIndexed / totalSubmitted * 100) : 0;
