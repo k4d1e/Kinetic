@@ -235,9 +235,9 @@ async function inspectMultipleUrls(pool, userId, siteUrl, urls, progressCallback
 }
 
 /**
- * Get sample URLs from sitemaps for inspection (DEVELOPMENT: first 5 URLs only)
+ * Get sample URLs from sitemaps for inspection (DEVELOPMENT: first 50 URLs)
  * @param {Array} sitemaps - Sitemap data
- * @returns {Array<string>} - Sample URLs from sitemaps (max 5 for development)
+ * @returns {Array<string>} - Sample URLs from sitemaps (max 50 for development)
  */
 async function getSampleUrlsFromSitemaps(sitemaps) {
   if (!sitemaps || sitemaps.length === 0) {
@@ -291,8 +291,8 @@ async function getSampleUrlsFromSitemaps(sitemaps) {
   // Remove duplicates
   const uniqueUrls = [...new Set(allUrls)];
   
-  // DEVELOPMENT: Sample first 5 URLs only for faster testing
-  const sampleUrls = uniqueUrls.slice(0, 5);
+  // DEVELOPMENT: Sample first 50 URLs for meaningful insights during testing
+  const sampleUrls = uniqueUrls.slice(0, 50);
   
   console.log(`✓ Sampled ${sampleUrls.length} URLs from ${uniqueUrls.length} total URLs (dev mode)`);
   
