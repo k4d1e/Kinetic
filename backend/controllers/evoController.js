@@ -5,6 +5,7 @@ const {
   analyzeSubstrateDimension,
   analyzeCrawlDimension,
   analyzeSitemapDimension,
+  analyzeRedirectDimension,
   analyzeLatticeDimension,
   analyzeSynapseDimension,
   analyzeResonanceDimension,
@@ -158,6 +159,9 @@ async function getDimensionAnalysis(req, res) {
       case 'sitemap':
         data = await analyzeSitemapDimension(pool, userId, siteUrl);
         break;
+      case 'redirect':
+        data = await analyzeRedirectDimension(pool, userId, siteUrl);
+        break;
       case 'lattice':
         data = await analyzeLatticeDimension(pool, userId, siteUrl);
         break;
@@ -176,7 +180,7 @@ async function getDimensionAnalysis(req, res) {
       default:
         return res.status(400).json({
           error: 'Bad Request',
-          message: `Unknown dimension: ${dimension}. Valid: substrate, crawl, sitemap, lattice, synapse, resonance, weave, elixir`
+          message: `Unknown dimension: ${dimension}. Valid: substrate, crawl, sitemap, redirect, lattice, synapse, resonance, weave, elixir`
         });
     }
 

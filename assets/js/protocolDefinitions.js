@@ -131,7 +131,7 @@ const protocolDefinitions = {
           dataSource: "Site crawl data + server logs + GSC Coverage errors",
           implementation: "Crawl the site to map all redirects (301, 302, 307, 308). Identify redirect chains (A→B→C) and consolidate to single redirects (A→C). Find broken internal links causing 404s. Check for redirect loops. Verify all critical pages are directly accessible without redirects.",
           deliverable: "redirect-resolution-plan.md",
-          evoDimension: "substrate",
+          evoDimension: "redirect",
           evoMetrics: ["errorPages", "redirectChains"],
           healthThreshold: 70
         }
