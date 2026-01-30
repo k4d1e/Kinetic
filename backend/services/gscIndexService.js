@@ -261,45 +261,110 @@ async function analyzeSubstrateHealth(indexCoverage, sitemaps) {
   const insights = [];
   
   if (exclusionRate > 20) {
-    // Generate context-aware possible causes based on exclusion rate
-    const possibleCauses = [];
+    // Diagnose actual causes from GSC exclusion data
+    const exclusionReasons = indexCoverage.exclusionReasons || {};
+    const diagnosedCauses = [];
     
-    if (exclusionRate >= 100) {
-      // Complete exclusion - likely setup or blocking issues
-      possibleCauses.push(
-        'Site recently added to GSC - Google hasn\'t crawled yet',
-        'Robots.txt file blocking Googlebot from all pages',
-        'Noindex meta tags present on all pages',
-        'GSC property just connected - data not fully populated',
-        'Server returning 5xx errors for all requests'
-      );
-    } else if (exclusionRate > 50) {
-      // Majority excluded - widespread issues
-      possibleCauses.push(
-        'Widespread robots.txt or noindex issues',
-        'Server errors (500s) preventing crawling',
-        'Pages behind authentication or paywalls',
-        'Sitemap contains URLs that redirect or 404',
-        'Canonical tags pointing away from indexed pages'
-      );
-    } else {
-      // Partial exclusion - quality/technical issues
-      possibleCauses.push(
-        'Duplicate content issues',
-        'Soft 404 errors or thin content pages',
-        'Redirect chains wasting crawl budget',
-        'Some pages blocked by robots.txt',
-        'Mobile usability issues causing exclusions'
-      );
+    // Analyze each exclusion reason and add specific diagnosis
+    if (exclusionReasons['EXCLUDED_BY_NOINDEX']) {
+      diagnosedCauses.push({
+        reason: 'Noindex Tags Detected',
+        count: exclusionReasons['EXCLUDED_BY_NOINDEX'],
+        severity: 'high',
+        fix: 'Remove noindex meta tags from pages that should be indexed'
+      });
     }
     
-    insights.push({
-      type: 'ROOT_ROT',
-      severity: 'high',
-      message: `Substrate is rejecting the graft - ${exclusionRate.toFixed(1)}% exclusion rate indicates structural issues`,
-      possibleCauses,
-      recommendation: 'Investigate excluded pages and fix indexation issues before optimizing content'
-    });
+    if (exclusionReasons['BLOCKED_BY_ROBOTS_TXT']) {
+      diagnosedCauses.push({
+        reason: 'Robots.txt Blocking',
+        count: exclusionReasons['BLOCKED_BY_ROBOTS_TXT'],
+        severity: 'high',
+        fix: 'Update robots.txt to allow Googlebot access'
+      });
+    }
+    
+    if (exclusionReasons['DUPLICATE']) {
+      diagnosedCauses.push({
+        reason: 'Duplicate Content',
+        count: exclusionReasons['DUPLICATE'],
+        severity: 'medium',
+        fix: 'Add canonical tags or consolidate duplicate pages'
+      });
+    }
+    
+    if (exclusionReasons['CRAWLED_NOT_INDEXED']) {
+      diagnosedCauses.push({
+        reason: 'Crawled But Not Indexed',
+        count: exclusionReasons['CRAWLED_NOT_INDEXED'],
+        severity: 'medium',
+        fix: 'Improve content quality or add more internal links to these pages'
+      });
+    }
+    
+    if (exclusionReasons['SOFT_404']) {
+      diagnosedCauses.push({
+        reason: 'Soft 404 Errors',
+        count: exclusionReasons['SOFT_404'],
+        severity: 'medium',
+        fix: 'Return proper 404 status codes or add substantial content'
+      });
+    }
+    
+    if (exclusionReasons['PAGE_WITH_REDIRECT']) {
+      diagnosedCauses.push({
+        reason: 'Redirect Chains',
+        count: exclusionReasons['PAGE_WITH_REDIRECT'],
+        severity: 'low',
+        fix: 'Update internal links to point directly to final destination'
+      });
+    }
+    
+    // If no specific reasons found, provide fallback with possible causes
+    if (diagnosedCauses.length === 0) {
+      const possibleCauses = [];
+      
+      if (exclusionRate >= 100) {
+        possibleCauses.push(
+          'Site recently added to GSC - Google hasn\'t crawled yet',
+          'Robots.txt file blocking Googlebot from all pages',
+          'Noindex meta tags present on all pages',
+          'GSC property just connected - data not fully populated',
+          'Server returning 5xx errors for all requests'
+        );
+      } else if (exclusionRate > 50) {
+        possibleCauses.push(
+          'Widespread robots.txt or noindex issues',
+          'Server errors (500s) preventing crawling',
+          'Pages behind authentication or paywalls',
+          'Sitemap contains URLs that redirect or 404'
+        );
+      } else {
+        possibleCauses.push(
+          'Duplicate content issues',
+          'Soft 404 errors or thin content pages',
+          'Redirect chains wasting crawl budget',
+          'Some pages blocked by robots.txt'
+        );
+      }
+      
+      insights.push({
+        type: 'ROOT_ROT',
+        severity: 'high',
+        message: `Substrate is rejecting the graft - ${exclusionRate.toFixed(1)}% exclusion rate indicates structural issues`,
+        possibleCauses,
+        recommendation: 'Wait for GSC to process crawl data, then E.V.O. can diagnose specific issues'
+      });
+    } else {
+      // We have diagnosed causes from actual GSC data
+      insights.push({
+        type: 'ROOT_ROT',
+        severity: 'high',
+        message: `Substrate is rejecting the graft - ${exclusionRate.toFixed(1)}% exclusion rate indicates structural issues`,
+        diagnosedCauses,
+        recommendation: `${diagnosedCauses.length} specific issue(s) diagnosed from GSC data`
+      });
+    }
   }
   
   if (mycelialExpansion < 70) {
