@@ -1180,13 +1180,24 @@ document.addEventListener('DOMContentLoaded', async () => {
           icon.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
         }
         
-        // Update button text while preserving icon
+        // Update button text properly
         const newText = isHidden ? 'Hide URLs' : 'View affected URLs';
-        button.childNodes.forEach(node => {
-          if (node.nodeType === 3) { // Text node
-            node.textContent = newText;
+        
+        // Find and update only the text node (not creating new ones)
+        let textNode = null;
+        for (let i = 0; i < button.childNodes.length; i++) {
+          if (button.childNodes[i].nodeType === 3) { // Text node
+            textNode = button.childNodes[i];
+            break;
           }
-        });
+        }
+        
+        if (textNode) {
+          textNode.textContent = newText;
+        } else {
+          // If no text node exists, create one
+          button.appendChild(document.createTextNode(newText));
+        }
       }
     }
   });
