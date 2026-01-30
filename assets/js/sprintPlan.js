@@ -3,7 +3,10 @@
  * Handles interactive sprint circle buttons and multi-page action cards
  */
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  // Load sprint plan card HTML first
+  await loadSprintPlanCard();
+  
   // Initialize API client
   const api = new KineticAPI();
   
@@ -44,6 +47,33 @@ document.addEventListener('DOMContentLoaded', () => {
   let executionAssistBtns = null;
 
   /**
+   * Load Sprint Plan Card HTML
+   * Fetch and inject the sprint plan card from external HTML file
+   */
+  async function loadSprintPlanCard() {
+    try {
+      const response = await fetch('assets/html/sprintplancard.html');
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const html = await response.text();
+      const container = document.getElementById('sprint-plan-card-container');
+      
+      if (container) {
+        container.innerHTML = html;
+        console.log('✓ Sprint plan card HTML loaded successfully');
+      } else {
+        console.error('❌ Sprint plan card container not found');
+      }
+    } catch (error) {
+      console.error('❌ Failed to load sprint plan card:', error);
+      console.error('Failed to load sprint plan card. Please check that assets/html/sprintplancard.html exists.');
+    }
+  }
+
+  /**
    * Initialize Sprint Circles
    * Add click listeners and set initial states
    */
@@ -61,6 +91,25 @@ document.addEventListener('DOMContentLoaded', () => {
     
     console.log('✓ Sprint circles initialized');
   }
+  
+  /**
+   * Set Default Sprint State
+   * Called when no property is selected or no saved progress exists
+   */
+  function setDefaultSprintState() {
+    // Activate the first circle by default
+    const firstCircle = sprintCircles[0];
+    if (firstCircle) {
+      firstCircle.setAttribute('data-status', 'active');
+      updateCircleVisual(firstCircle, 'active');
+      sprintState.circles[0].status = 'active';
+      
+      // Add click listener to first circle
+      firstCircle.addEventListener('click', () => handleCircleClick(0));
+      
+      console.log('✓ Default sprint state applied: First circle activated');
+    }
+  }
 
   /**
    * Load Sprint Progress from Database
@@ -69,6 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function loadSprintProgress(propertyId) {
     if (!propertyId) {
       console.log('No property ID provided, using default sprint state');
+      setDefaultSprintState();
       return;
     }
     
@@ -108,6 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error('❌ Error loading sprint progress:', error);
       // Don't alert user - just use default state on error
       console.log('Using default sprint state due to error');
+      setDefaultSprintState();
     }
   }
 
@@ -534,6 +585,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Load sprint progress on initial load if property is already selected
   if (window.currentPropertyId) {
     loadSprintProgress(window.currentPropertyId);
+  } else {
+    // No property selected yet, set default state (first circle active)
+    setDefaultSprintState();
   }
 
   // ========================================
