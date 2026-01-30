@@ -46,7 +46,7 @@ async function validateSitemaps(pool, userId, siteUrl) {
     
     // Analyze each sitemap
     for (const sitemap of sitemaps) {
-      const urlCount = sitemap.contents || 0;
+      const urlCount = sitemap.submitted || 0;
       totalURLs += urlCount;
       
       // Check for common issues
