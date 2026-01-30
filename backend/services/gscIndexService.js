@@ -261,19 +261,82 @@ async function analyzeSubstrateHealth(indexCoverage, sitemaps) {
   const insights = [];
   
   if (exclusionRate > 20) {
+    // Generate context-aware possible causes based on exclusion rate
+    const possibleCauses = [];
+    
+    if (exclusionRate >= 100) {
+      // Complete exclusion - likely setup or blocking issues
+      possibleCauses.push(
+        'Site recently added to GSC - Google hasn\'t crawled yet',
+        'Robots.txt file blocking Googlebot from all pages',
+        'Noindex meta tags present on all pages',
+        'GSC property just connected - data not fully populated',
+        'Server returning 5xx errors for all requests'
+      );
+    } else if (exclusionRate > 50) {
+      // Majority excluded - widespread issues
+      possibleCauses.push(
+        'Widespread robots.txt or noindex issues',
+        'Server errors (500s) preventing crawling',
+        'Pages behind authentication or paywalls',
+        'Sitemap contains URLs that redirect or 404',
+        'Canonical tags pointing away from indexed pages'
+      );
+    } else {
+      // Partial exclusion - quality/technical issues
+      possibleCauses.push(
+        'Duplicate content issues',
+        'Soft 404 errors or thin content pages',
+        'Redirect chains wasting crawl budget',
+        'Some pages blocked by robots.txt',
+        'Mobile usability issues causing exclusions'
+      );
+    }
+    
     insights.push({
       type: 'ROOT_ROT',
       severity: 'high',
       message: `Substrate is rejecting the graft - ${exclusionRate.toFixed(1)}% exclusion rate indicates structural issues`,
+      possibleCauses,
       recommendation: 'Investigate excluded pages and fix indexation issues before optimizing content'
     });
   }
   
   if (mycelialExpansion < 70) {
+    // Generate possible causes for weak mycelial expansion
+    const possibleCauses = [];
+    
+    if (mycelialExpansion < 30) {
+      // Very weak - critical structural issues
+      possibleCauses.push(
+        'Sitemap missing or not submitted to GSC',
+        'Pages not discoverable through internal links',
+        'Orphan pages with no path from homepage',
+        'Crawl budget exhausted on low-value pages'
+      );
+    } else if (mycelialExpansion < 50) {
+      // Moderate weakness - discoverability issues
+      possibleCauses.push(
+        'Incomplete sitemap coverage',
+        'Weak internal linking structure',
+        'Deep pages requiring many clicks to reach',
+        'Sitemap contains non-indexable URLs'
+      );
+    } else {
+      // Minor weakness - optimization needed
+      possibleCauses.push(
+        'Some pages not included in sitemap',
+        'Internal linking could be improved',
+        'New content not yet crawled',
+        'Priority pages buried in site architecture'
+      );
+    }
+    
     insights.push({
       type: 'WEAK_MYCELIUM',
       severity: 'medium',
       message: `Mycelial network is underdeveloped - only ${mycelialExpansion.toFixed(1)}% average indexation`,
+      possibleCauses,
       recommendation: 'Improve internal linking and sitemap coverage to strengthen root network'
     });
   }

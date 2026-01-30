@@ -3566,6 +3566,40 @@ datalist option:hover {
   margin-bottom: 0.5rem;
 }
 
+.evo-insight-causes {
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.evo-insight-causes-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.evo-insight-causes-list {
+  margin: 0;
+  padding-left: 1.5rem;
+  list-style-type: disc;
+}
+
+.evo-insight-causes-list li {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.evo-insight-causes-list li:last-child {
+  margin-bottom: 0;
+}
+
 .evo-insight-recommendation {
   font-size: 0.85rem;
   line-height: 1.5;
