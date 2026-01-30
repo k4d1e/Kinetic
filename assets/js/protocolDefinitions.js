@@ -117,7 +117,7 @@ const protocolDefinitions = {
           dataSource: "Site's sitemap.xml files + GSC Sitemaps report",
           implementation: "Parse all sitemap files, validate XML structure, check each URL for: 404 errors, redirect chains, noindex tags, canonicalization issues. Cross-reference with GSC to identify submitted but not indexed URLs. Verify priority pages are included and low-value pages excluded.",
           deliverable: "sitemap-optimization-plan.md",
-          evoDimension: "substrate",
+          evoDimension: "sitemap",
           evoMetrics: ["sitemapIndexation", "submittedVsIndexed"],
           healthThreshold: 70
         }
