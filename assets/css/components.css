@@ -3323,6 +3323,8 @@ datalist option:hover {
 
 .btn-analysis-loading {
   pointer-events: none;
+  justify-content: flex-start;
+  gap: 0.75rem;
 }
 
 .btn-analysis-spinner {
@@ -3332,6 +3334,16 @@ datalist option:hover {
   border-top-color: var(--color-accent-teal);
   border-radius: 50%;
   animation: btn-spin 1s linear infinite;
+  flex-shrink: 0;
+}
+
+.btn-analysis-progress-text {
+  font-size: 0.6rem;
+  line-height: 1.2;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 @keyframes btn-spin {

@@ -588,13 +588,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     
     // Set button to loading state
-    setAnalysisButtonLoading(currentPage, stepNumber);
+    setAnalysisButtonLoading(currentPage, stepNumber, 'Starting analysis...');
     
     console.log(`🔍 Fetching E.V.O. ${evoInstructions.evoDimension} data for step ${stepNumber}...`);
     
+    // Start polling for progress
+    const progressInterval = pollAnalysisProgress(currentPage, stepNumber, evoInstructions.evoDimension);
+    
     try {
-      // Fetch E.V.O. dimension data
+      // Fetch E.V.O. dimension data (this will take time for large sites)
       const dimensionData = await api.getDimension(evoInstructions.evoDimension, siteUrl);
+      
+      // Stop polling
+      if (progressInterval) {
+        clearInterval(progressInterval);
+      }
       
       console.log(`✓ E.V.O. data fetched for ${evoInstructions.evoDimension}:`, dimensionData);
       
@@ -625,9 +633,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   /**
-   * Set Analysis Button to Loading State
+   * Set Analysis Button to Loading State with Progress
    */
-  function setAnalysisButtonLoading(currentPage, stepNumber) {
+  function setAnalysisButtonLoading(currentPage, stepNumber, progressText = 'Analyzing...') {
     const analysisBtn = currentPage.querySelector(`.btn-analysis[data-step="${stepNumber}"]`);
     
     if (analysisBtn) {
@@ -639,13 +647,31 @@ document.addEventListener('DOMContentLoaded', async () => {
         analysisBtn.dataset.originalContent = analysisBtn.innerHTML;
       }
       
-      // Replace with loading spinner
+      // Replace with loading spinner and progress text
       analysisBtn.innerHTML = `
         <div class="btn-analysis-spinner"></div>
-        Analyzing...
+        <span class="btn-analysis-progress-text">${progressText}</span>
       `;
       
-      console.log(`⏳ Analysis button loading for step ${stepNumber}`);
+      console.log(`⏳ Analysis button loading for step ${stepNumber}: ${progressText}`);
+    }
+  }
+  
+  /**
+   * Update Analysis Button Progress
+   */
+  function updateAnalysisButtonProgress(currentPage, stepNumber, progress) {
+    const analysisBtn = currentPage.querySelector(`.btn-analysis[data-step="${stepNumber}"]`);
+    
+    if (analysisBtn && analysisBtn.classList.contains('btn-analysis-loading')) {
+      const progressText = analysisBtn.querySelector('.btn-analysis-progress-text');
+      if (progressText) {
+        // Format progress message with time remaining
+        const timeText = progress.estimatedSecondsRemaining 
+          ? ` (~${Math.ceil(progress.estimatedSecondsRemaining / 60)}min remaining)`
+          : '';
+        progressText.textContent = `${progress.message || 'Analyzing...'}${timeText}`;
+      }
     }
   }
 
@@ -667,6 +693,31 @@ document.addEventListener('DOMContentLoaded', async () => {
       
       console.log(`✓ Analysis button ready for step ${stepNumber}`);
     }
+  }
+  
+  /**
+   * Poll for Analysis Progress
+   */
+  function pollAnalysisProgress(currentPage, stepNumber, dimension) {
+    const interval = setInterval(async () => {
+      try {
+        const response = await fetch(`/api/gsc/evo/progress/${dimension}`, {
+          credentials: 'include'
+        });
+        
+        if (!response.ok) return;
+        
+        const data = await response.json();
+        
+        if (data.success && data.hasProgress && data.progress) {
+          updateAnalysisButtonProgress(currentPage, stepNumber, data.progress);
+        }
+      } catch (error) {
+        console.error('Error polling progress:', error);
+      }
+    }, 2000); // Poll every 2 seconds
+    
+    return interval;
   }
 
   /**

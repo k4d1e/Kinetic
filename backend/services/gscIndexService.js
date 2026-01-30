@@ -17,9 +17,10 @@ const xml2js = require('xml2js');
  * @param {Pool} pool - PostgreSQL connection pool
  * @param {number} userId - User ID
  * @param {string} siteUrl - GSC property URL
+ * @param {Function} progressCallback - Optional callback for progress updates
  * @returns {Promise<Object>} - Index coverage stats
  */
-async function fetchIndexCoverage(pool, userId, siteUrl) {
+async function fetchIndexCoverage(pool, userId, siteUrl, progressCallback = null) {
   try {
     const oauth2Client = await getOAuth2Client(pool, userId);
     const searchconsole = google.searchconsole({ version: 'v1', auth: oauth2Client });
@@ -40,7 +41,8 @@ async function fetchIndexCoverage(pool, userId, siteUrl) {
       pool, 
       userId, 
       siteUrl, 
-      allUrls
+      allUrls,
+      progressCallback
     );
     
     // Aggregate results
@@ -179,13 +181,20 @@ async function inspectURL(pool, userId, siteUrl, inspectionUrl) {
  * @param {number} userId - User ID
  * @param {string} siteUrl - GSC property URL
  * @param {Array<string>} urls - URLs to inspect
+ * @param {Function} progressCallback - Optional callback for progress updates
  * @returns {Promise<Array>} - Inspection results
  */
-async function inspectMultipleUrls(pool, userId, siteUrl, urls) {
+async function inspectMultipleUrls(pool, userId, siteUrl, urls, progressCallback = null) {
   const results = [];
   const batchSize = 5; // Limit concurrent requests to avoid rate limits
+  const totalUrls = urls.length;
+  const estimatedTimePerBatch = 1.2; // seconds (1s wait + ~0.2s processing)
+  const estimatedTotalTime = Math.ceil(totalUrls / batchSize) * estimatedTimePerBatch;
   
   console.log(`🔍 Inspecting ${urls.length} URLs in batches of ${batchSize}...`);
+  console.log(`⏱️  Estimated time: ${Math.ceil(estimatedTotalTime / 60)} minutes`);
+  
+  const startTime = Date.now();
   
   for (let i = 0; i < urls.length; i += batchSize) {
     const batch = urls.slice(i, i + batchSize);
@@ -194,11 +203,33 @@ async function inspectMultipleUrls(pool, userId, siteUrl, urls) {
     );
     results.push(...batchResults);
     
+    // Calculate progress
+    const completed = Math.min(i + batchSize, totalUrls);
+    const percentComplete = Math.round((completed / totalUrls) * 100);
+    const elapsed = (Date.now() - startTime) / 1000;
+    const estimatedRemaining = totalUrls > completed 
+      ? Math.ceil((elapsed / completed) * (totalUrls - completed))
+      : 0;
+    
+    // Send progress update
+    if (progressCallback) {
+      progressCallback({
+        completed,
+        total: totalUrls,
+        percent: percentComplete,
+        estimatedSecondsRemaining: estimatedRemaining
+      });
+    }
+    
+    console.log(`   ├─ Progress: ${completed}/${totalUrls} (${percentComplete}%) - ${estimatedRemaining}s remaining`);
+    
     // Rate limiting: wait between batches
     if (i + batchSize < urls.length) {
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
   }
+  
+  console.log(`✓ Inspection complete in ${Math.ceil((Date.now() - startTime) / 1000)}s`);
   
   return results;
 }
