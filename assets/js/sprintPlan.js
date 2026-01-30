@@ -1231,31 +1231,56 @@ document.addEventListener('DOMContentLoaded', async () => {
       const button = e.target.closest('.btn-indexation-execution-assist');
       const causeIndex = button.dataset.causeIndex;
       
+      console.log('🔘 Indexation Execution Assist clicked, causeIndex:', causeIndex);
+      
       // Get the current E.V.O. data from cache
       const currentPage = document.querySelector('.sprint-card-page[style*="display: block"]');
-      if (!currentPage) return;
-      
-      const pageNumber = parseInt(currentPage.getAttribute('data-page'));
-      const cachedData = evoDataCache[pageNumber];
-      
-      if (!cachedData || !cachedData.insights) {
-        console.error('No E.V.O. data available for indexation prompt');
+      if (!currentPage) {
+        console.error('❌ No current page found');
         return;
       }
+      
+      const pageNumber = parseInt(currentPage.getAttribute('data-page'));
+      console.log('📄 Current page number:', pageNumber);
+      
+      const cachedData = evoDataCache[pageNumber];
+      console.log('📦 Cached data:', cachedData);
+      
+      if (!cachedData || !cachedData.insights) {
+        console.error('❌ No E.V.O. data available for indexation prompt');
+        return;
+      }
+      
+      console.log('🔍 Looking for diagnosed cause at index:', causeIndex);
+      console.log('📊 Available insights:', cachedData.insights);
       
       // Find the diagnosed cause with strategies
       let targetCause = null;
       for (const insight of cachedData.insights) {
+        console.log('🔎 Checking insight:', insight);
         if (insight.diagnosedCauses && insight.diagnosedCauses[causeIndex]) {
           targetCause = insight.diagnosedCauses[causeIndex];
+          console.log('✓ Found target cause:', targetCause);
           break;
         }
       }
       
-      if (!targetCause || !targetCause.strategies || !targetCause.urls) {
-        console.error('No strategies or URLs found for this cause');
+      if (!targetCause) {
+        console.error('❌ No target cause found at index', causeIndex);
         return;
       }
+      
+      if (!targetCause.strategies) {
+        console.error('❌ No strategies found in cause:', targetCause);
+        return;
+      }
+      
+      if (!targetCause.urls) {
+        console.error('❌ No URLs found in cause:', targetCause);
+        return;
+      }
+      
+      console.log('✅ Opening indexation execution assist modal');
       
       // Generate and display the indexation prompt
       openIndexationExecutionAssist(targetCause);
@@ -1267,33 +1292,41 @@ document.addEventListener('DOMContentLoaded', async () => {
    * @param {Object} cause - The diagnosed cause with strategies and URLs
    */
   function openIndexationExecutionAssist(cause) {
+    console.log('🚀 openIndexationExecutionAssist called with cause:', cause);
+    
     const prompt = generateIndexationPrompt(cause);
+    console.log('📝 Generated prompt length:', prompt.length);
     
     // Get modal elements
     const modal = document.getElementById('execution-assist-modal');
     if (!modal) {
-      console.error('Execution Assist modal not found');
+      console.error('❌ Execution Assist modal not found');
       return;
     }
+    console.log('✓ Modal element found:', modal);
     
     // Get the current page number
     const currentPage = document.querySelector('.sprint-card-page[style*="display: block"]');
     const pageNumber = currentPage ? parseInt(currentPage.getAttribute('data-page')) : null;
     const stepNumber = currentPage ? parseInt(currentPage.getAttribute('data-step')) : null;
+    console.log('📄 Page/Step:', pageNumber, stepNumber);
     
     // Populate modal content
     document.getElementById('assist-mission').textContent = 'GSC Health Monitor';
     document.getElementById('assist-step').textContent = `Step ${stepNumber}: Indexation Strategy Implementation`;
     document.getElementById('assist-prompt').textContent = prompt;
+    console.log('✓ Modal content populated');
     
     // Store prompt and step number for copying
     if (window.ExecutionAssist) {
       window.ExecutionAssist.currentPrompt = prompt;
       window.ExecutionAssist.currentStepNumber = stepNumber;
+      console.log('✓ Stored in ExecutionAssist');
     }
     
     // Show modal
     modal.classList.add('active');
+    console.log('✓ Modal class "active" added');
     
     // Hide success message
     const successMsg = document.getElementById('copy-success');
@@ -1301,7 +1334,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       successMsg.style.display = 'none';
     }
     
-    console.log(`✓ Indexation execution assist modal opened for step ${stepNumber}`);
+    console.log(`✅ Indexation execution assist modal opened for step ${stepNumber}`);
   }
 
   /**
