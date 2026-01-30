@@ -3791,6 +3791,15 @@ datalist option:hover {
   font-size: 0.95rem;
 }
 
+.evo-no-metrics {
+  padding: 1rem;
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  font-style: italic;
+  grid-column: 1 / -1;
+}
+
 .evo-success-message {
   margin-top: 1rem;
   padding: 1rem;
