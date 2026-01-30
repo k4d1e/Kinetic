@@ -3310,16 +3310,50 @@ datalist option:hover {
   transition: all 0.3s ease;
 }
 
-.btn-analysis:hover {
+.btn-analysis:hover:not(:disabled) {
   background: linear-gradient(135deg, rgba(45, 212, 191, 0.3), rgba(16, 185, 129, 0.3));
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(45, 212, 191, 0.3);
+}
+
+.btn-analysis:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-analysis-loading {
+  pointer-events: none;
+}
+
+.btn-analysis-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(45, 212, 191, 0.2);
+  border-top-color: var(--color-accent-teal);
+  border-radius: 50%;
+  animation: btn-spin 1s linear infinite;
+}
+
+@keyframes btn-spin {
+  to { transform: rotate(360deg); }
+}
+
+.btn-analysis-error {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.2));
+  border-color: var(--color-error);
+  color: var(--color-error);
 }
 
 .btn-chart-icon {
   width: 18px;
   height: 18px;
   stroke: var(--color-accent-teal);
+}
+
+.btn-error-icon {
+  width: 18px;
+  height: 18px;
+  stroke: var(--color-error);
 }
 
 /* ========================================
