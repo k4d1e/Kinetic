@@ -7,6 +7,11 @@ const {
 } = require('./gscIndexService');
 
 const {
+  fetchCrawlStats,
+  analyzeCrawlHealth
+} = require('./gscCrawlService');
+
+const {
   analyzeCannibalization,
   analyzeLatticeHealth,
   analyzeQuickWins,
@@ -261,6 +266,68 @@ async function analyzeSubstrateDimension(pool, userId, siteUrl) {
     return {
       sitemaps: [],
       indexCoverage: {},
+      health: { score: 0, status: 'error', metrics: {}, insights: [] }
+    };
+  }
+}
+
+/**
+ * CRAWL DIMENSION - Crawl Budget & Server Health
+ * Analyzes crawl frequency, response times, and server errors
+ * 
+ * NOTE: GSC API limitation - crawl stats not available programmatically
+ * This provides informational insights directing users to manual monitoring
+ */
+async function analyzeCrawlDimension(pool, userId, siteUrl) {
+  console.log('🤖 Analyzing CRAWL (Crawl Budget Efficiency)...');
+  
+  try {
+    // Initialize progress
+    setProgress(userId, 'crawl', {
+      status: 'fetching_crawl_stats',
+      message: 'Checking crawl statistics...',
+      percent: 10
+    });
+    
+    const crawlData = await fetchCrawlStats(pool, userId, siteUrl);
+    
+    setProgress(userId, 'crawl', {
+      status: 'analyzing_crawl_health',
+      message: 'Analyzing crawl efficiency...',
+      percent: 60
+    });
+    
+    const health = await analyzeCrawlHealth(crawlData);
+    
+    setProgress(userId, 'crawl', {
+      status: 'complete',
+      message: 'Crawl analysis complete',
+      percent: 100
+    });
+    
+    console.log(`   └─ Score: ${health.score}/100 (${health.status})`);
+    
+    // Clear progress on completion
+    clearProgress(userId, 'crawl');
+    
+    return {
+      crawlStats: crawlData,
+      health
+    };
+  } catch (error) {
+    console.error('   └─ Error:', error.message);
+    
+    // Update progress with error
+    setProgress(userId, 'crawl', {
+      status: 'error',
+      message: `Error: ${error.message}`,
+      percent: 0
+    });
+    
+    clearProgress(userId, 'crawl');
+    
+    return {
+      crawlStats: {},
       health: { score: 0, status: 'error', metrics: {}, insights: [] }
     };
   }
@@ -690,6 +757,7 @@ function calculateEmergencePriority(severity, dimensionCount) {
 module.exports = {
   synthesizeDimensions,
   analyzeSubstrateDimension,
+  analyzeCrawlDimension,
   analyzeLatticeDimension,
   analyzeSynapseDimension,
   analyzeResonanceDimension,
