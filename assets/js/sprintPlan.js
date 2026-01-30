@@ -770,6 +770,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     const executionAssistBtn = currentPage.querySelector('.btn-execution-assist');
     const instructionContainer = currentPage.querySelector('.instruction-container');
+    const stepNumber = pageNumber - 1; // Calculate step number from page number
+    const nextStepBtn = currentPage.querySelector(`.btn-next-step[data-step="${stepNumber}"]`);
     
     if (needsFixes) {
       // Show Execution Assist button
@@ -781,6 +783,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (instructionContainer) {
         instructionContainer.style.display = 'block';
       }
+      // Next Step button remains disabled until user copies Execution Assist prompt
     } else {
       // Hide Execution Assist - no fixes needed
       if (executionAssistBtn) {
@@ -789,6 +792,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       if (instructionContainer) {
         instructionContainer.style.display = 'none';
+      }
+      
+      // Enable Next Step button since no action is required
+      if (nextStepBtn) {
+        nextStepBtn.disabled = false;
+        console.log(`✓ Next Step button enabled - no fixes needed for step ${stepNumber}`);
       }
     }
   }
