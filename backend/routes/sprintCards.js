@@ -6,7 +6,6 @@ const {
   saveCompletion,
   getHistory,
   getCardDetails,
-  generateLoomsGap,
   getProgress
 } = require('../controllers/sprintCardController');
 
@@ -27,14 +26,6 @@ router.post('/complete', saveCompletion);
  * @access  Private
  */
 router.get('/history', getHistory);
-
-/**
- * @route   POST /api/sprint-cards/looms-gap
- * @desc    Generate Loom's Gap Analysis (competitor backlink gaps)
- * @body    propertyId, refresh (optional), country (optional)
- * @access  Private
- */
-router.post('/looms-gap', generateLoomsGap);
 
 /**
  * @route   GET /api/sprint-cards/progress
