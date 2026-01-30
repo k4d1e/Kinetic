@@ -3440,7 +3440,7 @@ datalist option:hover {
 }
 
 .analysis-modal-close:hover {
-  color: var(--color-accent-teal);
+  color: var(--color-primary-green);
 }
 
 .analysis-header {
@@ -3453,13 +3453,13 @@ datalist option:hover {
 .analysis-icon {
   width: 32px;
   height: 32px;
-  stroke: var(--color-accent-teal);
+  stroke: var(--color-text-green);
 }
 
 .analysis-title {
   font-family: 'Orbitron', monospace;
   font-size: 1.5rem;
-  color: var(--color-accent-teal);
+  color: var(--color-text-green);
   margin: 0;
 }
 
