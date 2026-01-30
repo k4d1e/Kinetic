@@ -130,11 +130,27 @@ async function inspectURL(pool, userId, siteUrl, inspectionUrl) {
     });
 
     const result = response.data.inspectionResult;
+    const verdict = result.indexStatusResult?.verdict || 'VERDICT_UNSPECIFIED';
+    const coverageState = result.indexStatusResult?.coverageState || 'Unknown';
+    const indexingState = result.indexStatusResult?.indexingState || 'INDEXING_STATE_UNSPECIFIED';
+    
+    // Map GSC verdict to our status categories
+    // PASS = Valid (indexed), NEUTRAL = Excluded, FAIL = Error
+    let indexStatus = 'UNKNOWN';
+    if (verdict === 'PASS') {
+      indexStatus = 'VALID';
+    } else if (verdict === 'NEUTRAL') {
+      indexStatus = 'EXCLUDED';
+    } else if (verdict === 'FAIL') {
+      indexStatus = 'ERROR';
+    }
     
     return {
       url: inspectionUrl,
-      indexStatus: result.indexStatusResult?.verdict || 'UNKNOWN',
-      coverageState: result.indexStatusResult?.coverageState || 'UNKNOWN',
+      verdict: verdict, // Store original verdict
+      indexStatus: indexStatus, // Mapped status
+      coverageState: coverageState,
+      indexingState: indexingState,
       crawlStatus: result.indexStatusResult?.crawledAs || 'UNKNOWN',
       robotsAllowed: result.indexStatusResult?.robotsTxtState === 'ALLOWED',
       crawlTime: result.indexStatusResult?.lastCrawlTime || null,
@@ -142,8 +158,9 @@ async function inspectURL(pool, userId, siteUrl, inspectionUrl) {
       googleCanonical: result.indexStatusResult?.googleCanonical || null,
       userCanonical: result.indexStatusResult?.userCanonical || null,
       issues: [
-        ...(result.indexStatusResult?.crawlingDisallowed ? ['Crawling disallowed by robots.txt'] : []),
-        ...(result.indexStatusResult?.indexingDisallowed ? ['Indexing disallowed'] : []),
+        ...(result.indexStatusResult?.robotsTxtState === 'DISALLOWED' ? ['Crawling disallowed by robots.txt'] : []),
+        ...(indexingState === 'BLOCKED_BY_META_TAG' ? ['Indexing blocked by noindex meta tag'] : []),
+        ...(indexingState === 'BLOCKED_BY_HTTP_HEADER' ? ['Indexing blocked by X-Robots-Tag header'] : []),
         ...(result.mobileUsabilityResult?.issues || []).map(i => i.issueType)
       ]
     };
@@ -287,12 +304,56 @@ function getExclusionReasons(results) {
   
   results.forEach(result => {
     if (result.indexStatus === 'EXCLUDED' && result.coverageState) {
-      const reason = result.coverageState;
-      reasons[reason] = (reasons[reason] || 0) + 1;
+      // Map GSC coverageState to normalized exclusion reasons
+      const normalizedReason = normalizeCoverageState(result.coverageState, result.indexingState);
+      if (normalizedReason) {
+        reasons[normalizedReason] = (reasons[normalizedReason] || 0) + 1;
+      }
     }
   });
   
   return reasons;
+}
+
+/**
+ * Normalize GSC coverageState to consistent exclusion reason keys
+ * @param {string} coverageState - GSC coverage state
+ * @param {string} indexingState - GSC indexing state
+ * @returns {string|null} - Normalized exclusion reason
+ */
+function normalizeCoverageState(coverageState, indexingState) {
+  const state = coverageState.toLowerCase();
+  
+  // Check indexing state for noindex blocking
+  if (indexingState === 'BLOCKED_BY_META_TAG' || indexingState === 'BLOCKED_BY_HTTP_HEADER') {
+    return 'EXCLUDED_BY_NOINDEX';
+  }
+  
+  // Map coverage states to normalized reasons
+  if (state.includes('noindex')) {
+    return 'EXCLUDED_BY_NOINDEX';
+  } else if (state.includes('robots.txt') || state.includes('blocked by robots')) {
+    return 'BLOCKED_BY_ROBOTS_TXT';
+  } else if (state.includes('duplicate')) {
+    return 'DUPLICATE';
+  } else if (state.includes('crawled') && state.includes('not indexed')) {
+    return 'CRAWLED_NOT_INDEXED';
+  } else if (state.includes('discovered') && state.includes('not indexed')) {
+    return 'CRAWLED_NOT_INDEXED'; // Treat discovered but not indexed similarly
+  } else if (state.includes('soft 404')) {
+    return 'SOFT_404';
+  } else if (state.includes('redirect')) {
+    return 'PAGE_WITH_REDIRECT';
+  } else if (state.includes('not found') || state.includes('404')) {
+    return 'NOT_FOUND';
+  } else if (state.includes('server error') || state.includes('5xx')) {
+    return 'SERVER_ERROR';
+  } else if (state.includes('access denied') || state.includes('403')) {
+    return 'ACCESS_DENIED';
+  }
+  
+  // Return original state if no mapping found (for logging/debugging)
+  return coverageState;
 }
 
 /**
@@ -397,6 +458,33 @@ async function analyzeSubstrateHealth(indexCoverage, sitemaps) {
         count: exclusionReasons['PAGE_WITH_REDIRECT'],
         severity: 'low',
         fix: 'Update internal links to point directly to final destination'
+      });
+    }
+    
+    if (exclusionReasons['NOT_FOUND']) {
+      diagnosedCauses.push({
+        reason: '404 Not Found Errors',
+        count: exclusionReasons['NOT_FOUND'],
+        severity: 'high',
+        fix: 'Fix broken links or restore missing pages with 301 redirects'
+      });
+    }
+    
+    if (exclusionReasons['SERVER_ERROR']) {
+      diagnosedCauses.push({
+        reason: 'Server Errors (5xx)',
+        count: exclusionReasons['SERVER_ERROR'],
+        severity: 'high',
+        fix: 'Investigate server logs and fix technical errors causing 500/503 responses'
+      });
+    }
+    
+    if (exclusionReasons['ACCESS_DENIED']) {
+      diagnosedCauses.push({
+        reason: 'Access Denied (403)',
+        count: exclusionReasons['ACCESS_DENIED'],
+        severity: 'medium',
+        fix: 'Check server permissions and authentication requirements'
       });
     }
     
