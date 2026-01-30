@@ -1361,8 +1361,8 @@ document.addEventListener('DOMContentLoaded', async () => {
    */
   function generateIndexationPrompt(cause) {
     const urlCount = cause.urls.length;
-    const urlList = cause.urls.slice(0, 10).map((url, i) => `   ${i + 1}. ${url}`).join('\n');
-    const moreUrls = urlCount > 10 ? `\n   ... and ${urlCount - 10} more URLs` : '';
+    // Show ALL URLs, not just the first 10
+    const urlList = cause.urls.map((url, i) => `   ${i + 1}. ${url}`).join('\n');
     
     // Group strategies by category for structured output
     const strategyText = cause.strategies.map(strategy => {
@@ -1375,8 +1375,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 ## Context
 E.V.O. has diagnosed ${urlCount} pages that are "Crawled But Not Indexed" by Google. These pages need content improvements and optimization to signal relevance to Google's crawlers.
 
-## Target Pages (${urlCount > 10 ? 'showing first 10' : 'all'})
-${urlList}${moreUrls}
+## Target Pages (all ${urlCount} pages)
+${urlList}
 
 ## Implementation Strategy
 
