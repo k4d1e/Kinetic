@@ -3853,10 +3853,10 @@ datalist option:hover {
   box-shadow: 0 2px 6px rgba(45, 212, 191, 0.2);
 }
 
-.btn-assist-icon {
+.btn-indexation-execution-assist .btn-plus-icon {
   width: 20px;
   height: 20px;
-  stroke: currentColor;
+  fill: currentColor;
   flex-shrink: 0;
 }
 
