@@ -25,6 +25,9 @@ async function analyzeRedirectsAndErrors(pool, userId, siteUrl) {
     // Extract redirect and error data from exclusion reasons
     const exclusionReasons = indexCoverage.exclusionReasons || {};
     
+    // Debug: log available exclusion reasons
+    console.log(`   └─ Available exclusion reasons:`, Object.keys(exclusionReasons));
+    
     const redirectData = {
       notFound: {
         count: exclusionReasons['NOT_FOUND']?.count || 0,
@@ -39,8 +42,8 @@ async function analyzeRedirectsAndErrors(pool, userId, siteUrl) {
         urls: exclusionReasons['ACCESS_DENIED']?.urls || []
       },
       redirect: {
-        count: exclusionReasons['REDIRECT']?.count || 0,
-        urls: exclusionReasons['REDIRECT']?.urls || []
+        count: exclusionReasons['PAGE_WITH_REDIRECT']?.count || 0,
+        urls: exclusionReasons['PAGE_WITH_REDIRECT']?.urls || []
       },
       totalErrors: 0
     };
@@ -106,14 +109,15 @@ async function analyzeRedirectHealth(redirectData) {
       type: 'SUCCESS',
       severity: 'info',
       message: 'No Redirect or Error Issues Detected',
-      details: 'Google Search Console has not reported any 404 errors, server errors, or redirect issues for your site.',
+      details: 'Google Search Console has not reported any 404 errors, server errors, or problematic redirect issues for your site. Note: Properly configured redirects (like those in a _redirects file) that Google successfully follows won\'t appear as issues here - this analysis only shows redirects that prevent indexation or waste crawl budget.',
       possibleCauses: [
         'Clean URL structure with no broken links',
-        'Proper redirect management',
+        'Properly configured redirects (301/302) that Google follows successfully',
         'Stable server with no downtime',
-        'Regular monitoring and maintenance'
+        'Regular monitoring and maintenance',
+        'No redirect chains or redirect loops'
       ],
-      recommendation: 'Continue monitoring GSC Coverage Report monthly for any new errors. When restructuring URLs or moving content, implement proper 301 redirects and update internal links promptly.'
+      recommendation: 'Continue monitoring GSC Coverage Report monthly for any new errors. If you have a _redirects file, periodically audit it to ensure: (1) No redirect chains (A→B→C), consolidate to direct redirects (A→C), (2) Internal links point to final destinations, not redirected URLs, (3) Old redirected URLs are removed from sitemap.'
     });
   } else {
     // 404 Errors
@@ -220,9 +224,10 @@ async function analyzeRedirectHealth(redirectData) {
       'Test all redirects to ensure they lead to correct final destinations',
       'Remove old redirected URLs from sitemap.xml',
       'Set up server monitoring for 5xx errors',
-      'Audit redirect chains and consolidate to single redirects'
+      'Audit redirect chains and consolidate to single redirects',
+      'If using _redirects file (Netlify/Cloudflare), audit for chains and update internal links'
     ],
-    recommendation: 'Create a monthly maintenance checklist: check GSC for new 404s, audit redirect chains, review server error logs, test critical redirects, update sitemap after URL changes. Use tools like Screaming Frog or Sitebulb to crawl your site and identify redirect chains before Google does.'
+    recommendation: 'Create a monthly maintenance checklist: check GSC for new 404s, audit redirect chains, review server error logs, test critical redirects, update sitemap after URL changes. Use tools like Screaming Frog or Sitebulb to crawl your site and identify redirect chains before Google does. If you have a _redirects file, periodically review it to consolidate chains and ensure internal links point to final destinations.'
   });
   
   console.log(`✓ Redirect Health Score: ${score}/100 (${health.status})`);
