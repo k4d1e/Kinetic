@@ -16,7 +16,8 @@ const {
   getEVOSynthesis,
   getDimensionAnalysis,
   getEmergencePatterns,
-  getSystemIntelligence
+  getSystemIntelligence,
+  getAnalysisProgress
 } = require('../controllers/evoController');
 
 // All GSC routes require authentication
@@ -112,5 +113,13 @@ router.get('/evo-patterns', getEmergencePatterns);
  * @access  Private
  */
 router.get('/evo-intelligence', getSystemIntelligence);
+
+/**
+ * @route   GET /api/gsc/evo/progress/:dimension
+ * @desc    Get real-time progress for long-running dimension analysis
+ * @param   dimension - The dimension being analyzed (substrate, lattice, etc.)
+ * @access  Private
+ */
+router.get('/evo/progress/:dimension', getAnalysisProgress);
 
 module.exports = router;

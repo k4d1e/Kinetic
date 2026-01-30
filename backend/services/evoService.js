@@ -27,6 +27,27 @@ const {
   getDomainFromUrl
 } = require('./ahrefsBacklinksService');
 
+// In-memory progress tracking (use Redis in production for multi-server deployments)
+const analysisProgress = {};
+
+function setProgress(userId, dimension, progressData) {
+  const key = `${userId}:${dimension}`;
+  analysisProgress[key] = {
+    ...progressData,
+    lastUpdated: Date.now()
+  };
+}
+
+function getProgress(userId, dimension) {
+  const key = `${userId}:${dimension}`;
+  return analysisProgress[key] || null;
+}
+
+function clearProgress(userId, dimension) {
+  const key = `${userId}:${dimension}`;
+  delete analysisProgress[key];
+}
+
 /**
  * E.V.O. SYNTHESIS ENGINE
  * 
@@ -176,11 +197,51 @@ async function analyzeSubstrateDimension(pool, userId, siteUrl) {
   console.log('🌱 Analyzing SUBSTRATE (Root Health)...');
   
   try {
+    // Initialize progress
+    setProgress(userId, 'substrate', {
+      status: 'fetching_sitemaps',
+      message: 'Fetching sitemap data...',
+      percent: 5
+    });
+    
     const sitemaps = await fetchSitemapStatus(pool, userId, siteUrl);
-    const indexCoverage = await fetchIndexCoverage(pool, userId, siteUrl);
+    
+    // Update progress
+    setProgress(userId, 'substrate', {
+      status: 'inspecting_urls',
+      message: 'Starting URL inspection...',
+      percent: 10
+    });
+    
+    // Pass progress callback to fetchIndexCoverage
+    const progressCallback = (progress) => {
+      // Convert inspection progress to overall progress (10% to 90%)
+      const overallPercent = 10 + Math.round((progress.percent / 100) * 80);
+      setProgress(userId, 'substrate', {
+        status: 'inspecting_urls',
+        message: `Inspecting URLs: ${progress.completed}/${progress.total}`,
+        percent: overallPercent,
+        urlsCompleted: progress.completed,
+        urlsTotal: progress.total,
+        estimatedSecondsRemaining: progress.estimatedSecondsRemaining
+      });
+    };
+    
+    const indexCoverage = await fetchIndexCoverage(pool, userId, siteUrl, progressCallback);
+    
+    // Update progress
+    setProgress(userId, 'substrate', {
+      status: 'analyzing',
+      message: 'Analyzing health metrics...',
+      percent: 95
+    });
+    
     const health = await analyzeSubstrateHealth(indexCoverage, sitemaps);
     
     console.log(`   └─ Score: ${health.score}/100 (${health.status})`);
+    
+    // Clear progress on completion
+    clearProgress(userId, 'substrate');
     
     return {
       sitemaps,
@@ -189,6 +250,14 @@ async function analyzeSubstrateDimension(pool, userId, siteUrl) {
     };
   } catch (error) {
     console.error('   └─ Error:', error.message);
+    
+    // Update progress with error
+    setProgress(userId, 'substrate', {
+      status: 'error',
+      message: `Error: ${error.message}`,
+      percent: 0
+    });
+    
     return {
       sitemaps: [],
       indexCoverage: {},
@@ -629,5 +698,6 @@ module.exports = {
   detectEmergencePatterns,
   generateSystemIntelligence,
   generateActionPriorities,
-  EmergencePatterns
+  EmergencePatterns,
+  getProgress  // Export progress getter
 };

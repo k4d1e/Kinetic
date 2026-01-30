@@ -9,7 +9,8 @@ const {
   analyzeWeaveDimension,
   analyzeElixirDimension,
   detectEmergencePatterns,
-  generateSystemIntelligence
+  generateSystemIntelligence,
+  getProgress
 } = require('../services/evoService');
 
 /**
@@ -324,9 +325,42 @@ async function getSystemIntelligence(req, res) {
   }
 }
 
+/**
+ * Get analysis progress
+ * @route GET /api/gsc/evo/progress/:dimension
+ */
+async function getAnalysisProgress(req, res) {
+  try {
+    const userId = req.user.id;
+    const { dimension } = req.params;
+
+    const progress = getProgress(userId, dimension);
+    
+    if (!progress) {
+      return res.json({
+        success: true,
+        hasProgress: false
+      });
+    }
+
+    res.json({
+      success: true,
+      hasProgress: true,
+      progress
+    });
+  } catch (error) {
+    console.error('Error getting analysis progress:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: error.message || 'Failed to get analysis progress'
+    });
+  }
+}
+
 module.exports = {
   getEVOSynthesis,
   getDimensionAnalysis,
   getEmergencePatterns,
-  getSystemIntelligence
+  getSystemIntelligence,
+  getAnalysisProgress
 };
