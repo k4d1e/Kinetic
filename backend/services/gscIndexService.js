@@ -371,15 +371,43 @@ function normalizeCoverageState(coverageState, indexingState) {
  * @returns {Object} - Substrate health metrics
  */
 async function analyzeSubstrateHealth(indexCoverage, sitemaps) {
-  const totalSubmitted = sitemaps.reduce((sum, sm) => sum + sm.submitted, 0);
-  const totalIndexed = sitemaps.reduce((sum, sm) => sum + sm.indexed, 0);
+  const totalSubmittedFromSitemap = sitemaps.reduce((sum, sm) => sum + sm.submitted, 0);
+  const totalIndexedFromSitemap = sitemaps.reduce((sum, sm) => sum + sm.indexed, 0);
+  
+  // Use URL Inspection data when available (more accurate, real-time)
+  // Project sample results to estimate full site metrics
+  let totalSubmitted = totalSubmittedFromSitemap;
+  let totalIndexed = totalIndexedFromSitemap;
+  let totalExcluded = totalSubmittedFromSitemap - totalIndexedFromSitemap;
+  
+  // If we have URL inspection data with meaningful sample size, use it to project
+  if (indexCoverage && indexCoverage.totalSampled > 0) {
+    console.log(`📊 Using URL Inspection data: ${indexCoverage.valid} valid, ${indexCoverage.excluded} excluded from ${indexCoverage.totalSampled} sampled`);
+    
+    // Calculate rates from inspection sample
+    const validRate = indexCoverage.valid / indexCoverage.totalSampled;
+    const excludedRate = indexCoverage.excluded / indexCoverage.totalSampled;
+    
+    // Project to full site if we have sitemap total
+    if (totalSubmittedFromSitemap > 0) {
+      totalIndexed = Math.round(totalSubmittedFromSitemap * validRate);
+      totalExcluded = Math.round(totalSubmittedFromSitemap * excludedRate);
+    } else {
+      // Use raw inspection counts if no sitemap data
+      totalSubmitted = indexCoverage.totalSampled;
+      totalIndexed = indexCoverage.valid;
+      totalExcluded = indexCoverage.excluded;
+    }
+  }
+  
+  console.log(`📊 Final metrics: ${totalIndexed} indexed / ${totalSubmitted} submitted (${totalExcluded} excluded)`);
   
   // Root Density: Percentage of submitted URLs that are indexed
   const rootDensity = totalSubmitted > 0 ? (totalIndexed / totalSubmitted * 100) : 0;
   
   // Root Rot: Percentage of exclusions
   const exclusionRate = totalSubmitted > 0 
-    ? ((totalSubmitted - totalIndexed) / totalSubmitted * 100) 
+    ? (totalExcluded / totalSubmitted * 100) 
     : 0;
   
   // Soil Quality: Overall health score (0-100)
@@ -395,10 +423,10 @@ async function analyzeSubstrateHealth(indexCoverage, sitemaps) {
   if (totalErrors > 0) soilQuality -= Math.min(20, totalErrors * 2);
   if (totalWarnings > 0) soilQuality -= Math.min(10, totalWarnings);
   
-  // Mycelial Expansion: How well the root network is spreading
-  const mycelialExpansion = sitemaps.length > 0 
+  // Mycelial Expansion: How well the root network is spreading (use rootDensity if sitemap data unavailable)
+  const mycelialExpansion = sitemaps.length > 0 && totalIndexedFromSitemap > 0
     ? sitemaps.reduce((sum, sm) => sum + parseFloat(sm.indexationRate), 0) / sitemaps.length
-    : 0;
+    : rootDensity;
   
   // Determine health status
   let status = 'healthy';
@@ -599,7 +627,7 @@ async function analyzeSubstrateHealth(indexCoverage, sitemaps) {
       mycelialExpansion: mycelialExpansion.toFixed(1) + '%',
       totalSubmitted,
       totalIndexed,
-      totalExcluded: totalSubmitted - totalIndexed
+      totalExcluded
     },
     insights
   };
