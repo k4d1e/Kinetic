@@ -475,7 +475,8 @@ async function analyzeSubstrateHealth(indexCoverage, sitemaps) {
         count: exclusionReasons['CRAWLED_NOT_INDEXED'].count,
         urls: exclusionReasons['CRAWLED_NOT_INDEXED'].urls,
         severity: 'medium',
-        fix: 'Improve content quality or add more internal links to these pages'
+        fix: 'Improve content quality and relevance signals for Google',
+        strategies: generateIndexingStrategies(exclusionReasons['CRAWLED_NOT_INDEXED'].urls)
       });
     }
     
@@ -628,6 +629,131 @@ async function analyzeSubstrateHealth(indexCoverage, sitemaps) {
     },
     insights
   };
+}
+
+/**
+ * Analyze URL patterns to detect service types and locations
+ * @param {Array<string>} urls - URLs to analyze
+ * @returns {Object} - Analysis of URL patterns
+ */
+function analyzeURLPatterns(urls) {
+  return {
+    hasGutters: urls.some(url => url.includes('/gutters/')),
+    hasRoofing: urls.some(url => url.includes('/roofing/')),
+    hasPainting: urls.some(url => url.includes('/exterior-painting/') || url.includes('/painting/')),
+    hasPowerWashing: urls.some(url => url.includes('/power-washing/') || url.includes('/washing/')),
+    cities: [...new Set(urls.map(url => {
+      const match = url.match(/\/([a-z-]+(?:-[a-z]+)*)\/?$/i);
+      return match ? match[1] : null;
+    }).filter(Boolean))],
+    serviceTypes: [...new Set(urls.map(url => {
+      const parts = url.split('/').filter(Boolean);
+      return parts.length >= 2 ? parts.slice(0, 2).join('/') : null;
+    }).filter(Boolean))]
+  };
+}
+
+/**
+ * Generate actionable indexing strategies for "Crawled But Not Indexed" pages
+ * @param {Array<string>} urls - URLs that are crawled but not indexed
+ * @returns {Array<Object>} - Strategy categories with actionable items
+ */
+function generateIndexingStrategies(urls) {
+  const strategies = [];
+  
+  // Analyze URL patterns to detect service types and cities
+  const urlAnalysis = analyzeURLPatterns(urls);
+  
+  // Content Quality Strategies (tailored to detected service types)
+  const contentItems = [
+    'Expand content to minimum 800-1200 words with unique, valuable information',
+    'Add location-specific details: local landmarks, neighborhoods, service areas',
+    'Include customer testimonials or case studies from that specific city',
+    'Add unique images with descriptive alt text (before/after photos, local projects)'
+  ];
+  
+  // Add service-specific content suggestions
+  if (urlAnalysis.hasGutters) {
+    contentItems.push('Discuss local weather patterns affecting gutters (rainfall levels, debris from trees, seasonal concerns)');
+  }
+  if (urlAnalysis.hasRoofing) {
+    contentItems.push('Reference local building codes, climate considerations (moss growth, rain damage, wind exposure)');
+  }
+  if (urlAnalysis.hasPainting) {
+    contentItems.push('Mention local architectural styles, weather considerations for optimal painting season');
+  }
+  if (urlAnalysis.hasPowerWashing) {
+    contentItems.push('Address local environmental concerns (mold, mildew, algae common in Pacific Northwest)');
+  }
+  
+  strategies.push({
+    category: 'Content Quality',
+    items: contentItems
+  });
+  
+  // Internal Linking Strategy
+  strategies.push({
+    category: 'Internal Linking',
+    items: [
+      'Link from homepage to city/service hub pages (max 2-3 clicks deep)',
+      'Create hub pages that link to all city-specific service pages',
+      'Add contextual links from blog posts mentioning cities or services',
+      'Include breadcrumb navigation for clear site hierarchy',
+      'Cross-link related service pages (e.g., "Roofing in Portland" → "Gutters in Portland")'
+    ]
+  });
+  
+  // Technical SEO Signals
+  strategies.push({
+    category: 'Technical SEO',
+    items: [
+      'Add unique title tags: "[Service] in [City] | [Brand]"',
+      'Write compelling meta descriptions with city name and service details',
+      'Implement schema markup: LocalBusiness + Service for each page',
+      'Add H1 with city + service keyword combination',
+      'Ensure page loads quickly (< 3 seconds) and is mobile-friendly'
+    ]
+  });
+  
+  // User Engagement Signals
+  strategies.push({
+    category: 'User Engagement',
+    items: [
+      'Add prominent call-to-action buttons (Get Quote, Call Now, Book Service)',
+      'Include FAQ section addressing city-specific questions',
+      'Add service area map showing coverage in that city',
+      'Display contact information with local phone number if available',
+      'Add trust signals: certifications, licenses, years serving that city'
+    ]
+  });
+  
+  // City Page Optimization (always add for service+city pattern)
+  strategies.push({
+    category: 'City Page Optimization',
+    items: [
+      'Create unique content for each city - avoid templating with only city name swaps',
+      'Write about specific neighborhoods within each city you serve',
+      'Reference local landmarks as service area boundaries (e.g., "Serving Pearl District to Hollywood")',
+      'Add city-specific FAQs (permit requirements, HOA considerations, seasonal timing)',
+      'Include estimated response time to that specific city',
+      'Mention years of experience or projects completed in that city',
+      'Add photos from actual jobs in that city with recognizable local context'
+    ]
+  });
+  
+  // External Signals
+  strategies.push({
+    category: 'External Signals',
+    items: [
+      'Submit updated sitemap to Google Search Console after improvements',
+      'Request indexing via GSC URL Inspection tool for priority pages',
+      'Build local citations mentioning service in that city (directories, local sites)',
+      'Create backlinks from local news sites, chamber of commerce, or industry associations',
+      'Share pages on social media with location tags to generate engagement'
+    ]
+  });
+  
+  return strategies;
 }
 
 module.exports = {
