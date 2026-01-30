@@ -764,6 +764,58 @@
         </div>
     </div>
 
+    <!-- Analysis Modal (E.V.O. Insights) -->
+    <div id="analysis-modal" class="analysis-modal-overlay">
+        <div class="analysis-modal-content">
+            <button class="analysis-modal-close" aria-label="Close analysis modal">&times;</button>
+            
+            <div class="analysis-header">
+                <svg class="analysis-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="20" x2="12" y2="10"></line>
+                    <line x1="18" y1="20" x2="18" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="16"></line>
+                </svg>
+                <h2 class="analysis-title">E.V.O. Analysis</h2>
+            </div>
+            
+            <div class="analysis-context">
+                <div class="context-item">
+                    <span class="context-label">Step:</span>
+                    <span class="context-value" id="analysis-step"></span>
+                </div>
+                <div class="context-item">
+                    <span class="context-label">Dimension:</span>
+                    <span class="context-value" id="analysis-dimension"></span>
+                </div>
+                <div class="context-item">
+                    <span class="context-label">Health Score:</span>
+                    <span class="context-value" id="analysis-health"></span>
+                </div>
+            </div>
+            
+            <!-- Loading State -->
+            <div class="analysis-loading" id="analysis-loading">
+                <div class="evo-spinner"></div>
+                <span>E.V.O. analyzing data...</span>
+            </div>
+            
+            <!-- Analysis Results -->
+            <div class="analysis-results" id="analysis-results" style="display: none;">
+                <!-- Metrics Section -->
+                <div class="analysis-section">
+                    <div class="analysis-section-title">Key Metrics</div>
+                    <div class="evo-metrics-grid" id="analysis-metrics"></div>
+                </div>
+                
+                <!-- Insights Section -->
+                <div class="analysis-section">
+                    <div class="analysis-section-title">E.V.O. Insights</div>
+                    <div id="analysis-insights"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="assets/js/buttons.js"></script>
     <script src="assets/js/apiService.js"></script>
     <script src="assets/js/quickWins.js"></script>

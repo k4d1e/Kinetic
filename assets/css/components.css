@@ -3290,3 +3290,326 @@ datalist option:hover {
     max-width: 500px;
   }
 }
+
+/* ========================================
+   ANALYSIS BUTTON (Sprint Cards)
+   ======================================== */
+
+.btn-analysis {
+  display: none; /* Hidden by default, shown when E.V.O. data is ready */
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, rgba(45, 212, 191, 0.2), rgba(16, 185, 129, 0.2));
+  border: 1px solid var(--color-accent-teal);
+  border-radius: 4px;
+  color: var(--color-accent-teal);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.65rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-analysis:hover {
+  background: linear-gradient(135deg, rgba(45, 212, 191, 0.3), rgba(16, 185, 129, 0.3));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(45, 212, 191, 0.3);
+}
+
+.btn-chart-icon {
+  width: 18px;
+  height: 18px;
+  stroke: var(--color-accent-teal);
+}
+
+/* ========================================
+   ANALYSIS MODAL
+   ======================================== */
+
+.analysis-modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(5px);
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.analysis-modal-content {
+  background: linear-gradient(135deg, #0f1419 0%, #1a2332 100%);
+  border: 2px solid var(--color-accent-teal);
+  border-radius: 8px;
+  width: 100%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 2rem;
+  position: relative;
+  box-shadow: 0 10px 50px rgba(45, 212, 191, 0.3);
+}
+
+.analysis-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  font-size: 2rem;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  line-height: 1;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+}
+
+.analysis-modal-close:hover {
+  color: var(--color-accent-teal);
+}
+
+.analysis-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.analysis-icon {
+  width: 32px;
+  height: 32px;
+  stroke: var(--color-accent-teal);
+}
+
+.analysis-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.5rem;
+  color: var(--color-accent-teal);
+  margin: 0;
+}
+
+.analysis-context {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  margin-bottom: 2rem;
+}
+
+.analysis-context .context-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.analysis-context .context-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-secondary);
+}
+
+.analysis-context .context-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.analysis-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 3rem;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.evo-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(45, 212, 191, 0.2);
+  border-top-color: var(--color-accent-teal);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.analysis-results {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.analysis-section {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 1.5rem;
+  border-radius: 6px;
+  border-left: 3px solid var(--color-accent-teal);
+}
+
+.analysis-section-title {
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--color-accent-teal);
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  font-family: 'Orbitron', monospace;
+}
+
+/* E.V.O. Metrics Grid */
+.evo-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.evo-metric-card {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 1rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.evo-metric-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.evo-metric-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-accent-teal);
+  font-family: 'Orbitron', monospace;
+}
+
+/* E.V.O. Insights */
+.evo-insights-container {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 1rem;
+  border-radius: 6px;
+  border-left: 3px solid var(--color-accent-teal);
+}
+
+.evo-insights-header {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--color-accent-teal);
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.evo-insight {
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 3px solid var(--color-accent-orange);
+}
+
+.evo-insight:last-child {
+  margin-bottom: 0;
+}
+
+.evo-insight-high {
+  border-left-color: var(--color-error);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.evo-insight-medium {
+  border-left-color: var(--color-accent-orange);
+  background: rgba(251, 146, 60, 0.1);
+}
+
+.evo-insight-info {
+  border-left-color: var(--color-accent-teal);
+  background: rgba(45, 212, 191, 0.1);
+}
+
+.evo-insight-type {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-accent-orange);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.evo-insight-high .evo-insight-type {
+  color: var(--color-error);
+}
+
+.evo-insight-info .evo-insight-type {
+  color: var(--color-accent-teal);
+}
+
+.evo-insight-message {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--color-text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.evo-insight-recommendation {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  font-style: italic;
+  padding-left: 1rem;
+}
+
+.evo-no-insights {
+  padding: 1rem;
+  text-align: center;
+  color: var(--color-primary-green);
+  font-size: 0.95rem;
+}
+
+.evo-success-message {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 6px;
+  color: var(--color-primary-green);
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .evo-metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .analysis-modal-content {
+    padding: 1.5rem;
+    max-width: 95%;
+  }
+  
+  .analysis-context {
+    gap: 1rem;
+  }
+  
+  .btn-analysis {
+    font-size: 0.55rem;
+    padding: 0.6rem 1rem;
+  }
+}

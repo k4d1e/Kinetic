@@ -70,6 +70,7 @@ class OnboardingStateMachine {
           console.log('✓ Found last selected property:', lastSelected.siteUrl);
           this.selectedProperty = lastSelected.siteUrl;
           window.currentPropertyId = lastSelected.propertyId;
+          window.currentPropertyUrl = lastSelected.siteUrl;
           
           // Check if calibration exists in database
           const calibrationCheck = await this.api.hasCalibration(lastSelected.siteUrl);
@@ -249,6 +250,7 @@ class OnboardingStateMachine {
         // Set property ID from calibration check
         if (calibrationCheck.propertyId) {
           window.currentPropertyId = calibrationCheck.propertyId;
+          window.currentPropertyUrl = siteUrl;
         }
         // Restore from database instead of running calibration
         await this.restoreFromDatabase(siteUrl);
@@ -259,6 +261,7 @@ class OnboardingStateMachine {
         // Run fresh calibration (will auto-save to DB)
         const calibrationResponse = await this.api.startCalibration(siteUrl);
         window.currentPropertyId = calibrationResponse.propertyId;
+        window.currentPropertyUrl = siteUrl;
         
         // Transition to SUCCESS state where checklist runs
         this.setState(STATES.SUCCESS);

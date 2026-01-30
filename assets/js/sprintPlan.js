@@ -515,11 +515,149 @@ document.addEventListener('DOMContentLoaded', async () => {
       const pageNum = parseInt(page.getAttribute('data-page'));
       if (pageNum === pageNumber) {
         page.style.display = 'flex';
+        
+        // Auto-fetch E.V.O. data for GSC protocol pages (2-5 are steps)
+        if (pageNum >= 2 && pageNum <= 5 && currentCardType === 'gsc_indexation_protocol') {
+          fetchAndDisplayEVOData(pageNum);
+        }
       } else {
         page.style.display = 'none';
       }
     });
   }
+
+  // Store E.V.O. data for each step (stepNumber -> data)
+  const evoDataCache = {};
+
+  /**
+   * Fetch E.V.O. Data for GSC Protocol Steps
+   * Fetches and caches data, shows Analysis button when ready
+   */
+  async function fetchAndDisplayEVOData(pageNumber) {
+    const stepNumber = pageNumber - 1; // Page 2 = Step 1
+    const currentPage = cardContainer.querySelector(`.sprint-card-page[data-page="${pageNumber}"]`);
+    
+    if (!currentPage) {
+      return;
+    }
+    
+    // Get site URL from global state
+    const siteUrl = window.currentPropertyUrl;
+    if (!siteUrl) {
+      console.warn('No property URL available for E.V.O. analysis');
+      return;
+    }
+    
+    // Get execution instructions for this step
+    const protocol = protocolDefinitions[currentCardType];
+    if (!protocol || !protocol.steps[stepNumber - 1]) {
+      return;
+    }
+    
+    const stepData = protocol.steps[stepNumber - 1];
+    const evoInstructions = stepData.executionInstructions;
+    
+    // Only fetch if step has E.V.O. dimension mapping
+    if (!evoInstructions?.evoDimension) {
+      console.log(`Step ${stepNumber} does not have E.V.O. dimension mapping`);
+      return;
+    }
+    
+    // Check if already cached
+    if (evoDataCache[stepNumber]) {
+      console.log(`Using cached E.V.O. data for step ${stepNumber}`);
+      updateAnalysisButtonVisibility(currentPage, stepNumber, evoDataCache[stepNumber], stepData);
+      return;
+    }
+    
+    console.log(`🔍 Fetching E.V.O. ${evoInstructions.evoDimension} data for step ${stepNumber}...`);
+    
+    try {
+      // Fetch E.V.O. dimension data
+      const dimensionData = await api.getDimension(evoInstructions.evoDimension, siteUrl);
+      
+      console.log(`✓ E.V.O. data fetched for ${evoInstructions.evoDimension}:`, dimensionData);
+      
+      // Check health status and determine if fixes are needed
+      const healthScore = dimensionData.health?.score || 0;
+      const healthThreshold = evoInstructions.healthThreshold || 70;
+      const needsFixes = healthScore < healthThreshold;
+      
+      // Cache the data
+      evoDataCache[stepNumber] = {
+        dimensionData,
+        stepData,
+        needsFixes,
+        healthScore,
+        healthThreshold
+      };
+      
+      // Show/hide buttons based on analysis
+      updateAnalysisButtonVisibility(currentPage, stepNumber, evoDataCache[stepNumber], stepData);
+      updateExecutionAssistVisibility(pageNumber, needsFixes, dimensionData);
+      
+    } catch (error) {
+      console.error('Error fetching E.V.O. data:', error);
+    }
+  }
+
+  /**
+   * Update Analysis Button Visibility
+   * Shows Analysis button when E.V.O. data is ready
+   */
+  function updateAnalysisButtonVisibility(currentPage, stepNumber, cachedData, stepData) {
+    const analysisBtn = currentPage.querySelector(`.btn-analysis[data-step="${stepNumber}"]`);
+    
+    if (analysisBtn && cachedData) {
+      analysisBtn.style.display = 'flex';
+      console.log(`✓ Analysis button visible for step ${stepNumber}`);
+    }
+  }
+
+  /**
+   * Update Execution Assist Button Visibility
+   * Only show if fixes are needed
+   */
+  function updateExecutionAssistVisibility(pageNumber, needsFixes, dimensionData) {
+    const currentPage = cardContainer.querySelector(`.sprint-card-page[data-page="${pageNumber}"]`);
+    if (!currentPage) return;
+    
+    const executionAssistBtn = currentPage.querySelector('.btn-execution-assist');
+    const instructionContainer = currentPage.querySelector('.instruction-container');
+    
+    if (needsFixes) {
+      // Show Execution Assist button
+      if (executionAssistBtn) {
+        executionAssistBtn.style.display = 'flex';
+        const healthScore = dimensionData.health?.score || 0;
+        console.log(`⚠ Health score ${healthScore} below threshold - showing Execution Assist`);
+      }
+      if (instructionContainer) {
+        instructionContainer.style.display = 'block';
+      }
+    } else {
+      // Hide Execution Assist - no fixes needed
+      if (executionAssistBtn) {
+        executionAssistBtn.style.display = 'none';
+        console.log(`✓ Health score acceptable - hiding Execution Assist`);
+      }
+      if (instructionContainer) {
+        instructionContainer.style.display = 'none';
+      }
+    }
+  }
+
+  /**
+   * Get E.V.O. Data for Step (for modal display)
+   * @param {number} stepNumber - Step number
+   * @returns {Object|null} Cached E.V.O. data
+   */
+  function getEVODataForStep(stepNumber) {
+    return evoDataCache[stepNumber] || null;
+  }
+
+  // Expose getEVODataForStep globally for executionAssist.js
+  window.getEVODataForStep = getEVODataForStep;
 
   /**
    * Update Progress Line
@@ -698,6 +836,133 @@ document.addEventListener('DOMContentLoaded', async () => {
     // No property selected yet, set default state (first circle active)
     setDefaultSprintState();
   }
+
+  // ========================================
+  // Analysis Button Event Handlers
+  // ========================================
+  
+  /**
+   * Handle Analysis Button Click
+   * Opens modal with E.V.O. insights
+   */
+  document.addEventListener('click', function(e) {
+    if (e.target.closest('.btn-analysis')) {
+      const btn = e.target.closest('.btn-analysis');
+      const stepNumber = parseInt(btn.dataset.step);
+      
+      // Get cached E.V.O. data
+      const cachedData = evoDataCache[stepNumber];
+      if (!cachedData) {
+        console.warn('No E.V.O. data available for step', stepNumber);
+        return;
+      }
+      
+      openAnalysisModal(stepNumber, cachedData);
+    }
+  });
+
+  /**
+   * Open Analysis Modal
+   * @param {number} stepNumber - Step number
+   * @param {Object} cachedData - Cached E.V.O. data
+   */
+  function openAnalysisModal(stepNumber, cachedData) {
+    const modal = document.getElementById('analysis-modal');
+    if (!modal) return;
+    
+    const { dimensionData, stepData, healthScore, needsFixes } = cachedData;
+    const health = dimensionData.health || {};
+    const metrics = health.metrics || {};
+    const insights = health.insights || [];
+    
+    // Populate context
+    document.getElementById('analysis-step').textContent = stepData.title;
+    document.getElementById('analysis-dimension').textContent = 
+      stepData.executionInstructions.evoDimension.toUpperCase();
+    
+    const healthEl = document.getElementById('analysis-health');
+    healthEl.textContent = `${healthScore}/100`;
+    healthEl.style.color = healthScore >= 70 ? 'var(--color-primary-green)' : 'var(--color-error)';
+    
+    // Populate metrics
+    const metricsContainer = document.getElementById('analysis-metrics');
+    let metricsHTML = '';
+    Object.entries(metrics).forEach(([key, value]) => {
+      const label = key.replace(/([A-Z])/g, ' $1').trim();
+      const formattedLabel = label.charAt(0).toUpperCase() + label.slice(1);
+      metricsHTML += `
+        <div class="evo-metric-card">
+          <div class="evo-metric-label">${formattedLabel}</div>
+          <div class="evo-metric-value">${formatMetricValue(value)}</div>
+        </div>
+      `;
+    });
+    metricsContainer.innerHTML = metricsHTML;
+    
+    // Populate insights
+    const insightsContainer = document.getElementById('analysis-insights');
+    if (insights.length > 0) {
+      let insightsHTML = '';
+      insights.forEach(insight => {
+        const severityClass = `evo-insight-${insight.severity || 'info'}`;
+        insightsHTML += `
+          <div class="evo-insight ${severityClass}">
+            <div class="evo-insight-type">${insight.type || 'INSIGHT'}</div>
+            <div class="evo-insight-message">${insight.message}</div>
+            ${insight.recommendation ? `<div class="evo-insight-recommendation">→ ${insight.recommendation}</div>` : ''}
+          </div>
+        `;
+      });
+      insightsContainer.innerHTML = insightsHTML;
+    } else {
+      insightsContainer.innerHTML = '<div class="evo-no-insights">✓ No critical issues detected</div>';
+    }
+    
+    // Show results, hide loading
+    document.getElementById('analysis-loading').style.display = 'none';
+    document.getElementById('analysis-results').style.display = 'block';
+    
+    // Show modal
+    modal.style.display = 'flex';
+  }
+
+  /**
+   * Format metric value for display
+   */
+  function formatMetricValue(value) {
+    if (typeof value === 'number') {
+      if (value > 100) {
+        return value.toLocaleString();
+      }
+      return value;
+    }
+    return value;
+  }
+
+  /**
+   * Close Analysis Modal
+   */
+  function closeAnalysisModal() {
+    const modal = document.getElementById('analysis-modal');
+    if (modal) {
+      modal.style.display = 'none';
+    }
+  }
+
+  // Close modal when clicking X button
+  document.addEventListener('click', function(e) {
+    if (e.target.closest('.analysis-modal-close')) {
+      closeAnalysisModal();
+    }
+  });
+
+  // Close modal when clicking outside
+  document.addEventListener('click', function(e) {
+    const modal = document.getElementById('analysis-modal');
+    if (e.target === modal) {
+      closeAnalysisModal();
+    }
+  });
 
   // ========================================
   // Global API for Manual Control
