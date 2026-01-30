@@ -1241,7 +1241,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       
       const pageNumber = parseInt(currentPage.getAttribute('data-page'));
-      const stepNumber = parseInt(currentPage.getAttribute('data-step'));
+      // Calculate step number from page number (Page 2 = Step 1, Page 3 = Step 2, etc.)
+      const stepNumber = pageNumber - 1;
       console.log('📄 Current page number:', pageNumber, 'Step number:', stepNumber);
       
       // Cache is indexed by step number, not page number
@@ -1310,7 +1311,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Get the current page number
     const currentPage = document.querySelector('.sprint-card-page[style*="display: flex"]');
     const pageNumber = currentPage ? parseInt(currentPage.getAttribute('data-page')) : null;
-    const stepNumber = currentPage ? parseInt(currentPage.getAttribute('data-step')) : null;
+    // Calculate step number from page number (Page 2 = Step 1, Page 3 = Step 2, etc.)
+    const stepNumber = pageNumber ? pageNumber - 1 : null;
     console.log('📄 Page/Step:', pageNumber, stepNumber);
     
     // Populate modal content
