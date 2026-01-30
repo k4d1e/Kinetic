@@ -88,7 +88,10 @@ const protocolDefinitions = {
           action: "Export and analyze indexed vs submitted pages from Google Search Console Coverage Report",
           dataSource: "Google Search Console API or manual CSV export from Coverage Report",
           implementation: "Connect to GSC API or guide manual export, parse coverage data (indexed, excluded, errors, valid with warnings), identify issues like excluded pages, 404s, duplicate content, soft 404s, and pages blocked by robots.txt",
-          deliverable: "indexation-audit-report.md"
+          deliverable: "indexation-audit-report.md",
+          evoDimension: "substrate",
+          evoMetrics: ["rootDensity", "exclusionRate", "mycelialExpansion", "soilQuality"],
+          healthThreshold: 70
         }
       },
       {
@@ -99,7 +102,10 @@ const protocolDefinitions = {
           action: "Export and analyze crawl frequency, response times, and resource consumption from GSC Crawl Stats",
           dataSource: "Google Search Console Crawl Stats section (last 90 days data)",
           implementation: "Extract crawl stats data showing total crawl requests, kilobytes downloaded, time spent downloading pages. Identify pages with slow response times (>500ms), server errors (5xx), and high-frequency crawls on low-value pages. Calculate crawl budget waste.",
-          deliverable: "crawl-stats-analysis.md"
+          deliverable: "crawl-stats-analysis.md",
+          evoDimension: "substrate",
+          evoMetrics: ["crawlRequests", "responseTime", "serverErrors"],
+          healthThreshold: 70
         }
       },
       {
@@ -110,7 +116,10 @@ const protocolDefinitions = {
           action: "Audit sitemap.xml files and cross-reference with GSC data to ensure clean, accurate sitemaps",
           dataSource: "Site's sitemap.xml files + GSC Sitemaps report",
           implementation: "Parse all sitemap files, validate XML structure, check each URL for: 404 errors, redirect chains, noindex tags, canonicalization issues. Cross-reference with GSC to identify submitted but not indexed URLs. Verify priority pages are included and low-value pages excluded.",
-          deliverable: "sitemap-optimization-plan.md"
+          deliverable: "sitemap-optimization-plan.md",
+          evoDimension: "substrate",
+          evoMetrics: ["sitemapIndexation", "submittedVsIndexed"],
+          healthThreshold: 70
         }
       },
       {
@@ -121,7 +130,10 @@ const protocolDefinitions = {
           action: "Map all redirect chains, identify 404 errors, and create optimization plan to fix redirect inefficiencies",
           dataSource: "Site crawl data + server logs + GSC Coverage errors",
           implementation: "Crawl the site to map all redirects (301, 302, 307, 308). Identify redirect chains (A→B→C) and consolidate to single redirects (A→C). Find broken internal links causing 404s. Check for redirect loops. Verify all critical pages are directly accessible without redirects.",
-          deliverable: "redirect-resolution-plan.md"
+          deliverable: "redirect-resolution-plan.md",
+          evoDimension: "substrate",
+          evoMetrics: ["errorPages", "redirectChains"],
+          healthThreshold: 70
         }
       }
     ],

@@ -217,7 +217,16 @@ The plan should be actionable, technology-agnostic, and ready for immediate impl
    * @returns {string} Analysis-focused prompt
    */
   generateAnalysisPrompt(context, fileName) {
-    const { mission, stepName, executionInstructions } = context;
+    const { mission, stepName, executionInstructions, stepNumber } = context;
+    
+    // Try to get E.V.O. data from the page
+    const evoData = this.getEVODataForStep(stepNumber);
+    
+    // Build actual metrics section if E.V.O. data is available
+    let actualMetricsSection = '';
+    if (evoData) {
+      actualMetricsSection = this.buildActualMetricsSection(evoData, executionInstructions);
+    }
 
     return `You are implementing ${stepName} as part of ${mission}.
 
@@ -227,6 +236,8 @@ IMPLEMENTATION FOCUS:
 ${executionInstructions.implementation}
 
 DATA SOURCE: ${executionInstructions.dataSource}
+
+${actualMetricsSection}
 
 INSTRUCTIONS:
 1. Understand the data collection process
@@ -302,6 +313,73 @@ DELIVERABLE:
 Create a detailed implementation plan saved as: ${fileName}
 
 The plan should be actionable and ready for immediate implementation.`;
+  },
+
+  /**
+   * Get E.V.O. Data for Current Step
+   * Uses the global cache from sprintPlan.js
+   * @param {number} stepNumber - Step number
+   * @returns {Object|null} E.V.O. data or null
+   */
+  getEVODataForStep(stepNumber) {
+    try {
+      // Use global function from sprintPlan.js
+      if (typeof window.getEVODataForStep === 'function') {
+        const cachedData = window.getEVODataForStep(stepNumber);
+        return cachedData ? cachedData.dimensionData : null;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error retrieving E.V.O. data:', error);
+      return null;
+    }
+  },
+
+  /**
+   * Build Actual Metrics Section for Prompt
+   * Formats E.V.O. data into a metrics summary for the Cursor instruction
+   * @param {Object} evoData - E.V.O. dimension data
+   * @param {Object} executionInstructions - Step execution instructions
+   * @returns {string} Formatted metrics section
+   */
+  buildActualMetricsSection(evoData, executionInstructions) {
+    const health = evoData.health || {};
+    const metrics = health.metrics || {};
+    const insights = health.insights || [];
+    
+    let section = `\n═══════════════════════════════════════════════════════════
+ACTUAL SITE DATA (E.V.O. Analysis from ${executionInstructions.evoDimension.toUpperCase()} dimension)
+═══════════════════════════════════════════════════════════\n\n`;
+    
+    section += `HEALTH STATUS: ${health.status || 'unknown'} (Score: ${health.score || 'N/A'}/100)\n\n`;
+    
+    // Add key metrics
+    section += `KEY METRICS:\n`;
+    Object.entries(metrics).forEach(([key, value]) => {
+      const label = key.replace(/([A-Z])/g, ' $1').trim();
+      const formattedLabel = label.charAt(0).toUpperCase() + label.slice(1);
+      section += `- ${formattedLabel}: ${value}\n`;
+    });
+    
+    // Add insights if available
+    if (insights.length > 0) {
+      section += `\nDETECTED ISSUES:\n`;
+      insights.forEach((insight, index) => {
+        section += `${index + 1}. [${insight.severity?.toUpperCase()}] ${insight.type}\n`;
+        section += `   ${insight.message}\n`;
+        if (insight.recommendation) {
+          section += `   → ${insight.recommendation}\n`;
+        }
+        section += `\n`;
+      });
+    }
+    
+    section += `═══════════════════════════════════════════════════════════\n\n`;
+    section += `IMPORTANT: Use the actual metrics above when creating your implementation plan.\n`;
+    section += `Reference specific numbers, URLs, and issues identified in the E.V.O. analysis.\n`;
+    section += `Your plan should address the detected issues listed above.\n\n`;
+    
+    return section;
   },
 
   /**
