@@ -17,6 +17,11 @@ const {
 } = require('./gscSitemapService');
 
 const {
+  analyzeRedirectsAndErrors,
+  analyzeRedirectHealth
+} = require('./gscRedirectService');
+
+const {
   analyzeCannibalization,
   analyzeLatticeHealth,
   analyzeQuickWins,
@@ -392,6 +397,65 @@ async function analyzeSitemapDimension(pool, userId, siteUrl) {
     
     return {
       sitemapData: { sitemaps: [], totalURLs: 0, validation: {} },
+      health: { score: 0, status: 'error', metrics: {}, insights: [] }
+    };
+  }
+}
+
+/**
+ * REDIRECT DIMENSION - Redirect Chain & Error Management
+ * Analyzes 404 errors, server errors, and redirect issues
+ */
+async function analyzeRedirectDimension(pool, userId, siteUrl) {
+  console.log('🔗 Analyzing REDIRECT (Redirect & Error Management)...');
+  
+  try {
+    // Initialize progress
+    setProgress(userId, 'redirect', {
+      status: 'analyzing_redirects',
+      message: 'Analyzing redirects and errors...',
+      percent: 20
+    });
+    
+    const redirectData = await analyzeRedirectsAndErrors(pool, userId, siteUrl);
+    
+    setProgress(userId, 'redirect', {
+      status: 'analyzing_redirect_health',
+      message: 'Calculating redirect health...',
+      percent: 70
+    });
+    
+    const health = await analyzeRedirectHealth(redirectData);
+    
+    setProgress(userId, 'redirect', {
+      status: 'complete',
+      message: 'Redirect analysis complete',
+      percent: 100
+    });
+    
+    console.log(`   └─ Score: ${health.score}/100 (${health.status})`);
+    
+    // Clear progress on completion
+    clearProgress(userId, 'redirect');
+    
+    return {
+      redirectData,
+      health
+    };
+  } catch (error) {
+    console.error('   └─ Error:', error.message);
+    
+    // Update progress with error
+    setProgress(userId, 'redirect', {
+      status: 'error',
+      message: `Error: ${error.message}`,
+      percent: 0
+    });
+    
+    clearProgress(userId, 'redirect');
+    
+    return {
+      redirectData: { totalErrors: 0, notFound: {}, serverError: {}, accessDenied: {}, redirect: {} },
       health: { score: 0, status: 'error', metrics: {}, insights: [] }
     };
   }
@@ -823,6 +887,7 @@ module.exports = {
   analyzeSubstrateDimension,
   analyzeCrawlDimension,
   analyzeSitemapDimension,
+  analyzeRedirectDimension,
   analyzeLatticeDimension,
   analyzeSynapseDimension,
   analyzeResonanceDimension,
