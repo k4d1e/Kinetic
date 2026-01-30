@@ -597,8 +597,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       const dimensionData = await api.getDimension(evoInstructions.evoDimension, siteUrl);
       
       console.log(`✓ E.V.O. data fetched for ${evoInstructions.evoDimension}:`, dimensionData);
-      console.log(`   └─ Health object:`, dimensionData.health);
-      console.log(`   └─ Metrics object:`, dimensionData.health?.metrics);
       
       // Check health status and determine if fixes are needed
       const healthScore = dimensionData.health?.score || 0;
@@ -969,19 +967,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Populate metrics
     const metricsContainer = document.getElementById('analysis-metrics');
-    console.log('📊 Populating metrics:', metrics);
-    console.log('📊 Metrics container:', metricsContainer);
-    
     let metricsHTML = '';
     
     if (Object.keys(metrics).length === 0) {
-      console.warn('⚠️ No metrics found in dimensionData.health.metrics');
       metricsHTML = '<div class="evo-no-metrics">No metrics available</div>';
     } else {
       Object.entries(metrics).forEach(([key, value]) => {
         const label = key.replace(/([A-Z])/g, ' $1').trim();
         const formattedLabel = label.charAt(0).toUpperCase() + label.slice(1);
-        console.log(`   └─ Metric: ${formattedLabel} = ${value}`);
         metricsHTML += `
           <div class="evo-metric-card">
             <div class="evo-metric-label">${formattedLabel}</div>
@@ -992,7 +985,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     
     metricsContainer.innerHTML = metricsHTML;
-    console.log('✓ Metrics HTML updated');
     
     // Populate insights
     const insightsContainer = document.getElementById('analysis-insights');
