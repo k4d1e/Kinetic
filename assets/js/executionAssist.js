@@ -427,6 +427,7 @@ ACTUAL SITE DATA (E.V.O. Analysis from ${executionInstructions.evoDimension.toUp
    */
   closeModal() {
     this.modal.classList.remove('active');
+    this.currentStepNumber = null; // Clear step number for indexation modals
     console.log('✓ Execution Assist modal closed');
   },
 
@@ -455,18 +456,20 @@ ACTUAL SITE DATA (E.V.O. Analysis from ${executionInstructions.evoDimension.toUp
       
       // Mark the instruction label as copied and enable the Next Step button
       const context = this.getCurrentStepContext();
-      if (context && context.stepNumber) {
-        const instructionLabel = document.querySelector(`.instruction-label[data-step="${context.stepNumber}"]`);
+      const stepNumber = context?.stepNumber || this.currentStepNumber;
+      
+      if (stepNumber) {
+        const instructionLabel = document.querySelector(`.instruction-label[data-step="${stepNumber}"]`);
         if (instructionLabel) {
           instructionLabel.classList.add('copied');
-          console.log(`✓ Step ${context.stepNumber} marked as copied`);
+          console.log(`✓ Step ${stepNumber} marked as copied`);
         }
         
         // Enable the Next Step button for this step
-        const nextStepButton = document.querySelector(`.btn-next-step[data-step="${context.stepNumber}"]`);
+        const nextStepButton = document.querySelector(`.btn-next-step[data-step="${stepNumber}"]`);
         if (nextStepButton) {
           nextStepButton.disabled = false;
-          console.log(`✓ Next Step button enabled for step ${context.stepNumber}`);
+          console.log(`✓ Next Step button enabled for step ${stepNumber}`);
         }
       }
       
