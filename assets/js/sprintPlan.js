@@ -1047,7 +1047,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       metricsHTML = '<div class="evo-no-metrics">No metrics available</div>';
     } else {
       Object.entries(metrics).forEach(([key, value]) => {
-        const label = key.replace(/([A-Z])/g, ' $1').trim();
+        // Convert camelCase to Title Case, preserving acronyms like URLs
+        const label = key
+          .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')  // Handle acronyms: URLCount -> URL Count
+          .replace(/([a-z])([A-Z])/g, '$1 $2')         // Handle camelCase: myValue -> my Value
+          .replace(/([A-Z])([A-Z][a-z])/g, '$1 $2')   // Handle mixed: HTTPSOnly -> HTTPS Only
+          .trim();
         const formattedLabel = label.charAt(0).toUpperCase() + label.slice(1);
         metricsHTML += `
           <div class="evo-metric-card">
