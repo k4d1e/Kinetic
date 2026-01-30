@@ -1234,7 +1234,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       console.log('🔘 Indexation Execution Assist clicked, causeIndex:', causeIndex);
       
       // Get the current E.V.O. data from cache
-      const currentPage = document.querySelector('.sprint-card-page[style*="display: block"]');
+      const currentPage = document.querySelector('.sprint-card-page[style*="display: flex"]');
       if (!currentPage) {
         console.error('❌ No current page found');
         return;
@@ -1306,7 +1306,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log('✓ Modal element found:', modal);
     
     // Get the current page number
-    const currentPage = document.querySelector('.sprint-card-page[style*="display: block"]');
+    const currentPage = document.querySelector('.sprint-card-page[style*="display: flex"]');
     const pageNumber = currentPage ? parseInt(currentPage.getAttribute('data-page')) : null;
     const stepNumber = currentPage ? parseInt(currentPage.getAttribute('data-step')) : null;
     console.log('📄 Page/Step:', pageNumber, stepNumber);
