@@ -10,37 +10,6 @@ const ExecutionAssist = {
   currentPrompt: null,
 
   /**
-   * Step-specific abstraction mappings
-   * Maps step bodies to industry-agnostic descriptions
-   */
-  stepAbstractions: {
-    1: {
-      concept: 'global brand identity elements',
-      action: 'Add organization schema markup with logo, contact information, and social media profiles',
-      schemaType: 'Organization schema (schema.org/Organization)',
-      implementation: 'Inject structured data into all pages to establish brand identity in search engines'
-    },
-    2: {
-      concept: 'geographic service area definitions',
-      action: 'Define service areas using geographic schema markup',
-      schemaType: 'GeoCircle or ServiceArea schema (schema.org/GeoCircle)',
-      implementation: 'Specify exact locations where products/services are offered using latitude, longitude, and radius'
-    },
-    3: {
-      concept: 'structured product/service catalog with pricing',
-      action: 'Transform content pages into catalog entries with Service/Product schema',
-      schemaType: 'Service or Product schema (schema.org/Service, schema.org/Product)',
-      implementation: 'Add structured data defining offerings with descriptions, pricing, and categories'
-    },
-    4: {
-      concept: 'review aggregation and testimonial markup',
-      action: 'Aggregate customer reviews into structured CollectionPage format',
-      schemaType: 'Review and AggregateRating schema (schema.org/Review)',
-      implementation: 'Format testimonials as structured review data that search engines can index and display'
-    }
-  },
-
-  /**
    * Initialize the module
    */
   init() {
@@ -75,6 +44,39 @@ const ExecutionAssist = {
   },
 
   /**
+   * Get Active Protocol
+   * Detects which protocol is currently active based on the mission title
+   * @returns {string} Protocol key (e.g., 'meta_surgeon_protocol', 'gsc_indexation_protocol')
+   */
+  getActiveProtocol() {
+    // Check if protocolDefinitions is loaded
+    if (typeof protocolDefinitions === 'undefined') {
+      console.error('❌ protocolDefinitions not loaded');
+      return 'meta_surgeon_protocol'; // Default fallback
+    }
+
+    // Get mission title from the card
+    const missionTitle = document.querySelector('.mission-title')?.textContent.trim();
+    
+    if (!missionTitle) {
+      console.warn('⚠ Could not detect mission title, using default protocol');
+      return 'meta_surgeon_protocol';
+    }
+
+    // Map mission title to protocol key
+    for (const [key, protocol] of Object.entries(protocolDefinitions)) {
+      if (protocol.missionTitle === missionTitle) {
+        console.log(`✓ Detected active protocol: ${key}`);
+        return key;
+      }
+    }
+
+    // Fallback to default if no match found
+    console.warn(`⚠ No protocol found for mission "${missionTitle}", using default`);
+    return 'meta_surgeon_protocol';
+  },
+
+  /**
    * Extract context from the current sprint card page
    * @param {HTMLElement} pageElement - The sprint card page element
    * @returns {Object} Context object with mission, step, and description
@@ -96,43 +98,87 @@ const ExecutionAssist = {
     // Extract step name (text after "Step N: ")
     const stepName = stepHeader.replace(/Step \d+:\s*/, '').trim();
     
+    // Get active protocol and load its instructions
+    const protocolKey = this.getActiveProtocol();
+    let executionInstructions = null;
+    
+    if (typeof protocolDefinitions !== 'undefined' && protocolKey) {
+      const protocol = protocolDefinitions[protocolKey];
+      if (protocol && protocol.steps && stepNumber) {
+        const stepIndex = stepNumber - 1; // Steps are 1-indexed, array is 0-indexed
+        if (protocol.steps[stepIndex]) {
+          executionInstructions = protocol.steps[stepIndex].executionInstructions || null;
+        }
+      }
+    }
+    
+    if (!executionInstructions) {
+      console.warn(`⚠ No execution instructions found for ${protocolKey} step ${stepNumber}`);
+    }
+    
     return {
       mission: missionTitle,
       stepNumber,
       stepName,
       stepHeader,
       stepBody,
-      abstraction: this.stepAbstractions[stepNumber] || null
+      protocolKey,
+      executionInstructions
     };
   },
 
   /**
-   * Generate an industry-agnostic Cursor prompt
+   * Generate protocol-specific Cursor prompt
    * @param {Object} context - Page context from extractPageContext
    * @returns {string} Generated prompt
    */
   generatePrompt(context) {
-    const { mission, stepNumber, stepName, abstraction } = context;
+    const { mission, stepNumber, stepName, executionInstructions, protocolKey } = context;
     
-    if (!abstraction) {
-      return `Error: Unable to generate prompt for step ${stepNumber}`;
+    if (!executionInstructions) {
+      return `Error: Unable to generate prompt for ${mission} - Step ${stepNumber}: ${stepName}
+
+No execution instructions found for this protocol step. Please ensure protocolDefinitions.js is properly loaded and contains executionInstructions for this step.`;
     }
 
-    const fileName = this.sanitizeFileName(stepName);
+    const fileName = executionInstructions.deliverable || this.sanitizeFileName(stepName) + '-plan.md';
+    
+    // Determine if this is a schema-based or analysis-based protocol
+    const isSchemaProtocol = executionInstructions.schemaType !== undefined;
+    const isAnalysisProtocol = executionInstructions.dataSource !== undefined;
+
+    // Generate appropriate prompt based on protocol type
+    if (isSchemaProtocol) {
+      return this.generateSchemaPrompt(context, fileName);
+    } else if (isAnalysisProtocol) {
+      return this.generateAnalysisPrompt(context, fileName);
+    } else {
+      return this.generateGenericPrompt(context, fileName);
+    }
+  },
+
+  /**
+   * Generate Schema Implementation Prompt (for protocols like Meta Surgeon)
+   * @param {Object} context - Page context
+   * @param {string} fileName - Output file name
+   * @returns {string} Schema-focused prompt
+   */
+  generateSchemaPrompt(context, fileName) {
+    const { mission, stepName, executionInstructions } = context;
 
     return `You are implementing ${stepName} as part of ${mission}.
 
-OBJECTIVE: ${abstraction.action}
+OBJECTIVE: ${executionInstructions.action}
 
 IMPLEMENTATION FOCUS:
-${abstraction.implementation}
+${executionInstructions.implementation}
 
-SCHEMA TYPE: ${abstraction.schemaType}
+SCHEMA TYPE: ${executionInstructions.schemaType}
 
 INSTRUCTIONS:
 1. Analyze the current website structure in this workspace
    - Detect the technology stack (HTML, React, Vue, Next.js, static site, etc.)
-   - Identify all pages/components where ${abstraction.concept} should be implemented
+   - Identify all pages/components where ${executionInstructions.concept} should be implemented
    - Determine the best location for schema markup injection
 
 2. Create a comprehensive implementation plan that includes:
@@ -159,9 +205,103 @@ CONTEXT & REQUIREMENTS:
 - Validate schema markup can be tested with Google's Rich Results Test
 
 DELIVERABLE:
-Create a detailed implementation plan saved as: ${fileName}-plan.md
+Create a detailed implementation plan saved as: ${fileName}
 
 The plan should be actionable, technology-agnostic, and ready for immediate implementation regardless of the website's industry (e-commerce, local service, SaaS, restaurant, etc.).`;
+  },
+
+  /**
+   * Generate Analysis/Optimization Prompt (for protocols like GSC Indexation)
+   * @param {Object} context - Page context
+   * @param {string} fileName - Output file name
+   * @returns {string} Analysis-focused prompt
+   */
+  generateAnalysisPrompt(context, fileName) {
+    const { mission, stepName, executionInstructions } = context;
+
+    return `You are implementing ${stepName} as part of ${mission}.
+
+OBJECTIVE: ${executionInstructions.action}
+
+IMPLEMENTATION FOCUS:
+${executionInstructions.implementation}
+
+DATA SOURCE: ${executionInstructions.dataSource}
+
+INSTRUCTIONS:
+1. Understand the data collection process
+   - Identify how to access or export the required data
+   - Determine what tools or APIs are needed
+   - Plan the data extraction workflow
+
+2. Create a comprehensive analysis plan that includes:
+   - Data collection method: How to obtain the necessary data
+   - Analysis framework: What metrics and patterns to look for
+   - Issue identification: What problems indicate optimization opportunities
+   - Prioritization criteria: Which issues to address first
+   - Action items: Specific fixes and optimizations needed
+
+3. Adapt to the available tools and access:
+   - If API access is available: Provide code for automated data extraction
+   - If manual export is needed: Guide the export and import process
+   - If tools are required: Recommend specific tools (Screaming Frog, etc.)
+   - If scripts are helpful: Create data processing and analysis scripts
+
+4. Generate actionable insights:
+   - Identify specific pages/URLs with issues
+   - Quantify the impact of each issue type
+   - Provide clear, prioritized recommendations
+   - Include before/after success metrics
+
+CONTEXT & REQUIREMENTS:
+- Work with real site data from Google Search Console or site crawls
+- Focus on ${executionInstructions.concept}
+- Provide concrete, measurable recommendations
+- Include data visualization or summary tables where helpful
+- Ensure recommendations are technically feasible
+- Prioritize high-impact, low-effort wins
+- Consider crawl budget, user experience, and SEO impact
+
+DELIVERABLE:
+Create a detailed analysis and optimization plan saved as: ${fileName}
+
+The plan should include:
+- Executive summary of findings
+- Detailed issue breakdown with examples
+- Prioritized action items with implementation steps
+- Expected impact and success metrics
+- Testing and validation approach
+
+Make the analysis actionable and ready for immediate implementation.`;
+  },
+
+  /**
+   * Generate Generic Prompt (fallback for protocols without specific type)
+   * @param {Object} context - Page context
+   * @param {string} fileName - Output file name
+   * @returns {string} Generic prompt
+   */
+  generateGenericPrompt(context, fileName) {
+    const { mission, stepName, executionInstructions } = context;
+
+    return `You are implementing ${stepName} as part of ${mission}.
+
+OBJECTIVE: ${executionInstructions.action}
+
+IMPLEMENTATION FOCUS:
+${executionInstructions.implementation}
+
+INSTRUCTIONS:
+1. Analyze the current project structure and requirements
+2. Create a comprehensive implementation plan
+3. Identify files that need modification
+4. Provide clear, actionable steps
+5. Include testing and validation strategy
+
+DELIVERABLE:
+Create a detailed implementation plan saved as: ${fileName}
+
+The plan should be actionable and ready for immediate implementation.`;
   },
 
   /**

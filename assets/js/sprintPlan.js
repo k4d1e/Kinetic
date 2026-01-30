@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Card Type Mapping (Sprint Circle Index -> Card Type)
   const cardTypeMapping = {
     0: 'meta_surgeon_protocol',
-    1: 'future_card_type',
+    1: 'gsc_indexation_protocol',
     2: 'future_card_type',
     3: 'future_card_type'
   };
@@ -298,6 +298,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log(`✓ Found ${cardPages.length} pages in card`);
     console.log(`✓ Continue button found:`, !!continueBtn);
     
+    // Populate card with protocol-specific content
+    populateCardContent(currentCardType);
+    
     // Attach event listeners for this card's buttons
     attachCardEventListeners();
     
@@ -319,6 +322,112 @@ document.addEventListener('DOMContentLoaded', async () => {
       startTime: new Date(sprintState.startTime).toISOString(),
       propertyId: sprintState.currentPropertyId
     });
+  }
+  
+  /**
+   * Populate Card Content with Protocol Data
+   * Dynamically fills the card template with content from protocol definitions
+   */
+  function populateCardContent(protocolType) {
+    // Check if protocol definitions are loaded
+    if (typeof protocolDefinitions === 'undefined') {
+      console.error('❌ protocolDefinitions not loaded. Make sure protocolDefinitions.js is included before sprintPlan.js');
+      return;
+    }
+    
+    const protocol = protocolDefinitions[protocolType];
+    
+    if (!protocol) {
+      console.error(`❌ Protocol definition not found: ${protocolType}`);
+      return;
+    }
+    
+    console.log(`🎨 Populating card with ${protocolType} content...`);
+    
+    // 1. Update Mission Title
+    const missionTitle = cardContainer.querySelector('.mission-title');
+    if (missionTitle) {
+      missionTitle.textContent = protocol.missionTitle;
+    }
+    
+    // 2. Update Entity Signal Label
+    const entityLabel = cardContainer.querySelector('.entity-signal-label');
+    if (entityLabel) {
+      entityLabel.textContent = protocol.entityLabel;
+    }
+    
+    // 3. Update Page 1 Insight
+    const insightBlock = cardContainer.querySelector('.insight-blockquote');
+    if (insightBlock) {
+      // Replace company name placeholder with actual value (or property name if available)
+      let insightText = protocol.page1.insight;
+      
+      // Determine the company name to use
+      let companyName = protocol.page1.companyName;
+      if (companyName === '{{PROPERTY_NAME}}' && window.currentPropertyName) {
+        companyName = window.currentPropertyName;
+      } else if (companyName === '{{COMPANY_NAME}}' || companyName === '{{PROPERTY_NAME}}') {
+        companyName = 'Your Business'; // Fallback
+      }
+      
+      // Replace placeholder in insight text
+      insightText = insightText.replace(/\{\{COMPANY_NAME\}\}/g, companyName);
+      insightText = insightText.replace(/\{\{PROPERTY_NAME\}\}/g, companyName);
+      
+      insightBlock.innerHTML = insightText;
+    }
+    
+    // 4. Update Steps (Pages 2-5)
+    protocol.steps.forEach((step, index) => {
+      const pageNum = index + 2; // Pages start at 2 for steps
+      const stepPage = cardContainer.querySelector(`.sprint-card-page[data-page="${pageNum}"]`);
+      
+      if (stepPage) {
+        // Update step header (preserve the SVG icon)
+        const stepHeader = stepPage.querySelector('.step-header');
+        if (stepHeader) {
+          // Find the text content after the SVG
+          const svg = stepHeader.querySelector('.step-icon');
+          if (svg) {
+            // Clear all text nodes and replace with new step title
+            Array.from(stepHeader.childNodes).forEach(node => {
+              if (node.nodeType === Node.TEXT_NODE) {
+                node.remove();
+              }
+            });
+            // Add new text content
+            stepHeader.appendChild(document.createTextNode(`Step ${index + 1}: ${step.title}`));
+          } else {
+            // No SVG found, just replace text
+            stepHeader.textContent = `Step ${index + 1}: ${step.title}`;
+          }
+        }
+        
+        // Update step body
+        const stepBody = stepPage.querySelector('.step-body');
+        if (stepBody) {
+          stepBody.textContent = step.description;
+        }
+      }
+    });
+    
+    // 5. Update Completion Page (Page 6)
+    if (protocol.completion) {
+      const statusLines = cardContainer.querySelectorAll('.status-line');
+      if (statusLines.length >= 3) {
+        // Line 1: Scanning with animated dots
+        statusLines[0].innerHTML = protocol.completion.scanning + 
+          '<span class="blink-dot">.</span><span class="blink-dot">.</span><span class="blink-dot">.</span>';
+        
+        // Line 2: Process established
+        statusLines[1].textContent = protocol.completion.established;
+        
+        // Line 3: Success message
+        statusLines[2].textContent = protocol.completion.success;
+      }
+    }
+    
+    console.log(`✓ Card populated successfully with ${protocolType} content`);
   }
   
   /**
