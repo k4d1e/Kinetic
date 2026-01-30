@@ -103,7 +103,7 @@ const protocolDefinitions = {
           dataSource: "Google Search Console Crawl Stats section (last 90 days data)",
           implementation: "Extract crawl stats data showing total crawl requests, kilobytes downloaded, time spent downloading pages. Identify pages with slow response times (>500ms), server errors (5xx), and high-frequency crawls on low-value pages. Calculate crawl budget waste.",
           deliverable: "crawl-stats-analysis.md",
-          evoDimension: "substrate",
+          evoDimension: "crawl",
           evoMetrics: ["crawlRequests", "responseTime", "serverErrors"],
           healthThreshold: 70
         }
