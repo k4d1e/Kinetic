@@ -1342,7 +1342,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log('📄 Page/Step:', pageNumber, stepNumber);
     
     // Populate modal content
-    document.getElementById('assist-mission').textContent = 'GSC Health Monitor';
+    document.getElementById('assist-mission').textContent = 'Index Diagnostic Protocol';
     document.getElementById('assist-step').textContent = `Step ${stepNumber}: Indexation Strategy Implementation`;
     document.getElementById('assist-prompt').textContent = prompt;
     console.log('✓ Modal content populated');

@@ -73,7 +73,7 @@ const protocolDefinitions = {
    * Focus: Crawl budget optimization and site health monitoring
    */
   gsc_indexation_protocol: {
-    missionTitle: "GSC Health Monitor",
+    missionTitle: "Index Diagnostic Protocol",
     entityLabel: "Crawl Budget Efficiency",
     page1: {
       insight: "Google's crawlers visit your site daily, but are they wasting time on broken pages or focusing on your money-makers? Right now, googlebot might be burning crawl budget on redirect chains, duplicate content, and 404 black holes. Let's audit the raw GSC data and redirect their attention to pages that convert.",
