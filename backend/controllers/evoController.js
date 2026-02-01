@@ -125,7 +125,7 @@ async function getDimensionAnalysis(req, res) {
     const pool = req.app.locals.pool;
     const userId = req.user.id;
     const { dimension } = req.params;
-    const { siteUrl } = req.query;
+    const { siteUrl, refresh } = req.query;
 
     if (!siteUrl) {
       return res.status(400).json({
@@ -145,6 +145,31 @@ async function getDimensionAnalysis(req, res) {
         error: 'Forbidden',
         message: 'You do not have access to this property'
       });
+    }
+
+    const propertyId = propertyResult.rows[0].id;
+
+    // Check cache unless refresh requested
+    if (refresh !== 'true') {
+      const cacheResult = await pool.query(
+        `SELECT dimensional_data, analyzed_at 
+         FROM evo_analysis_cache 
+         WHERE property_id = $1 AND analysis_type = $2 
+         AND expires_at > NOW()`,
+        [propertyId, dimension]
+      );
+
+      if (cacheResult.rows.length > 0) {
+        console.log(`📦 Returning ${dimension} analysis from cache`);
+        return res.json({
+          success: true,
+          fromCache: true,
+          dimension,
+          siteUrl,
+          data: cacheResult.rows[0].dimensional_data,
+          analyzedAt: cacheResult.rows[0].analyzed_at
+        });
+      }
     }
 
     // Analyze specific dimension
@@ -184,8 +209,28 @@ async function getDimensionAnalysis(req, res) {
         });
     }
 
+    // Cache the results (24 hour expiry)
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    await pool.query(
+      `INSERT INTO evo_analysis_cache 
+       (property_id, analysis_type, dimensional_data, expires_at)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (property_id, analysis_type)
+       DO UPDATE SET 
+         dimensional_data = $3,
+         analyzed_at = NOW(),
+         expires_at = $4`,
+      [
+        propertyId,
+        dimension,
+        JSON.stringify(data),
+        expiresAt
+      ]
+    );
+
     res.json({
       success: true,
+      fromCache: false,
       dimension,
       siteUrl,
       data

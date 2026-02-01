@@ -330,9 +330,9 @@ class KineticAPI {
 
   /**
    * Get individual dimensional analysis
-   * @param {string} dimension - One of: substrate, lattice, synapse, resonance, weave, elixir
+   * @param {string} dimension - One of: substrate, crawl, sitemap, redirect, lattice, synapse, resonance, weave, elixir
    * @param {string} siteUrl - GSC property URL
-   * @returns {Promise<Object>} - Dimensional analysis data
+   * @returns {Promise<Object>} - Dimensional analysis response with { data, fromCache, analyzedAt }
    */
   async getDimension(dimension, siteUrl) {
     try {
@@ -346,8 +346,8 @@ class KineticAPI {
         throw new Error(error.message || `Failed to fetch ${dimension} dimension`);
       }
 
-      const data = await response.json();
-      return data.data;
+      const result = await response.json();
+      return result; // Return full response including fromCache flag
     } catch (error) {
       console.error(`Error fetching ${dimension} dimension:`, error);
       throw error;

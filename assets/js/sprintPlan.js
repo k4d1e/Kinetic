@@ -580,24 +580,61 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
     
-    // Check if already cached
+    // Check if already cached in memory
     if (evoDataCache[stepNumber]) {
       console.log(`Using cached E.V.O. data for step ${stepNumber}`);
       setAnalysisButtonReady(currentPage, stepNumber);
       return;
     }
     
+    // Try to load from database cache first
+    try {
+      console.log(`📦 Checking database for cached ${evoInstructions.evoDimension} data...`);
+      const cachedResponse = await api.getDimension(evoInstructions.evoDimension, siteUrl);
+      
+      if (cachedResponse && cachedResponse.fromCache) {
+        console.log(`✓ Loaded cached data from database for ${evoInstructions.evoDimension}`);
+        const dimensionData = cachedResponse.data;
+        
+        // Check health status and determine if fixes are needed
+        const healthScore = dimensionData.health?.score || 0;
+        const healthThreshold = evoInstructions.healthThreshold || 70;
+        const needsFixes = healthScore < healthThreshold;
+        
+        // Cache the data in memory
+        evoDataCache[stepNumber] = {
+          dimensionData,
+          stepData,
+          needsFixes,
+          healthScore,
+          healthThreshold
+        };
+        
+        // Set button to ready state
+        setAnalysisButtonReady(currentPage, stepNumber);
+        
+        // Show/hide Execution Assist based on health
+        updateExecutionAssistVisibility(pageNumber, needsFixes, dimensionData);
+        
+        return; // Data loaded from cache, no need to re-analyze
+      }
+    } catch (error) {
+      console.log('No cached data found, will run fresh analysis:', error.message);
+    }
+    
+    // No cache found, run fresh analysis
     // Set button to loading state
     setAnalysisButtonLoading(currentPage, stepNumber, '');
     
-    console.log(`🔍 Fetching E.V.O. ${evoInstructions.evoDimension} data for step ${stepNumber}...`);
+    console.log(`🔍 Running fresh E.V.O. ${evoInstructions.evoDimension} analysis...`);
     
     // Start polling for progress
     const progressInterval = pollAnalysisProgress(currentPage, stepNumber, evoInstructions.evoDimension);
     
     try {
       // Fetch E.V.O. dimension data (this will take time for large sites)
-      const dimensionData = await api.getDimension(evoInstructions.evoDimension, siteUrl);
+      const response = await api.getDimension(evoInstructions.evoDimension, siteUrl);
+      const dimensionData = response.data;
       
       // Stop polling
       if (progressInterval) {
@@ -605,6 +642,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       
       console.log(`✓ E.V.O. data fetched for ${evoInstructions.evoDimension}:`, dimensionData);
+      if (response.fromCache) {
+        console.log(`✓ Data was served from database cache`);
+      }
       
       // Check health status and determine if fixes are needed
       const healthScore = dimensionData.health?.score || 0;
