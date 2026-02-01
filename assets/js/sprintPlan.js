@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const cardTypeMapping = {
     0: 'meta_surgeon_protocol',
     1: 'gsc_indexation_protocol',
-    2: 'future_card_type',
+    2: 'internal_link_expansion_protocol',
     3: 'future_card_type'
   };
   

@@ -145,6 +145,66 @@ const protocolDefinitions = {
   },
 
   /**
+   * Internal Link Expansion Protocol
+   * Focus: Strategic internal linking for authority distribution and user guidance
+   */
+  internal_link_expansion_protocol: {
+    missionTitle: "Link Architecture Protocol",
+    entityLabel: "Link Distribution Strength",
+    page1: {
+      insight: "Internal links are the pathways that distribute authority and guide users through your site. Right now, you might have orphaned pages, weak topical signals, and missed opportunities to connect high-value content. Let's architect a strategic linking system that amplifies authority and enhances user experience.",
+      companyName: "{{COMPANY_NAME}}"
+    },
+    steps: [
+      {
+        title: "Link Inventory Audit",
+        description: "Map your current internal linking structure to understand how authority flows through your site. We'll identify orphan pages with no incoming links, analyze link distribution patterns, and reveal which pages are hoarding authority versus which are starved for it.",
+        executionInstructions: {
+          concept: "comprehensive link graph analysis",
+          action: "Crawl and analyze all internal links across the entire site structure",
+          implementation: "Scan all pages to map existing internal links, calculate incoming/outgoing link counts per page, identify orphaned pages, measure link depth from homepage, and create a visual representation of the current link architecture",
+          deliverable: "link-inventory-audit.md"
+        }
+      },
+      {
+        title: "Strategic Link Opportunities",
+        description: "Identify high-value pages that need authority boosts via internal links. We'll find contextual opportunities to strengthen topical clusters, connect related content, and prioritize pages based on conversion potential and search visibility goals.",
+        executionInstructions: {
+          concept: "strategic link placement for authority distribution",
+          action: "Identify pages that need more internal links and determine optimal source pages",
+          implementation: "Analyze page importance (conversion value, search traffic, business goals), identify topical clusters that need stronger connections, find contextually relevant pages that could link to target pages, and prioritize link opportunities by impact potential",
+          deliverable: "strategic-link-opportunities.md"
+        }
+      },
+      {
+        title: "Anchor Text Optimization",
+        description: "Audit your existing anchor text patterns to ensure diversity and relevance. We'll design descriptive, keyword-rich anchors that signal topical relationships to search engines while maintaining natural language flow for users.",
+        executionInstructions: {
+          concept: "anchor text diversity and relevance optimization",
+          action: "Analyze current anchor text patterns and plan optimized anchor text strategy",
+          implementation: "Extract all existing anchor text, identify over-optimization or generic text (like 'click here'), analyze keyword distribution in anchors, plan diverse, descriptive anchor text that signals content relationships, and ensure natural language while incorporating target keywords",
+          deliverable: "anchor-text-optimization-plan.md"
+        }
+      },
+      {
+        title: "Implementation Path",
+        description: "Design new link paths that enhance UX without disrupting your site's architecture. We'll create a non-invasive implementation roadmap that adds contextual links within existing content, respects user flows, and scales across content types—no footer spam, just strategic connections.",
+        executionInstructions: {
+          concept: "non-disruptive link implementation strategy",
+          action: "Create an implementation plan that adds strategic links while preserving UX and site architecture",
+          implementation: "Identify exact placement locations for new links (within content body, related content sections, contextual sidebars), specify which files need modification, ensure links enhance rather than disrupt user journey, maintain existing navigation patterns, plan for scalable linking patterns across content types, and provide technology-specific implementation guidance",
+          deliverable: "link-implementation-path.md"
+        }
+      }
+    ],
+    completion: {
+      scanning: "Status: Analyzing Link Architecture",
+      established: "Status: Link Distribution Strategy Complete.",
+      success: "Success: Your internal link network is now optimized. Strategic pathways established."
+    }
+  },
+
+  /**
    * Template for future protocols
    * Copy this structure when adding new protocols
    */

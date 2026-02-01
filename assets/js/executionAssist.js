@@ -146,12 +146,15 @@ No execution instructions found for this protocol step. Please ensure protocolDe
     // Determine if this is a schema-based or analysis-based protocol
     const isSchemaProtocol = executionInstructions.schemaType !== undefined;
     const isAnalysisProtocol = executionInstructions.dataSource !== undefined;
+    const isLinkProtocol = protocolKey === 'internal_link_expansion_protocol';
 
     // Generate appropriate prompt based on protocol type
     if (isSchemaProtocol) {
       return this.generateSchemaPrompt(context, fileName);
     } else if (isAnalysisProtocol) {
       return this.generateAnalysisPrompt(context, fileName);
+    } else if (isLinkProtocol) {
+      return this.generateLinkExpansionPrompt(context, fileName);
     } else {
       return this.generateGenericPrompt(context, fileName);
     }
@@ -368,6 +371,99 @@ The plan should include:
 - Expected impact on indexation
 
 Make the plan actionable, technology-agnostic, and ready for immediate implementation.`;
+  },
+
+  /**
+   * Generate Internal Link Expansion Prompt (for internal_link_expansion_protocol)
+   * @param {Object} context - Page context
+   * @param {string} fileName - Output file name
+   * @returns {string} Link expansion prompt with UX and architecture focus
+   */
+  generateLinkExpansionPrompt(context, fileName) {
+    const { mission, stepName, stepNumber, executionInstructions } = context;
+    
+    // Special handling for Step 4 (Implementation Path) - emphasize UX preservation
+    const isImplementationStep = stepNumber === 4;
+    
+    let basePrompt = `You are implementing ${stepName} as part of ${mission}.
+
+OBJECTIVE: ${executionInstructions.action}
+
+IMPLEMENTATION FOCUS:
+${executionInstructions.implementation}
+
+INSTRUCTIONS:
+1. Analyze the current website structure in this workspace
+   - Detect the technology stack (HTML, React, Vue, Next.js, static site, etc.)
+   - Identify all pages and their current internal linking patterns
+   - Map the site's information architecture and navigation structure
+
+2. Create a comprehensive ${stepName.toLowerCase()} plan that includes:
+   - Current state analysis: What is the existing link structure?
+   - Files that need modification: List specific files and their paths
+   - Link opportunities: Where should new internal links be added?
+   - Implementation approach: How to add links without disrupting UX
+   - Dependencies and order: What needs to be done first?
+   - Testing strategy: How to verify the links work and enhance UX
+
+3. Adapt to the detected technology:
+   - For static HTML: Direct anchor tag modifications in content sections
+   - For React/Vue/Next: Use Link components and ensure proper routing
+   - For template engines: Identify templates that generate multiple pages
+   - For CMSs: Provide guidance on adding links through the content editor
+
+CONTEXT & REQUIREMENTS:
+- Work with ANY file structure and technology stack
+- Focus on ${executionInstructions.concept}
+- Ensure links are contextually relevant to the surrounding content
+- Maintain natural language flow (avoid keyword stuffing)
+- Prioritize user value over SEO manipulation`;
+
+    // Add special requirements for Implementation Path (Step 4)
+    if (isImplementationStep) {
+      basePrompt += `
+
+CRITICAL REQUIREMENTS FOR IMPLEMENTATION:
+⚠ UX PRESERVATION:
+- DO NOT disrupt existing navigation patterns or user flows
+- Links should enhance, not interrupt, the user journey
+- Maintain the current site architecture and information hierarchy
+- Avoid adding links that could confuse or overwhelm users
+
+⚠ CONTEXTUAL PLACEMENT:
+- Place links within content body where they add genuine value
+- Avoid footer spam, sidebar stuffing, or artificial link sections
+- Ensure each link has a clear purpose from the user's perspective
+- Use descriptive anchor text that sets proper expectations
+
+⚠ ARCHITECTURAL INTEGRITY:
+- Respect the existing site structure and URL patterns
+- Don't create circular dependencies or confusing link loops
+- Maintain consistent link patterns across similar page types
+- Consider the site's content hierarchy and parent-child relationships
+
+⚠ SCALABILITY:
+- Design patterns that can be replicated across content types
+- Provide templates or rules for future content additions
+- Consider maintenance burden (avoid brittle, hard-to-update links)`;
+    }
+
+    basePrompt += `
+
+DELIVERABLE:
+Create a detailed implementation plan saved as: ${fileName}
+
+The plan should include:
+- Executive summary of findings
+- Specific file paths and line numbers for modifications
+- Exact anchor text and target URLs for each new link
+- Visual diagrams or lists showing link relationships
+- Technology-specific implementation code examples
+- Testing checklist to verify link functionality and UX impact
+
+Make the plan actionable, technology-agnostic, and ready for immediate implementation${isImplementationStep ? ', with special attention to preserving UX and architectural integrity' : ''}.`;
+
+    return basePrompt;
   },
 
   /**
