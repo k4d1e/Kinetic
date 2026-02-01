@@ -416,11 +416,6 @@ async function analyzeSubstrateHealth(indexCoverage, sitemaps) {
   if (totalErrors > 0) soilQuality -= Math.min(20, totalErrors * 2);
   if (totalWarnings > 0) soilQuality -= Math.min(10, totalWarnings);
   
-  // Mycelial Expansion: How well the root network is spreading (use rootDensity if sitemap data unavailable)
-  const mycelialExpansion = sitemaps.length > 0 && totalIndexedFromSitemap > 0
-    ? sitemaps.reduce((sum, sm) => sum + parseFloat(sm.indexationRate), 0) / sitemaps.length
-    : rootDensity;
-  
   // Determine health status
   let status = 'healthy';
   if (soilQuality < 50) status = 'critical';
@@ -573,52 +568,12 @@ async function analyzeSubstrateHealth(indexCoverage, sitemaps) {
     }
   }
   
-  if (mycelialExpansion < 70) {
-    // Generate possible causes for weak mycelial expansion
-    const possibleCauses = [];
-    
-    if (mycelialExpansion < 30) {
-      // Very weak - critical structural issues
-      possibleCauses.push(
-        'Sitemap missing or not submitted to GSC',
-        'Pages not discoverable through internal links',
-        'Orphan pages with no path from homepage',
-        'Crawl budget exhausted on low-value pages'
-      );
-    } else if (mycelialExpansion < 50) {
-      // Moderate weakness - discoverability issues
-      possibleCauses.push(
-        'Incomplete sitemap coverage',
-        'Weak internal linking structure',
-        'Deep pages requiring many clicks to reach',
-        'Sitemap contains non-indexable URLs'
-      );
-    } else {
-      // Minor weakness - optimization needed
-      possibleCauses.push(
-        'Some pages not included in sitemap',
-        'Internal linking could be improved',
-        'New content not yet crawled',
-        'Priority pages buried in site architecture'
-      );
-    }
-    
-    insights.push({
-      type: 'WEAK_MYCELIUM',
-      severity: 'medium',
-      message: `Mycelial network is underdeveloped - only ${mycelialExpansion.toFixed(1)}% average indexation`,
-      possibleCauses,
-      recommendation: 'Improve internal linking and sitemap coverage to strengthen root network'
-    });
-  }
-  
   return {
     score: Math.max(0, Math.round(soilQuality)),
     status,
     metrics: {
       rootDensity: rootDensity.toFixed(1) + '%',
       exclusionRate: exclusionRate.toFixed(1) + '%',
-      mycelialExpansion: mycelialExpansion.toFixed(1) + '%',
       totalSubmitted,
       totalIndexed,
       totalExcluded
