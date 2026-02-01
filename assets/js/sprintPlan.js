@@ -631,6 +631,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (evoDataCache[stepNumber]) {
       console.log(`Using cached E.V.O. data for step ${stepNumber}`);
       setAnalysisButtonReady(currentPage, stepNumber);
+      
+      // Also update button visibility based on cached health data
+      const cachedData = evoDataCache[stepNumber];
+      updateExecutionAssistVisibility(pageNumber, cachedData.needsFixes, cachedData.dimensionData);
+      
       return;
     }
     
