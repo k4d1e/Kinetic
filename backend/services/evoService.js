@@ -412,17 +412,31 @@ async function analyzeRedirectDimension(pool, userId, siteUrl) {
   try {
     // Initialize progress
     setProgress(userId, 'redirect', {
-      status: 'analyzing_redirects',
-      message: 'Analyzing redirects and errors...',
-      percent: 20
+      status: 'starting',
+      message: 'Starting redirect analysis...',
+      percent: 5
     });
     
-    const redirectData = await analyzeRedirectsAndErrors(pool, userId, siteUrl);
+    // Pass progress callback to track URL inspection
+    const progressCallback = (progress) => {
+      // Convert inspection progress to overall progress (5% to 90%)
+      const overallPercent = 5 + Math.round((progress.percent / 100) * 85);
+      setProgress(userId, 'redirect', {
+        status: 'inspecting_urls',
+        message: `Inspecting URLs: ${progress.completed}/${progress.total}`,
+        percent: overallPercent,
+        urlsCompleted: progress.completed,
+        urlsTotal: progress.total,
+        estimatedSecondsRemaining: progress.estimatedSecondsRemaining
+      });
+    };
+    
+    const redirectData = await analyzeRedirectsAndErrors(pool, userId, siteUrl, progressCallback);
     
     setProgress(userId, 'redirect', {
       status: 'analyzing_redirect_health',
       message: 'Calculating redirect health...',
-      percent: 70
+      percent: 95
     });
     
     const health = await analyzeRedirectHealth(redirectData);

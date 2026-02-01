@@ -13,14 +13,16 @@ const { fetchIndexCoverage } = require('./gscIndexService');
  * @param {Pool} pool - PostgreSQL connection pool
  * @param {number} userId - User ID
  * @param {string} siteUrl - GSC property URL
+ * @param {Function} progressCallback - Optional progress callback
  * @returns {Promise<Object>} - Redirect and error analysis data
  */
-async function analyzeRedirectsAndErrors(pool, userId, siteUrl) {
+async function analyzeRedirectsAndErrors(pool, userId, siteUrl, progressCallback = null) {
   try {
     console.log(`📊 Analyzing redirects and errors for ${siteUrl}...`);
     
     // Get index coverage data which includes error pages
-    const indexCoverage = await fetchIndexCoverage(pool, userId, siteUrl);
+    // Pass progress callback through to URL inspection
+    const indexCoverage = await fetchIndexCoverage(pool, userId, siteUrl, progressCallback);
     
     // Extract redirect and error data from exclusion reasons
     const exclusionReasons = indexCoverage.exclusionReasons || {};
