@@ -587,8 +587,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
     
-    // Set button to loading state immediately while checking cache
-    setAnalysisButtonLoading(currentPage, stepNumber, 'Checking for cached data...');
+    // Set button to loading state (will be quickly updated if cache exists)
+    setAnalysisButtonLoading(currentPage, stepNumber, '');
     
     // Try to load from database cache first
     try {
@@ -626,9 +626,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     
     // No cache found, run fresh analysis
-    // Update loading message
-    setAnalysisButtonLoading(currentPage, stepNumber, 'Starting analysis...');
-    
     console.log(`🔍 Running fresh E.V.O. ${evoInstructions.evoDimension} analysis...`);
     
     // Start polling for progress
