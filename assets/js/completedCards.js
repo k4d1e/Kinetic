@@ -172,63 +172,73 @@ function renderModalContent(card) {
   
   // Update title
   const titleElement = modal.querySelector('.modal-title');
-  titleElement.textContent = card.display_name;
+  if (titleElement) {
+    titleElement.textContent = card.display_name;
+  }
   
   // Update meta info
   const dateElement = modal.querySelector('.completion-date');
-  dateElement.textContent = `Completed: ${formatDate(card.completed_at)}`;
+  if (dateElement) {
+    dateElement.textContent = `Completed: ${formatDate(card.completed_at)}`;
+  }
   
   const durationElement = modal.querySelector('.completion-duration');
-  durationElement.textContent = `Duration: ${formatDuration(card.duration_ms)}`;
+  if (durationElement) {
+    durationElement.textContent = `Duration: ${formatDuration(card.duration_ms)}`;
+  }
   
   // Render steps timeline
   const timelineContainer = modal.querySelector('.steps-timeline');
-  timelineContainer.innerHTML = '';
-  
-  card.steps.forEach((step, index) => {
-    const isLastStep = index === card.steps.length - 1;
+  if (timelineContainer) {
+    timelineContainer.innerHTML = '';
     
-    const stepElement = document.createElement('div');
-    stepElement.className = 'timeline-step';
-    stepElement.innerHTML = `
-      <div class="timeline-icon">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="20 6 9 17 4 12"></polyline>
-        </svg>
-      </div>
-      <div class="timeline-content">
-        <div class="timeline-step-name">${step.step_name}</div>
-        <div class="timeline-step-desc">${step.step_description || ''}</div>
-        <div class="timeline-step-time">${formatDate(step.completed_at)}</div>
-      </div>
-    `;
-    
-    timelineContainer.appendChild(stepElement);
-    
-    // Add connector line between steps
-    if (!isLastStep) {
-      const connector = document.createElement('div');
-      connector.className = 'timeline-connector';
-      timelineContainer.appendChild(connector);
-    }
-  });
+    card.steps.forEach((step, index) => {
+      const isLastStep = index === card.steps.length - 1;
+      
+      const stepElement = document.createElement('div');
+      stepElement.className = 'timeline-step';
+      stepElement.innerHTML = `
+        <div class="timeline-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <div class="timeline-content">
+          <div class="timeline-step-name">${step.step_name}</div>
+          <div class="timeline-step-desc">${step.step_description || ''}</div>
+          <div class="timeline-step-time">${formatDate(step.completed_at)}</div>
+        </div>
+      `;
+      
+      timelineContainer.appendChild(stepElement);
+      
+      // Add connector line between steps
+      if (!isLastStep) {
+        const connector = document.createElement('div');
+        connector.className = 'timeline-connector';
+        timelineContainer.appendChild(connector);
+      }
+    });
+  }
   
   // Update summary stats
   const statsContainer = modal.querySelector('.card-summary-stats');
-  statsContainer.innerHTML = `
-    <div class="summary-stat">
-      <span class="stat-label">Sprint Index</span>
-      <span class="stat-value">${card.sprint_index + 1}</span>
-    </div>
-    <div class="summary-stat">
-      <span class="stat-label">Property</span>
-      <span class="stat-value">${card.site_url || 'N/A'}</span>
-    </div>
-    <div class="summary-stat">
-      <span class="stat-label">Signal Strength</span>
-      <span class="stat-value">${card.progress_percentage}%</span>
-    </div>
-  `;
+  if (statsContainer) {
+    statsContainer.innerHTML = `
+      <div class="summary-stat">
+        <span class="stat-label">Sprint Index</span>
+        <span class="stat-value">${card.sprint_index + 1}</span>
+      </div>
+      <div class="summary-stat">
+        <span class="stat-label">Property</span>
+        <span class="stat-value">${card.site_url || 'N/A'}</span>
+      </div>
+      <div class="summary-stat">
+        <span class="stat-label">Signal Strength</span>
+        <span class="stat-value">${card.progress_percentage}%</span>
+      </div>
+    `;
+  }
 }
 
 /**
