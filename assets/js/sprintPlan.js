@@ -713,6 +713,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     }
     
+    // Ensure Complete button is disabled while Step 4 analysis is running
+    if (stepNumber === 4 && completeBtn) {
+      completeBtn.disabled = true;
+      console.log(`🔒 Complete button disabled while Step 4 analysis is running`);
+    }
+    
     if (progressDiv) {
       progressDiv.style.display = 'block';
       progressDiv.textContent = progressText;
