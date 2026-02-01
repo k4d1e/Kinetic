@@ -312,6 +312,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     console.log('✓ Card display set to block');
     
+    // Initialize completion page animation
+    if (typeof window.initCompletionAnimation === 'function') {
+      window.initCompletionAnimation();
+      console.log('✓ Completion animation initialized');
+    }
+    
     // Smooth scroll to the card
     setTimeout(() => {
       cardContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });

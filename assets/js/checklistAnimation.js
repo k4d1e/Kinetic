@@ -1,8 +1,13 @@
 // checklistAnimation.js - Animated checklist with moving spinner
 
-document.addEventListener('DOMContentLoaded', function() {
+// Initialize the completion page animation
+// This should be called when the sprint card is opened or the completion page is shown
+function initCompletionAnimation() {
     // Find the completion page dynamically (should be the last page in the card)
-    const allPages = document.querySelectorAll('.sprint-card-page[data-page]');
+    const cardContainer = document.getElementById('sprint-plan-card-container');
+    if (!cardContainer) return;
+    
+    const allPages = cardContainer.querySelectorAll('.sprint-card-page[data-page]');
     if (allPages.length === 0) return;
     
     // Get the highest page number (completion page)
@@ -19,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (!completionPage) return;
     
-    console.log(`📄 Completion animation will run on page ${maxPageNum}`);
+    console.log(`📄 Completion animation initialized for page ${maxPageNum}`);
     
     const sprintChecklist = completionPage.querySelector('.sprint-checklist');
     const checklistItems = completionPage.querySelectorAll('.sprint-checklist .checklist-item');
@@ -55,6 +60,8 @@ document.addEventListener('DOMContentLoaded', function() {
             return; // Prevent multiple starts
         }
         animationStarted = true;
+        
+        console.log('🎬 Starting completion page animation');
         
         // If no checklist items, run simplified animation
         if (checklistItems.length === 0) {
@@ -180,4 +187,12 @@ document.addEventListener('DOMContentLoaded', function() {
             console.warn('⚠️ Not enough status lines found for animation');
         }
     }
+}
+
+// Initialize on DOMContentLoaded as fallback
+document.addEventListener('DOMContentLoaded', function() {
+    initCompletionAnimation();
 });
+
+// Expose globally so sprintPlan.js can call it
+window.initCompletionAnimation = initCompletionAnimation;
