@@ -104,22 +104,29 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function showStatusLines() {
+        console.log('🎬 Starting status line animation for page 6');
+        
         // Hide the blinking dots after animation completes
-        const blinkDots = document.querySelectorAll('.blink-dot');
+        const blinkDots = page6.querySelectorAll('.blink-dot');
+        console.log(`   └─ Found ${blinkDots.length} blink dots to hide`);
         blinkDots.forEach(dot => {
             dot.style.display = 'none';
         });
         
         // Show the hidden status lines after checklist animation completes
-        const statusLines = document.querySelectorAll('.status-container .status-line');
+        const statusLines = page6.querySelectorAll('.status-container .status-line');
+        console.log(`   └─ Found ${statusLines.length} status lines`);
+        
         if (statusLines.length > 1) {
             // Show second status line
             setTimeout(() => {
                 statusLines[1].style.display = 'block';
+                console.log('   └─ Status line 2 displayed');
                 
                 // Show third status line after a brief delay
                 setTimeout(() => {
                     statusLines[2].style.display = 'block';
+                    console.log('   └─ Status line 3 displayed');
                     
                     // After success message appears, update progress line to 100% and change colors
                     setTimeout(() => {
@@ -153,6 +160,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     }, 100);
                 }, 800);
             }, 500);
+        } else {
+            console.warn('⚠️ Not enough status lines found for animation');
         }
     }
 });
