@@ -1,25 +1,41 @@
 // checklistAnimation.js - Animated checklist with moving spinner
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Select the checklist inside page 6 specifically
-    const page6 = document.querySelector('.sprint-card-page[data-page="6"]');
-    if (!page6) return;
+    // Find the completion page dynamically (should be the last page in the card)
+    const allPages = document.querySelectorAll('.sprint-card-page[data-page]');
+    if (allPages.length === 0) return;
     
-    const sprintChecklist = page6.querySelector('.sprint-checklist');
-    const checklistItems = page6.querySelectorAll('.sprint-checklist .checklist-item');
+    // Get the highest page number (completion page)
+    let maxPageNum = 0;
+    let completionPage = null;
+    
+    allPages.forEach(page => {
+        const pageNum = parseInt(page.getAttribute('data-page'));
+        if (pageNum > maxPageNum) {
+            maxPageNum = pageNum;
+            completionPage = page;
+        }
+    });
+    
+    if (!completionPage) return;
+    
+    console.log(`📄 Completion animation will run on page ${maxPageNum}`);
+    
+    const sprintChecklist = completionPage.querySelector('.sprint-checklist');
+    const checklistItems = completionPage.querySelectorAll('.sprint-checklist .checklist-item');
     
     let animationStarted = false;
     let currentIndex = 0;
     const animationDuration = 1300; // 1.3 seconds between items
     const hideDelay = 500; // Shorter delay before hiding all items
     
-    // Observer to watch when page 6 becomes visible
+    // Observer to watch when the completion page becomes visible
     const observer = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
             if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                const displayStyle = window.getComputedStyle(page6).display;
+                const displayStyle = window.getComputedStyle(completionPage).display;
                 if (displayStyle !== 'none' && !animationStarted) {
-                    // Page 6 is now visible, start the animation
+                    // Completion page is now visible, start the animation
                     setTimeout(() => {
                         startAnimation();
                     }, 300); // Small delay before starting
@@ -28,8 +44,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Start observing page 6 for style changes
-    observer.observe(page6, {
+    // Start observing the completion page for style changes
+    observer.observe(completionPage, {
         attributes: true,
         attributeFilter: ['style']
     });
@@ -104,17 +120,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function showStatusLines() {
-        console.log('🎬 Starting status line animation for page 6');
+        console.log('🎬 Starting status line animation for completion page');
         
         // Hide the blinking dots after animation completes
-        const blinkDots = page6.querySelectorAll('.blink-dot');
+        const blinkDots = completionPage.querySelectorAll('.blink-dot');
         console.log(`   └─ Found ${blinkDots.length} blink dots to hide`);
         blinkDots.forEach(dot => {
             dot.style.display = 'none';
         });
         
         // Show the hidden status lines after checklist animation completes
-        const statusLines = page6.querySelectorAll('.status-container .status-line');
+        const statusLines = completionPage.querySelectorAll('.status-container .status-line');
         console.log(`   └─ Found ${statusLines.length} status lines`);
         
         if (statusLines.length > 1) {
