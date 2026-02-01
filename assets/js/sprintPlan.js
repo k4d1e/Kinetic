@@ -708,11 +708,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   function updateAnalysisButtonProgress(currentPage, stepNumber, progress) {
     const progressDiv = currentPage.querySelector(`.btn-analysis-progress[data-step="${stepNumber}"]`);
     
+    console.log(`📍 updateAnalysisButtonProgress called for step ${stepNumber}`);
+    console.log(`   progressDiv:`, progressDiv);
+    console.log(`   progressDiv.style.display:`, progressDiv?.style.display);
+    console.log(`   progress:`, progress);
+    
     if (progressDiv && progressDiv.style.display !== 'none') {
       // Simple format: Progress: X/Y
       if (progress.completed && progress.total) {
-        progressDiv.textContent = `Progress: ${progress.completed}/${progress.total}`;
+        const progressText = `Progress: ${progress.completed}/${progress.total}`;
+        progressDiv.textContent = progressText;
+        console.log(`✓ Updated progress text to: ${progressText}`);
+      } else {
+        console.log(`⚠️ Missing progress.completed or progress.total`);
       }
+    } else {
+      console.log(`⚠️ progressDiv not found or is hidden`);
     }
   }
 
@@ -752,19 +763,29 @@ document.addEventListener('DOMContentLoaded', async () => {
    * Poll for Analysis Progress
    */
   function pollAnalysisProgress(currentPage, stepNumber, dimension) {
+    console.log(`🔄 Starting progress polling for dimension: ${dimension}`);
+    
     const interval = setInterval(async () => {
       try {
         const backendURL = window.kineticAPI ? window.kineticAPI.baseURL : 'http://localhost:8000';
-        const response = await fetch(`${backendURL}/api/gsc/evo/progress/${dimension}`, {
+        const url = `${backendURL}/api/gsc/evo/progress/${dimension}`;
+        const response = await fetch(url, {
           credentials: 'include'
         });
         
-        if (!response.ok) return;
+        if (!response.ok) {
+          console.log(`⚠️ Progress endpoint returned ${response.status}`);
+          return;
+        }
         
         const data = await response.json();
+        console.log(`📊 Progress data received:`, data);
         
         if (data.success && data.hasProgress && data.progress) {
+          console.log(`✓ Updating progress: ${data.progress.completed}/${data.progress.total}`);
           updateAnalysisButtonProgress(currentPage, stepNumber, data.progress);
+        } else {
+          console.log(`⏳ No progress data yet (success: ${data.success}, hasProgress: ${data.hasProgress})`);
         }
       } catch (error) {
         console.error('Error polling progress:', error);
