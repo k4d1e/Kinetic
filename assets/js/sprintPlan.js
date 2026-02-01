@@ -710,8 +710,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     if (progressDiv && progressDiv.style.display !== 'none') {
       // Simple format: Progress: X/Y
-      if (progress.urlsCompleted && progress.urlsTotal) {
-        progressDiv.textContent = `Progress: ${progress.urlsCompleted}/${progress.urlsTotal}`;
+      if (progress.completed && progress.total) {
+        progressDiv.textContent = `Progress: ${progress.completed}/${progress.total}`;
       }
     }
   }
