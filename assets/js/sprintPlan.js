@@ -484,16 +484,63 @@ document.addEventListener('DOMContentLoaded', async () => {
    * Handle Execution Assist button clicks
    */
   function handleExecutionAssist(event) {
-    const currentPage = event.target.closest('.sprint-card-page');
+    const button = event.target.closest('.btn-execution-assist');
+    
+    // Try to find the current page from the button's context first
+    let currentPage = event.target.closest('.sprint-card-page');
+    
+    // If not found (e.g., button is in analysis modal), find the currently visible page
+    if (!currentPage) {
+      currentPage = document.querySelector('.sprint-card-page[style*="display: flex"]');
+    }
+    
+    if (!currentPage) {
+      console.error('❌ Could not find current sprint card page');
+      return;
+    }
+    
     const pageNumber = parseInt(currentPage.getAttribute('data-page'));
     
     console.log(`Execution Assist clicked for page ${pageNumber}`);
     
-    if (window.ExecutionAssist) {
-      window.ExecutionAssist.openModal(currentPage);
-    } else {
+    if (!window.ExecutionAssist) {
       console.error('ExecutionAssist module not loaded');
+      return;
     }
+    
+    // Check if this is a diagnostic-specific button
+    const causeIndex = button.dataset.causeIndex;
+    if (causeIndex !== undefined) {
+      console.log(`🔍 Diagnostic button clicked, cause index: ${causeIndex}`);
+      
+      // Get diagnosed cause data from E.V.O. cache
+      const stepNumber = pageNumber - 1;
+      const cachedData = evoDataCache[stepNumber];
+      
+      if (cachedData && cachedData.dimensionData && cachedData.dimensionData.health) {
+        const insights = cachedData.dimensionData.health.insights || [];
+        
+        // Find the diagnosed cause
+        for (const insight of insights) {
+          if (insight.diagnosedCauses && insight.diagnosedCauses[causeIndex]) {
+            const diagnosedCause = insight.diagnosedCauses[causeIndex];
+            
+            console.log(`✓ Found diagnosed cause: ${diagnosedCause.reason}`);
+            
+            // Pass diagnosed cause to ExecutionAssist
+            window.ExecutionAssist.openModal(currentPage, diagnosedCause);
+            return;
+          }
+        }
+      }
+      
+      console.error('❌ No diagnosed cause found for index', causeIndex);
+      return;
+    }
+    
+    // Standard execution assist (no diagnostic data)
+    console.log('✓ Opening standard execution assist');
+    window.ExecutionAssist.openModal(currentPage);
   }
 
   /**
@@ -1110,7 +1157,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                               </ul>
                             </div>
                           `).join('')}
-                          <button class="btn-indexation-execution-assist" data-cause-index="${index}">
+                          <button class="btn-execution-assist btn-execution-assist-diagnostic" data-cause-index="${index}">
                             Execution Assist
                             <svg class="btn-plus-icon" xmlns="http://www.w3.org/2000/svg" version="1.0" viewBox="0 0 600.000000 600.000000" preserveAspectRatio="xMidYMid meet">
                               <g transform="translate(0.000000,600.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none">
@@ -1244,219 +1291,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // Event delegation for Indexation Execution Assist button
+  // Event delegation for Execution Assist buttons (handles both static and dynamically created buttons)
   document.addEventListener('click', function(e) {
-    if (e.target.closest('.btn-indexation-execution-assist')) {
+    if (e.target.closest('.btn-execution-assist')) {
       e.preventDefault();
-      const button = e.target.closest('.btn-indexation-execution-assist');
-      const causeIndex = button.dataset.causeIndex;
-      
-      console.log('🔘 Indexation Execution Assist clicked, causeIndex:', causeIndex);
-      
-      // Get the current E.V.O. data from cache
-      const currentPage = document.querySelector('.sprint-card-page[style*="display: flex"]');
-      if (!currentPage) {
-        console.error('❌ No current page found');
-        return;
-      }
-      
-      const pageNumber = parseInt(currentPage.getAttribute('data-page'));
-      // Calculate step number from page number (Page 2 = Step 1, Page 3 = Step 2, etc.)
-      const stepNumber = pageNumber - 1;
-      console.log('📄 Current page number:', pageNumber, 'Step number:', stepNumber);
-      
-      // Cache is indexed by step number, not page number
-      const cachedData = evoDataCache[stepNumber];
-      console.log('📦 Cached data:', cachedData);
-      
-      if (!cachedData) {
-        console.error('❌ No cached data');
-        return;
-      }
-      
-      if (!cachedData.dimensionData || !cachedData.dimensionData.health) {
-        console.error('❌ No health data');
-        return;
-      }
-      
-      // Insights are in health.insights, not directly in dimensionData
-      const insights = cachedData.dimensionData.health.insights || [];
-      console.log('📋 insights:', insights);
-      
-      if (insights.length === 0) {
-        console.error('❌ No insights available');
-        return;
-      }
-      
-      console.log('🔍 Looking for diagnosed cause at index:', causeIndex);
-      
-      // Find the diagnosed cause with strategies
-      let targetCause = null;
-      for (const insight of insights) {
-        console.log('🔎 Checking insight:', insight);
-        if (insight.diagnosedCauses && insight.diagnosedCauses[causeIndex]) {
-          targetCause = insight.diagnosedCauses[causeIndex];
-          console.log('✓ Found target cause:', targetCause);
-          break;
-        }
-      }
-      
-      if (!targetCause) {
-        console.error('❌ No target cause found at index', causeIndex);
-        return;
-      }
-      
-      if (!targetCause.strategies) {
-        console.error('❌ No strategies found in cause:', targetCause);
-        return;
-      }
-      
-      if (!targetCause.urls) {
-        console.error('❌ No URLs found in cause:', targetCause);
-        return;
-      }
-      
-      console.log('✅ Opening indexation execution assist modal');
-      
-      // Generate and display the indexation prompt
-      openIndexationExecutionAssist(targetCause);
+      handleExecutionAssist(e);
     }
   });
-
-  /**
-   * Generate Cursor Instructions for Indexation Strategy
-   * @param {Object} cause - The diagnosed cause with strategies and URLs
-   */
-  function openIndexationExecutionAssist(cause) {
-    console.log('🚀 openIndexationExecutionAssist called with cause:', cause);
-    
-    const prompt = generateIndexationPrompt(cause);
-    console.log('📝 Generated prompt length:', prompt.length);
-    
-    // Get modal elements
-    const modal = document.getElementById('execution-assist-modal');
-    if (!modal) {
-      console.error('❌ Execution Assist modal not found');
-      return;
-    }
-    console.log('✓ Modal element found:', modal);
-    
-    // Get the current page number
-    const currentPage = document.querySelector('.sprint-card-page[style*="display: flex"]');
-    const pageNumber = currentPage ? parseInt(currentPage.getAttribute('data-page')) : null;
-    // Calculate step number from page number (Page 2 = Step 1, Page 3 = Step 2, etc.)
-    const stepNumber = pageNumber ? pageNumber - 1 : null;
-    console.log('📄 Page/Step:', pageNumber, stepNumber);
-    
-    // Populate modal content
-    document.getElementById('assist-mission').textContent = 'Index Diagnostic Protocol';
-    document.getElementById('assist-step').textContent = `Step ${stepNumber}: Indexation Strategy Implementation`;
-    document.getElementById('assist-prompt').textContent = prompt;
-    console.log('✓ Modal content populated');
-    
-    // Store prompt and step number for copying
-    if (window.ExecutionAssist) {
-      window.ExecutionAssist.currentPrompt = prompt;
-      window.ExecutionAssist.currentStepNumber = stepNumber;
-      console.log('✓ Stored in ExecutionAssist');
-    }
-    
-    // Show modal
-    modal.classList.add('active');
-    console.log('✓ Modal class "active" added');
-    
-    // Hide success message
-    const successMsg = document.getElementById('copy-success');
-    if (successMsg) {
-      successMsg.style.display = 'none';
-    }
-    
-    console.log(`✅ Indexation execution assist modal opened for step ${stepNumber}`);
-  }
-
-  /**
-   * Generate detailed Cursor prompt for indexation fixes
-   * @param {Object} cause - Diagnosed cause with strategies and URLs
-   * @returns {string} Formatted Cursor instruction prompt
-   */
-  function generateIndexationPrompt(cause) {
-    const urlCount = cause.urls.length;
-    // Show ALL URLs, not just the first 10
-    const urlList = cause.urls.map((url, i) => `   ${i + 1}. ${url}`).join('\n');
-    
-    // Group strategies by category for structured output
-    const strategyText = cause.strategies.map(strategy => {
-      const items = strategy.items.map(item => `      - ${item}`).join('\n');
-      return `   ${strategy.category}:\n${items}`;
-    }).join('\n\n');
-    
-    return `# Indexation Strategy Implementation
-
-## Context
-E.V.O. has diagnosed ${urlCount} pages that are "Crawled But Not Indexed" by Google. These pages need content improvements and optimization to signal relevance to Google's crawlers.
-
-## Target Pages (all ${urlCount} pages)
-${urlList}
-
-## Implementation Strategy
-
-Apply the following optimizations to EACH of the affected pages:
-
-${strategyText}
-
-## Implementation Approach
-
-For EACH page listed above:
-
-1. **Analyze Current State**
-   - Review the existing content length and quality
-   - Check for unique value vs templated content
-   - Identify missing elements (images, CTAs, schema, etc.)
-
-2. **Apply Content Enhancements**
-   - Expand content to 800-1200 words with city-specific details
-   - Add location-specific information (neighborhoods, landmarks, service areas)
-   - Include unique images with descriptive alt text
-   - Add customer testimonials or case studies if available
-
-3. **Optimize Technical Elements**
-   - Update title tag: "[Service] in [City] | Oregon Exterior Experts"
-   - Write compelling meta description with city + service
-   - Add H1 with city + service keyword combination
-   - Implement LocalBusiness + Service schema markup
-   - Ensure mobile-friendly and fast loading
-
-4. **Enhance User Engagement**
-   - Add prominent CTA buttons (Get Quote, Call Now, Book Service)
-   - Include FAQ section with city-specific questions
-   - Add service area map if possible
-   - Display local contact information
-   - Add trust signals (certifications, years serving that city)
-
-5. **Build Internal Link Structure**
-   - Identify hub pages that should link to these pages
-   - Add contextual links from relevant blog posts
-   - Implement breadcrumb navigation
-   - Cross-link related service pages in the same city
-
-## Priority Order
-
-Start with pages that have:
-1. Highest traffic potential (major cities, popular services)
-2. Existing thin content (easiest to expand)
-3. Related pages already indexed (can benefit from cross-linking)
-
-## Expected Outcome
-
-After implementing these changes:
-- Each page should have 800-1200 words of unique, valuable content
-- Clear technical SEO signals (title, meta, schema, H1)
-- Strong user engagement elements (CTAs, FAQs, trust signals)
-- Robust internal linking structure
-- Location-specific relevance signals for Google
-
-Submit updated sitemap to Google Search Console and request indexing for priority pages after improvements are complete.`;
-  }
 
   // ========================================
   // Global API for Manual Control

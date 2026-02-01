@@ -217,7 +217,16 @@ The plan should be actionable, technology-agnostic, and ready for immediate impl
    * @returns {string} Analysis-focused prompt
    */
   generateAnalysisPrompt(context, fileName) {
-    const { mission, stepName, executionInstructions, stepNumber } = context;
+    const { mission, stepName, executionInstructions, stepNumber, diagnosedCause } = context;
+    
+    // Check if we have specific diagnostic data with URLs and strategies
+    if (diagnosedCause && diagnosedCause.urls && diagnosedCause.strategies) {
+      console.log('✓ Using data-driven prompt with diagnosed cause data');
+      return this.generateDataDrivenAnalysisPrompt(context, fileName);
+    }
+    
+    // Otherwise, use standard E.V.O. metrics approach
+    console.log('✓ Using standard E.V.O. metrics prompt');
     
     // Try to get E.V.O. data from the page
     const evoData = this.getEVODataForStep(stepNumber);
@@ -284,6 +293,81 @@ The plan should include:
 - Testing and validation approach
 
 Make the analysis actionable and ready for immediate implementation.`;
+  },
+
+  /**
+   * Generate Data-Driven Analysis Prompt (for diagnosed causes with specific URLs and strategies)
+   * @param {Object} context - Page context
+   * @param {string} fileName - Output file name
+   * @returns {string} Data-driven analysis prompt
+   */
+  generateDataDrivenAnalysisPrompt(context, fileName) {
+    const { mission, stepName, executionInstructions, diagnosedCause } = context;
+    const urlCount = diagnosedCause.urls.length;
+    const urlList = diagnosedCause.urls.map(url => `${url}`).join('\n');
+    
+    // Build strategies section (technology-agnostic)
+    const strategyText = diagnosedCause.strategies.map(strategy => {
+      const items = strategy.items.map(item => `- ${item}`).join('\n');
+      return `${strategy.category}:\n${items}`;
+    }).join('\n\n');
+    
+    return `You are implementing ${stepName} as part of ${mission}.
+
+OBJECTIVE: ${executionInstructions.action}
+
+CONTEXT:
+E.V.O. has diagnosed ${urlCount} pages with the following issue: ${diagnosedCause.reason}
+
+AFFECTED PAGES:
+${urlList}
+
+RECOMMENDED OPTIMIZATION STRATEGIES:
+${strategyText}
+
+INSTRUCTIONS:
+1. Analyze the current workspace structure
+   - Identify the technology stack and file structure
+   - Locate the affected page files or templates
+   - Determine the best approach for implementing fixes
+
+2. Create a comprehensive implementation plan that includes:
+   - Current state analysis: What issues exist on these pages?
+   - Files that need modification: List specific files and their paths
+   - Specific optimizations required: Reference the strategies above
+   - Implementation approach: How to apply fixes efficiently across multiple pages
+   - Dependencies and order: What needs to be done first?
+   - Testing strategy: How to verify the fixes work
+
+3. Adapt to the detected technology:
+   - For static HTML: Provide direct file modifications
+   - For template systems: Identify templates that generate these pages
+   - For CMS/frameworks: Provide component or template changes
+   - For dynamic pages: Identify the routing and rendering logic
+
+4. Address the diagnosed issue:
+   - Apply the recommended strategies to each affected page
+   - Ensure fixes are technology-agnostic and scalable
+   - Prioritize high-impact, low-effort optimizations first
+
+CONTEXT & REQUIREMENTS:
+- Work with ANY file structure and technology stack
+- Focus on ${executionInstructions.concept}
+- Use the recommended strategies as a guide, but adapt to the actual codebase
+- Ensure all changes are production-ready and follow best practices
+- Consider crawl budget, user experience, and SEO impact
+
+DELIVERABLE:
+Create a detailed implementation plan saved as: ${fileName}
+
+The plan should include:
+- Executive summary of the issue and affected pages
+- Detailed step-by-step implementation guide
+- File-by-file changes required
+- Testing and validation approach
+- Expected impact on indexation
+
+Make the plan actionable, technology-agnostic, and ready for immediate implementation.`;
   },
 
   /**
@@ -397,9 +481,17 @@ ACTUAL SITE DATA (E.V.O. Analysis from ${executionInstructions.evoDimension.toUp
   /**
    * Open the modal with generated prompt
    * @param {HTMLElement} pageElement - The sprint card page element
+   * @param {Object|null} diagnosedCause - Optional diagnosed cause data with URLs and strategies
    */
-  openModal(pageElement) {
+  openModal(pageElement, diagnosedCause = null) {
     const context = this.extractPageContext(pageElement);
+    
+    // Attach diagnosed cause data if provided
+    if (diagnosedCause) {
+      context.diagnosedCause = diagnosedCause;
+      console.log('✓ Diagnosed cause data attached to context:', diagnosedCause.reason);
+    }
+    
     const prompt = this.generatePrompt(context);
     
     // Populate modal content
