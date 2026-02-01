@@ -223,29 +223,25 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   /**
-   * Get Step Name from Step Number
+   * Get Step Name from Step Number (based on current protocol)
    */
   function getStepName(stepNumber) {
-    const stepNames = {
-      1: 'Global Identity',
-      2: 'Territory Claim',
-      3: 'Commercial Definition',
-      4: 'Reputation Sync'
-    };
-    return stepNames[stepNumber] || `Step ${stepNumber}`;
+    const protocol = protocolDefinitions[currentCardType];
+    if (protocol && protocol.steps && protocol.steps[stepNumber - 1]) {
+      return protocol.steps[stepNumber - 1].title;
+    }
+    return `Step ${stepNumber}`;
   }
 
   /**
-   * Get Step Description from Step Number
+   * Get Step Description from Step Number (based on current protocol)
    */
   function getStepDescription(stepNumber) {
-    const descriptions = {
-      1: 'Hard-code brand DNA (Logo, Phone, Social Profiles) into site pages',
-      2: 'Define exact GEO Circle for each city serviced',
-      3: 'Define products/services with price ranges',
-      4: 'Aggregate 5-star reviews into CollectionPage format'
-    };
-    return descriptions[stepNumber] || '';
+    const protocol = protocolDefinitions[currentCardType];
+    if (protocol && protocol.steps && protocol.steps[stepNumber - 1]) {
+      return protocol.steps[stepNumber - 1].description;
+    }
+    return '';
   }
 
   /**
