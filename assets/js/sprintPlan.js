@@ -681,12 +681,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     if (progressDiv && progressDiv.style.display !== 'none') {
       // Simple format: Progress: X/Y
-      if (progress.completed && progress.total) {
-        const progressText = `Progress: ${progress.completed}/${progress.total}`;
+      if (progress.urlsCompleted !== undefined && progress.urlsTotal !== undefined) {
+        const progressText = `Progress: ${progress.urlsCompleted}/${progress.urlsTotal}`;
         progressDiv.textContent = progressText;
         console.log(`✓ Updated progress text to: ${progressText}`);
       } else {
-        console.log(`⚠️ Missing progress.completed or progress.total`);
+        console.log(`⚠️ Missing progress.urlsCompleted or progress.urlsTotal`);
       }
     } else {
       console.log(`⚠️ progressDiv not found or is hidden`);
@@ -748,7 +748,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log(`📊 Progress data received:`, data);
         
         if (data.success && data.hasProgress && data.progress) {
-          console.log(`✓ Updating progress: ${data.progress.completed}/${data.progress.total}`);
+          console.log(`✓ Updating progress: ${data.progress.urlsCompleted}/${data.progress.urlsTotal}`);
           updateAnalysisButtonProgress(currentPage, stepNumber, data.progress);
         } else {
           console.log(`⏳ No progress data yet (success: ${data.success}, hasProgress: ${data.hasProgress})`);
