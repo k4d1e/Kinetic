@@ -837,7 +837,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (instructionContainer) {
         instructionContainer.style.display = 'block';
       }
-      // Next Step button remains disabled until user copies Execution Assist prompt
+      // Next Step/Complete button remains disabled until user copies Execution Assist prompt
     } else {
       // Hide Execution Assist - no fixes needed
       if (executionAssistBtn) {
@@ -852,6 +852,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (nextStepBtn) {
         nextStepBtn.disabled = false;
         console.log(`✓ Next Step button enabled - no fixes needed for step ${stepNumber}`);
+      }
+      
+      // Special handling for last step (Step 4) - enable Complete button
+      if (stepNumber === 4) {
+        if (completeBtn) {
+          completeBtn.disabled = false;
+          console.log(`✓ Complete button enabled - Step 4 analysis finished`);
+        }
       }
     }
   }

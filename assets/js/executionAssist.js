@@ -563,6 +563,15 @@ ACTUAL SITE DATA (E.V.O. Analysis from ${executionInstructions.evoDimension.toUp
           nextStepButton.disabled = false;
           console.log(`✓ Next Step button enabled for step ${stepNumber}`);
         }
+        
+        // Special handling for Step 4 - also enable Complete button
+        if (stepNumber === 4) {
+          const completeButton = document.querySelector('.btn-complete');
+          if (completeButton) {
+            completeButton.disabled = false;
+            console.log(`✓ Complete button enabled for step ${stepNumber}`);
+          }
+        }
       }
       
       console.log('✓ Prompt copied to clipboard');
