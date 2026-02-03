@@ -31,8 +31,20 @@ async function fetchUserProperties(pool, userId) {
     console.log(`✓ Fetched ${sites.length} GSC properties for user ${userId}`);
     return sites;
   } catch (error) {
-    console.error('Error fetching GSC properties:', error.message);
-    throw new Error('Failed to fetch Search Console properties');
+    console.error('Error fetching GSC properties:', error);
+    
+    // Provide more specific error messages
+    let errorMessage = 'Failed to fetch Search Console properties';
+    
+    if (error.message?.includes('Invalid token') || error.message?.includes('Token has been expired')) {
+      errorMessage = 'Your Google authentication has expired. Please log out and log back in to reconnect Google Search Console.';
+    } else if (error.code === 403) {
+      errorMessage = 'Access denied. Please ensure you granted permission to access Google Search Console when you logged in.';
+    } else if (error.message) {
+      errorMessage = `Failed to fetch Search Console properties: ${error.message}`;
+    }
+    
+    throw new Error(errorMessage);
   }
 }
 
@@ -45,17 +57,18 @@ async function fetchUserProperties(pool, userId) {
  * @returns {Promise<Object>} - Search analytics data
  */
 async function fetchSearchAnalytics(pool, userId, siteUrl, options = {}) {
+  // Extract options early so they're available in catch block
+  const {
+    startDate = getDateDaysAgo(90),
+    endDate = getDateDaysAgo(1),
+    dimensions = ['query', 'page'],
+    rowLimit = 1000,
+    dataState = 'all'
+  } = options;
+  
   try {
     const oauth2Client = await getOAuth2Client(pool, userId);
     const webmasters = google.webmasters({ version: 'v3', auth: oauth2Client });
-
-    const {
-      startDate = getDateDaysAgo(90),
-      endDate = getDateDaysAgo(1),
-      dimensions = ['query', 'page'],
-      rowLimit = 1000,
-      dataState = 'all'
-    } = options;
 
     const response = await webmasters.searchanalytics.query({
       siteUrl: siteUrl,
@@ -71,8 +84,37 @@ async function fetchSearchAnalytics(pool, userId, siteUrl, options = {}) {
     console.log(`✓ Fetched search analytics for ${siteUrl}`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching search analytics:', error.message);
-    throw new Error('Failed to fetch search analytics data');
+    // Enhanced error logging with full context
+    console.error('❌ Error fetching search analytics:');
+    console.error('   └─ Site URL:', siteUrl);
+    console.error('   └─ Date Range:', startDate, 'to', endDate);
+    console.error('   └─ Dimensions:', dimensions);
+    console.error('   └─ Error Code:', error.code);
+    console.error('   └─ Error Message:', error.message);
+    if (error.stack) {
+      console.error('   └─ Stack Trace:', error.stack);
+    }
+    if (error.response) {
+      console.error('   └─ Response Data:', JSON.stringify(error.response.data, null, 2));
+    }
+    
+    // Provide more specific error messages based on the error type
+    let errorMessage = 'Failed to fetch search analytics data';
+    
+    if (error.code === 403) {
+      errorMessage = `Access denied. Verify that the property "${siteUrl}" is verified in Google Search Console and you have permission to access it.`;
+    } else if (error.code === 404) {
+      errorMessage = `Property not found. "${siteUrl}" does not exist in your Google Search Console account. Please check the URL format.`;
+    } else if (error.message?.includes('No user data')) {
+      errorMessage = `No search data available for "${siteUrl}". This property may be newly verified or has not received any search traffic yet.`;
+    } else if (error.message?.includes('invalid_grant') || error.message?.includes('Invalid token') || error.message?.includes('Token has been expired') || error.response?.data?.error === 'invalid_grant') {
+      errorMessage = 'Your Google authentication has expired. Please log out and log back in to reconnect Google Search Console.';
+    } else if (error.message) {
+      // Include the actual error message from Google API
+      errorMessage = `Failed to fetch search analytics: ${error.message}`;
+    }
+    
+    throw new Error(errorMessage);
   }
 }
 
@@ -1684,6 +1726,249 @@ async function getLastSelectedProperty(pool, userId) {
   }
 }
 
+/**
+ * CONTENT INVENTORY ANALYSIS
+ * Analyze content performance and identify opportunities
+ * Used by Content Opportunity Protocol - Step 1
+ * @param {Pool} pool - PostgreSQL connection pool
+ * @param {number} userId - User ID
+ * @param {string} siteUrl - GSC property URL
+ * @param {string} startDate - Start date (YYYY-MM-DD)
+ * @param {string} endDate - End date (YYYY-MM-DD)
+ * @returns {Object} - Content inventory health metrics and insights
+ */
+async function analyzeContentInventory(pool, userId, siteUrl, startDate, endDate) {
+  console.log(`📊 Starting Content Inventory Analysis for ${siteUrl}...`);
+  
+  // Fetch GSC query data with query+page dimensions
+  const response = await fetchSearchAnalytics(pool, userId, siteUrl, {
+    startDate: startDate,
+    endDate: endDate,
+    dimensions: ['query', 'page'],
+    rowLimit: 25000 // Higher limit for comprehensive content inventory
+  });
+  
+  const rows = response.rows || [];
+  
+  if (!rows || rows.length === 0) {
+    return {
+      metrics: {
+        totalPages: 0,
+        rankingKeywords: 0,
+        avgPosition: 0,
+        contentCoverage: 0,
+        topPerformingPages: 0,
+        underperformingPages: 0
+      },
+      insights: [{
+        type: 'NO_DATA',
+        severity: 'warning',
+        message: 'No GSC data available for the selected date range. Wait for Google to collect data or check if the property is verified.',
+        recommendation: 'Ensure your site is verified in Google Search Console and has been receiving organic traffic.'
+      }]
+    };
+  }
+  
+  console.log(`✓ Fetched ${rows.length} query-page combinations from GSC`);
+  
+  // Extract unique pages and keywords
+  const uniquePages = new Set();
+  const uniqueKeywords = new Set();
+  const pageData = {}; // page -> { queries: [], clicks: 0, impressions: 0, positions: [] }
+  
+  rows.forEach(row => {
+    const query = row.keys[0];
+    const page = row.keys[1];
+    const position = row.position;
+    const impressions = row.impressions;
+    const clicks = row.clicks;
+    const ctr = row.ctr;
+    
+    uniquePages.add(page);
+    uniqueKeywords.add(query);
+    
+    // Aggregate page data
+    if (!pageData[page]) {
+      pageData[page] = {
+        page,
+        queries: [],
+        totalClicks: 0,
+        totalImpressions: 0,
+        positions: []
+      };
+    }
+    
+    pageData[page].queries.push({ query, position, impressions, clicks, ctr });
+    pageData[page].totalClicks += clicks;
+    pageData[page].totalImpressions += impressions;
+    pageData[page].positions.push(position);
+  });
+  
+  const totalPages = uniquePages.size;
+  const rankingKeywords = uniqueKeywords.size;
+  
+  console.log(`✓ Identified ${totalPages} unique pages and ${rankingKeywords} unique keywords`);
+  
+  // Calculate average position across all queries
+  const avgPosition = rows.reduce((sum, row) => sum + row.position, 0) / rows.length;
+  
+  // Calculate content coverage (% of pages ranking in top 20)
+  const pagesInTop20 = Object.values(pageData).filter(page => {
+    const avgPagePosition = page.positions.reduce((sum, pos) => sum + pos, 0) / page.positions.length;
+    return avgPagePosition <= 20;
+  }).length;
+  
+  const contentCoverage = totalPages > 0 ? (pagesInTop20 / totalPages * 100) : 0;
+  
+  // Identify top performing pages (by clicks)
+  const topPerformers = Object.values(pageData)
+    .sort((a, b) => b.totalClicks - a.totalClicks)
+    .slice(0, 5);
+  
+  // Identify underperforming pages (high impressions but low CTR)
+  const underperformers = Object.values(pageData)
+    .filter(page => {
+      const avgCTR = page.totalClicks / page.totalImpressions;
+      return page.totalImpressions > 100 && avgCTR < 0.03; // Less than 3% CTR with 100+ impressions
+    })
+    .sort((a, b) => b.totalImpressions - a.totalImpressions)
+    .slice(0, 5);
+  
+  console.log(`✓ Found ${topPerformers.length} top performers and ${underperformers.length} underperformers`);
+  
+  // Generate insights
+  const insights = [];
+  
+  // Insight 1: Content inventory overview
+  insights.push({
+    type: 'CONTENT_INVENTORY_OVERVIEW',
+    severity: 'info',
+    message: `Your site has ${totalPages} pages ranking for ${rankingKeywords} unique keywords with an average position of ${avgPosition.toFixed(1)}.`,
+    recommendation: contentCoverage < 50 
+      ? `Only ${contentCoverage.toFixed(0)}% of your pages rank in the top 20. Focus on improving content quality and keyword targeting.`
+      : `${contentCoverage.toFixed(0)}% of your pages rank in the top 20. Strong content foundation detected.`
+  });
+  
+  // Insight 2: Top performing pages
+  if (topPerformers.length > 0) {
+    insights.push({
+      type: 'TOP_PERFORMERS',
+      severity: 'positive',
+      message: `Your top ${topPerformers.length} pages are driving ${topPerformers.reduce((sum, p) => sum + p.totalClicks, 0)} clicks and ${topPerformers.reduce((sum, p) => sum + p.totalImpressions, 0).toLocaleString()} impressions.`,
+      topPages: topPerformers.map(p => ({
+        url: p.page,
+        clicks: p.totalClicks,
+        impressions: p.totalImpressions,
+        avgPosition: (p.positions.reduce((sum, pos) => sum + pos, 0) / p.positions.length).toFixed(1),
+        keywordCount: p.queries.length
+      })),
+      recommendation: 'Analyze what makes these pages successful and replicate those strategies across your other content.'
+    });
+  }
+  
+  // Insight 3: Underperforming pages (content opportunities)
+  if (underperformers.length > 0) {
+    insights.push({
+      type: 'UNDERPERFORMING_CONTENT',
+      severity: 'warning',
+      message: `${underperformers.length} pages have high visibility (100+ impressions) but poor click-through rates. These are prime optimization candidates.`,
+      contentOpportunities: underperformers.map(p => {
+        const avgCTR = (p.totalClicks / p.totalImpressions * 100).toFixed(2);
+        const avgPos = (p.positions.reduce((sum, pos) => sum + pos, 0) / p.positions.length).toFixed(1);
+        
+        return {
+          topic: p.page.split('/').pop().replace(/-/g, ' ').replace('.html', ''),
+          keyword: p.queries.sort((a, b) => b.impressions - a.impressions)[0].query,
+          impressions: p.totalImpressions,
+          clicks: p.totalClicks,
+          ctr: avgCTR,
+          position: avgPos,
+          priority: avgPos < 10 ? 'high' : avgPos < 20 ? 'medium' : 'low',
+          opportunity: `Improve title tag and meta description to increase CTR from ${avgCTR}% to expected ${(getExpectedCTR(parseFloat(avgPos)) * 100).toFixed(1)}%`,
+          action: `Optimize for: ${p.queries.slice(0, 3).map(q => q.query).join(', ')}`,
+          keywords: p.queries.slice(0, 10).map(q => ({
+            query: q.query,
+            position: q.position.toFixed(1),
+            impressions: q.impressions
+          }))
+        };
+      }),
+      recommendation: 'Focus on improving title tags, meta descriptions, and content relevance for these high-impression pages to capture more clicks.'
+    });
+  }
+  
+  // Insight 4: Position distribution
+  const pagesInTop3 = Object.values(pageData).filter(p => 
+    p.positions.reduce((sum, pos) => sum + pos, 0) / p.positions.length <= 3
+  ).length;
+  const pagesInTop10 = Object.values(pageData).filter(p => 
+    p.positions.reduce((sum, pos) => sum + pos, 0) / p.positions.length <= 10
+  ).length;
+  // pagesInTop20 already calculated above for content coverage (line 1766)
+  
+  insights.push({
+    type: 'POSITION_DISTRIBUTION',
+    severity: 'info',
+    message: `Position breakdown: ${pagesInTop3} pages in top 3, ${pagesInTop10 - pagesInTop3} in positions 4-10, ${pagesInTop20 - pagesInTop10} in positions 11-20.`,
+    positionTiers: {
+      top3: pagesInTop3,
+      top10: pagesInTop10,
+      top20: pagesInTop20,
+      beyondTop20: totalPages - pagesInTop20
+    },
+    recommendation: pagesInTop20 - pagesInTop10 > 5 
+      ? `You have ${pagesInTop20 - pagesInTop10} pages on page 2 (positions 11-20). These are quick win opportunities - small optimizations could move them to page 1.`
+      : 'Focus on creating new content to expand your keyword coverage.'
+  });
+  
+  // Calculate health score
+  let healthScore = 50; // Start at middle
+  
+  // Factor 1: Content coverage (0-25 points)
+  healthScore += Math.min(25, contentCoverage / 4);
+  
+  // Factor 2: Average position (0-25 points)
+  if (avgPosition <= 10) healthScore += 25;
+  else if (avgPosition <= 20) healthScore += 15;
+  else if (avgPosition <= 30) healthScore += 10;
+  else healthScore += 5;
+  
+  // Factor 3: Top performers (0-15 points)
+  if (topPerformers.length >= 5) healthScore += 15;
+  else healthScore += topPerformers.length * 3;
+  
+  // Factor 4: Underperformers penalty (0 to -10 points)
+  const underperformerRatio = underperformers.length / totalPages;
+  if (underperformerRatio > 0.2) healthScore -= 10;
+  else if (underperformerRatio > 0.1) healthScore -= 5;
+  
+  healthScore = Math.round(Math.max(0, Math.min(100, healthScore)));
+  
+  // Determine health status
+  let status = 'healthy';
+  if (healthScore < 50) status = 'critical';
+  else if (healthScore < 70) status = 'warning';
+  
+  console.log(`✓ Content Inventory Health Score: ${healthScore}/100 (${status})`);
+  
+  return {
+    metrics: {
+      totalPages,
+      rankingKeywords,
+      avgPosition: Math.round(avgPosition * 10) / 10,
+      contentCoverage: Math.round(contentCoverage),
+      topPerformingPages: topPerformers.length,
+      underperformingPages: underperformers.length,
+      pagesInTop3,
+      pagesInTop10,
+      pagesInTop20
+    },
+    insights,
+    healthScore,
+    status
+  };
+}
+
 module.exports = {
   fetchUserProperties,
   fetchSearchAnalytics,
@@ -1706,5 +1991,6 @@ module.exports = {
   analyzeResonanceHealth,
   analyzeCatalysts,
   calculateTransmutationScore,
-  analyzeElixirHealth
+  analyzeElixirHealth,
+  analyzeContentInventory
 };

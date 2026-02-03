@@ -330,14 +330,16 @@ class KineticAPI {
 
   /**
    * Get individual dimensional analysis
-   * @param {string} dimension - One of: substrate, crawl, sitemap, redirect, lattice, synapse, resonance, weave, elixir
+   * @param {string} dimension - One of: substrate, crawl, sitemap, redirect, lattice, synapse, resonance, weave, elixir, inventory
    * @param {string} siteUrl - GSC property URL
+   * @param {boolean} refresh - Force cache bypass (default: false)
    * @returns {Promise<Object>} - Dimensional analysis response with { data, fromCache, analyzedAt }
    */
-  async getDimension(dimension, siteUrl) {
+  async getDimension(dimension, siteUrl, refresh = false) {
     try {
+      const refreshParam = refresh ? '&refresh=true' : '';
       const response = await fetch(
-        `${this.baseURL}/api/gsc/evo/${dimension}?siteUrl=${encodeURIComponent(siteUrl)}`,
+        `${this.baseURL}/api/gsc/evo/${dimension}?siteUrl=${encodeURIComponent(siteUrl)}${refreshParam}`,
         { credentials: 'include' }
       );
 

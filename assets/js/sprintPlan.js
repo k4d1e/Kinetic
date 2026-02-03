@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     0: 'meta_surgeon_protocol',
     1: 'gsc_indexation_protocol',
     2: 'internal_link_expansion_protocol',
-    3: 'future_card_type'
+    3: 'keyword_coverage_gap_protocol'
   };
   
   // Current active card state
@@ -429,9 +429,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     }
     
-    // 6. Configure buttons for GSC protocols
-    if (protocolType === 'gsc_indexation_protocol') {
-      // For GSC protocols, show Analysis buttons by default and hide Execution Assist
+    // 6. Configure buttons for protocols with E.V.O. analysis
+    if (protocolType === 'gsc_indexation_protocol' || protocolType === 'keyword_coverage_gap_protocol') {
+      // For protocols with E.V.O. analysis, show Analysis buttons by default and hide Execution Assist
       const analysisButtons = cardContainer.querySelectorAll('.btn-analysis');
       const executionAssistButtons = cardContainer.querySelectorAll('.btn-execution-assist');
       
@@ -443,7 +443,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         btn.style.display = 'none';
       });
       
-      console.log(`✓ GSC protocol detected - Analysis buttons shown by default`);
+      console.log(`✓ Protocol with E.V.O. analysis detected - Analysis buttons shown by default`);
     }
     
     console.log(`✓ Card populated successfully with ${protocolType} content`);
@@ -582,8 +582,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (pageNum === pageNumber) {
         page.style.display = 'flex';
         
-        // Auto-fetch E.V.O. data for GSC protocol pages (2-5 are steps)
-        if (pageNum >= 2 && pageNum <= 5 && currentCardType === 'gsc_indexation_protocol') {
+        // Auto-fetch E.V.O. data for protocols with E.V.O. analysis (pages 2-5 are steps)
+        if (pageNum >= 2 && pageNum <= 5 && (currentCardType === 'gsc_indexation_protocol' || currentCardType === 'keyword_coverage_gap_protocol')) {
           fetchAndDisplayEVOData(pageNum);
         }
       } else {
@@ -598,8 +598,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   /**
    * Fetch E.V.O. Data for GSC Protocol Steps
    * Fetches and caches data, shows Analysis button when ready
+   * @param {number} pageNumber - Page number (2-5)
+   * @param {boolean} forceRefresh - Force cache bypass and fresh analysis
    */
-  async function fetchAndDisplayEVOData(pageNumber) {
+  async function fetchAndDisplayEVOData(pageNumber, forceRefresh = false) {
     const stepNumber = pageNumber - 1; // Page 2 = Step 1
     const currentPage = cardContainer.querySelector(`.sprint-card-page[data-page="${pageNumber}"]`);
     
@@ -629,29 +631,36 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
     
-    // Check if already cached in memory
-    if (evoDataCache[stepNumber]) {
+    // Check if already cached in memory (skip if forceRefresh)
+    if (!forceRefresh && evoDataCache[stepNumber]) {
       console.log(`Using cached E.V.O. data for step ${stepNumber}`);
-      setAnalysisButtonReady(currentPage, stepNumber);
+      const cachedData = evoDataCache[stepNumber];
+      
+      // Check if cached data has an error state
+      if (cachedData.dimensionData?.health?.status === 'error') {
+        setAnalysisButtonError(currentPage, stepNumber);
+      } else {
+        setAnalysisButtonReady(currentPage, stepNumber);
+      }
       
       // Also update button visibility based on cached health data
-      const cachedData = evoDataCache[stepNumber];
       updateExecutionAssistVisibility(pageNumber, cachedData.needsFixes, cachedData.dimensionData);
       
       return;
     }
     
     // Set button to loading state (will be quickly updated if cache exists)
-    setAnalysisButtonLoading(currentPage, stepNumber, '');
+    setAnalysisButtonLoading(currentPage, stepNumber, 'Analyzing...');
     
     // Start polling for progress immediately
     const progressInterval = pollAnalysisProgress(currentPage, stepNumber, evoInstructions.evoDimension);
     
-    console.log(`🔍 Fetching E.V.O. ${evoInstructions.evoDimension} analysis (checking cache first)...`);
+    const refreshMsg = forceRefresh ? ' (forcing refresh)' : ' (checking cache first)';
+    console.log(`🔍 Fetching E.V.O. ${evoInstructions.evoDimension} analysis${refreshMsg}...`);
     
     try {
       // Fetch E.V.O. dimension data (backend will check cache or run fresh analysis)
-      const response = await api.getDimension(evoInstructions.evoDimension, siteUrl);
+      const response = await api.getDimension(evoInstructions.evoDimension, siteUrl, forceRefresh);
       
       // Stop polling
       if (progressInterval) {
@@ -668,6 +677,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       
       // Check health status and determine if fixes are needed
       const healthScore = dimensionData.health?.score || 0;
+      const healthStatus = dimensionData.health?.status || 'unknown';
       const healthThreshold = evoInstructions.healthThreshold || 70;
       const needsFixes = healthScore < healthThreshold;
       
@@ -680,14 +690,40 @@ document.addEventListener('DOMContentLoaded', async () => {
         healthThreshold
       };
       
-      // Set button to ready state
-      setAnalysisButtonReady(currentPage, stepNumber);
+      // Set button state based on health status
+      if (healthStatus === 'error') {
+        console.error(`❌ E.V.O. analysis returned error state for ${evoInstructions.evoDimension}`);
+        
+        // Log the actual error details from insights
+        const insights = dimensionData.health?.insights || [];
+        const errorInsight = insights.find(i => i.type === 'ERROR' || i.severity === 'critical');
+        if (errorInsight) {
+          console.error('   └─ Error Message:', errorInsight.message);
+          console.error('   └─ Recommendation:', errorInsight.recommendation);
+        }
+        
+        setAnalysisButtonError(currentPage, stepNumber);
+      } else {
+        setAnalysisButtonReady(currentPage, stepNumber);
+      }
       
       // Show/hide Execution Assist based on health
       updateExecutionAssistVisibility(pageNumber, needsFixes, dimensionData);
       
     } catch (error) {
-      console.error('Error fetching E.V.O. data:', error);
+      // Enhanced error logging
+      console.error('❌ Error fetching E.V.O. data:');
+      console.error('   └─ Dimension:', evoInstructions.evoDimension);
+      console.error('   └─ Site URL:', siteUrl);
+      console.error('   └─ Step Number:', stepNumber);
+      console.error('   └─ Error Message:', error.message);
+      console.error('   └─ Error Stack:', error.stack);
+      
+      // Stop polling
+      if (progressInterval) {
+        clearInterval(progressInterval);
+      }
+      
       setAnalysisButtonError(currentPage, stepNumber);
     }
   }
@@ -700,6 +736,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const progressDiv = currentPage.querySelector(`.btn-analysis-progress[data-step="${stepNumber}"]`);
     
     if (analysisBtn) {
+      // Ensure button is visible
+      analysisBtn.style.display = 'flex';
       analysisBtn.disabled = true;
       analysisBtn.classList.add('btn-analysis-loading');
       // Button text stays as "Analysis" with spinner icon replacing chart icon
@@ -712,6 +750,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const spinner = document.createElement('div');
         spinner.className = 'btn-analysis-spinner';
         analysisBtn.insertBefore(spinner, analysisBtn.firstChild);
+        console.log(`✓ Analysis spinner added for step ${stepNumber}`);
       }
     }
     
@@ -808,21 +847,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     const analysisBtn = currentPage.querySelector(`.btn-analysis[data-step="${stepNumber}"]`);
     
     if (analysisBtn) {
-      analysisBtn.disabled = true;
+      analysisBtn.disabled = false; // Keep enabled so user can click to retry
       analysisBtn.classList.remove('btn-analysis-loading');
       analysisBtn.classList.add('btn-analysis-error');
       
-      // Show error message
+      // Show error message with retry hint
       analysisBtn.innerHTML = `
         <svg class="btn-error-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="10"></circle>
           <line x1="12" y1="8" x2="12" y2="12"></line>
           <line x1="12" y1="16" x2="12.01" y2="16"></line>
         </svg>
-        Error
+        Error - Click to Retry
       `;
       
-      console.log(`❌ Analysis button error for step ${stepNumber}`);
+      console.log(`❌ Analysis button error for step ${stepNumber} - Click button to retry`);
     }
   }
 
@@ -839,6 +878,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     const instructionContainer = currentPage.querySelector('.instruction-container');
     const stepNumber = pageNumber - 1; // Calculate step number from page number
     const nextStepBtn = currentPage.querySelector(`.btn-next-step[data-step="${stepNumber}"]`);
+    
+    // Special case: Content Opportunity Protocol Step 1 - Analysis button is sufficient
+    if (currentCardType === 'keyword_coverage_gap_protocol' && stepNumber === 1) {
+      if (executionAssistBtn) {
+        executionAssistBtn.style.display = 'none';
+        console.log(`✓ Content Inventory step - Analysis button is sufficient, hiding Execution Assist`);
+      }
+      if (instructionContainer) {
+        instructionContainer.style.display = 'none';
+      }
+      if (nextStepBtn) {
+        nextStepBtn.disabled = false;
+        console.log(`✓ Next Step button enabled for Content Inventory step`);
+      }
+      return; // Exit early, no need to check health scores
+    }
     
     if (needsFixes) {
       // Show Execution Assist button
@@ -1073,18 +1128,50 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   /**
    * Handle Analysis Button Click
-   * Opens modal with E.V.O. insights
+   * Opens modal with E.V.O. insights, or retries if error state
    */
   document.addEventListener('click', function(e) {
     if (e.target.closest('.btn-analysis')) {
       const btn = e.target.closest('.btn-analysis');
       const stepNumber = parseInt(btn.dataset.step);
       
+      // Check if button is in error state - if so, retry the analysis
+      if (btn.classList.contains('btn-analysis-error')) {
+        console.log(`🔄 Retrying analysis for step ${stepNumber}...`);
+        
+        // Calculate page number from step number
+        const pageNumber = stepNumber + 1;
+        
+        // Clear cached data for this step to force fresh fetch
+        delete evoDataCache[stepNumber];
+        
+        // Retry with force refresh
+        fetchAndDisplayEVOData(pageNumber, true);
+        
+        return; // Don't open modal yet, wait for retry to complete
+      }
+      
       // Get cached E.V.O. data
       const cachedData = evoDataCache[stepNumber];
       if (!cachedData) {
         console.warn('No E.V.O. data available for step', stepNumber);
         return;
+      }
+      
+      // Check if cached data has error state - if so, allow retry
+      if (cachedData.dimensionData?.health?.status === 'error') {
+        console.log(`🔄 Cached data has error state, retrying analysis for step ${stepNumber}...`);
+        
+        // Calculate page number from step number
+        const pageNumber = stepNumber + 1;
+        
+        // Clear cached data to force fresh fetch
+        delete evoDataCache[stepNumber];
+        
+        // Retry with force refresh
+        fetchAndDisplayEVOData(pageNumber, true);
+        
+        return; // Don't open modal yet, wait for retry to complete
       }
       
       openAnalysisModal(stepNumber, cachedData);
@@ -1097,6 +1184,221 @@ document.addEventListener('DOMContentLoaded', async () => {
    * @param {Object} cachedData - Cached E.V.O. data
    */
   function openAnalysisModal(stepNumber, cachedData) {
+    const modal = document.getElementById('analysis-modal');
+    if (!modal) return;
+    
+    // Check if this is Content Opportunity Protocol Step 1
+    if (currentCardType === 'keyword_coverage_gap_protocol' && stepNumber === 1) {
+      openContentInventoryAnalysisModal(stepNumber, cachedData);
+      return;
+    }
+    
+    // Default indexation-focused analysis for other protocols
+    openIndexationAnalysisModal(stepNumber, cachedData);
+  }
+
+  /**
+   * Open Content Inventory Analysis Modal (Content Opportunity Protocol - Step 1)
+   * @param {number} stepNumber - Step number
+   * @param {Object} cachedData - Cached E.V.O. data
+   */
+  function openContentInventoryAnalysisModal(stepNumber, cachedData) {
+    const modal = document.getElementById('analysis-modal');
+    if (!modal) return;
+    
+    const { dimensionData, stepData, healthScore, needsFixes } = cachedData;
+    const health = dimensionData.health || {};
+    const metrics = health.metrics || {};
+    const insights = health.insights || [];
+    
+    // Populate context
+    document.getElementById('analysis-step').textContent = stepData.title;
+    document.getElementById('analysis-dimension').textContent = 'CONTENT INVENTORY';
+    
+    const healthEl = document.getElementById('analysis-health');
+    healthEl.textContent = `${healthScore}/100`;
+    healthEl.style.color = healthScore >= 70 ? 'var(--color-primary-green)' : 'var(--color-error)';
+    
+    // Populate metrics - Content-focused display
+    const metricsContainer = document.getElementById('analysis-metrics');
+    let metricsHTML = '';
+    
+    if (Object.keys(metrics).length === 0) {
+      metricsHTML = '<div class="evo-no-metrics">No metrics available</div>';
+    } else {
+      // Prioritize content-specific metrics
+      const metricOrder = ['totalPages', 'rankingKeywords', 'avgPosition', 'contentCoverage', 'topPerformingPages', 'underperformingPages'];
+      const displayedMetrics = new Set();
+      
+      // Display prioritized metrics first
+      metricOrder.forEach(key => {
+        if (metrics[key] !== undefined) {
+          displayedMetrics.add(key);
+          const label = formatMetricLabel(key);
+          metricsHTML += `
+            <div class="evo-metric-card">
+              <div class="evo-metric-label">${label}</div>
+              <div class="evo-metric-value">${formatMetricValue(metrics[key])}</div>
+            </div>
+          `;
+        }
+      });
+      
+      // Display remaining metrics
+      Object.entries(metrics).forEach(([key, value]) => {
+        if (!displayedMetrics.has(key)) {
+          const label = formatMetricLabel(key);
+          metricsHTML += `
+            <div class="evo-metric-card">
+              <div class="evo-metric-label">${label}</div>
+              <div class="evo-metric-value">${formatMetricValue(value)}</div>
+            </div>
+          `;
+        }
+      });
+    }
+    
+    metricsContainer.innerHTML = metricsHTML;
+    
+    // Populate insights - Content-focused insights
+    const insightsContainer = document.getElementById('analysis-insights');
+    if (insights.length > 0) {
+      let insightsHTML = '';
+      insights.forEach(insight => {
+        const severityClass = `evo-insight-${insight.severity || 'info'}`;
+        const isError = insight.type === 'ERROR' || insight.severity === 'critical';
+        
+        insightsHTML += `
+          <div class="evo-insight ${severityClass}">
+            <div class="evo-insight-type">${insight.type || 'CONTENT INSIGHT'}</div>
+            <div class="evo-insight-message">${insight.message}</div>
+            
+            ${isError && insight.recommendation ? `
+              <div class="evo-insight-recommendation">→ ${insight.recommendation}</div>
+              <div class="evo-insight-retry-container" style="margin-top: 16px;">
+                <button class="btn-retry-analysis" data-step="${stepNumber}" style="
+                  padding: 10px 20px;
+                  background: var(--color-accent-orange);
+                  color: var(--color-bg-dark);
+                  border: none;
+                  border-radius: 4px;
+                  font-family: 'Press Start 2P', monospace;
+                  font-size: 10px;
+                  cursor: pointer;
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                  transition: all 0.2s ease;
+                ">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 4 23 10 17 10"></polyline>
+                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                  </svg>
+                  Retry Analysis
+                </button>
+              </div>
+            ` : ''}
+            
+            ${!isError && insight.contentOpportunities && insight.contentOpportunities.length > 0 ? `
+              <div class="evo-diagnosed-causes">
+                <div class="evo-diagnosed-causes-label">Content Opportunities:</div>
+                <div class="evo-diagnosed-causes-list">
+                  ${insight.contentOpportunities.map((opportunity, index) => `
+                    <div class="evo-diagnosed-cause evo-diagnosed-${opportunity.priority || 'medium'}">
+                      <div class="evo-diagnosed-cause-header">
+                        <span class="evo-diagnosed-cause-reason">${opportunity.topic || opportunity.keyword}</span>
+                        <span class="evo-diagnosed-cause-count">${opportunity.impressions || opportunity.searches || 0} impressions</span>
+                      </div>
+                      <div class="evo-diagnosed-cause-fix">→ ${opportunity.opportunity || opportunity.action}</div>
+                      ${opportunity.keywords && opportunity.keywords.length > 0 ? `
+                        <div class="evo-diagnosed-urls">
+                          <button class="evo-diagnosed-urls-toggle" data-cause-index="${index}">
+                            <svg class="evo-toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                            View related keywords
+                          </button>
+                          <div class="evo-diagnosed-urls-list" data-cause-index="${index}" style="display: none;">
+                            ${opportunity.keywords.map(kw => `
+                              <div class="evo-diagnosed-url">
+                                <span>${kw.query || kw}</span>
+                                ${kw.position ? `<span class="keyword-position"> - Position: ${kw.position}</span>` : ''}
+                                ${kw.impressions ? `<span class="keyword-impressions"> - ${kw.impressions} impressions</span>` : ''}
+                              </div>
+                            `).join('')}
+                          </div>
+                        </div>
+                      ` : ''}
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            ` : !isError && insight.possibleCauses && insight.possibleCauses.length > 0 ? `
+              <div class="evo-insight-causes">
+                <div class="evo-insight-causes-label">Areas to Explore:</div>
+                <ul class="evo-insight-causes-list">
+                  ${insight.possibleCauses.map(cause => `<li>${cause}</li>`).join('')}
+                </ul>
+              </div>
+            ` : ''}
+            
+            ${!isError && insight.recommendation ? `<div class="evo-insight-recommendation">→ ${insight.recommendation}</div>` : ''}
+          </div>
+        `;
+      });
+      insightsContainer.innerHTML = insightsHTML;
+    } else {
+      insightsContainer.innerHTML = '<div class="evo-no-insights">✓ Content inventory complete. Proceed to keyword discovery in Step 2.</div>';
+    }
+    
+    // Show results, hide loading
+    document.getElementById('analysis-loading').style.display = 'none';
+    document.getElementById('analysis-results').style.display = 'block';
+    
+    // Add event listener for retry button if present
+    setTimeout(() => {
+      const retryBtn = insightsContainer.querySelector('.btn-retry-analysis');
+      if (retryBtn) {
+        retryBtn.addEventListener('click', function() {
+          const stepNum = parseInt(this.dataset.step);
+          console.log(`🔄 Retry button clicked for step ${stepNum}`);
+          
+          // Close modal
+          modal.style.display = 'none';
+          
+          // Calculate page number
+          const pageNum = stepNum + 1;
+          
+          // Clear cached data
+          delete evoDataCache[stepNum];
+          
+          // Retry with force refresh
+          fetchAndDisplayEVOData(pageNum, true);
+        });
+        
+        // Add hover effect
+        retryBtn.addEventListener('mouseenter', function() {
+          this.style.transform = 'scale(1.05)';
+          this.style.boxShadow = '0 4px 12px rgba(255, 107, 0, 0.4)';
+        });
+        
+        retryBtn.addEventListener('mouseleave', function() {
+          this.style.transform = 'scale(1)';
+          this.style.boxShadow = 'none';
+        });
+      }
+    }, 0);
+    
+    // Show modal
+    modal.style.display = 'flex';
+  }
+
+  /**
+   * Open Indexation Analysis Modal (Index Diagnostic Protocol and other indexation-focused protocols)
+   * @param {number} stepNumber - Step number
+   * @param {Object} cachedData - Cached E.V.O. data
+   */
+  function openIndexationAnalysisModal(stepNumber, cachedData) {
     const modal = document.getElementById('analysis-modal');
     if (!modal) return;
     
@@ -1122,15 +1424,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       metricsHTML = '<div class="evo-no-metrics">No metrics available</div>';
     } else {
       Object.entries(metrics).forEach(([key, value]) => {
-        // Convert camelCase to Title Case, preserving acronyms like URLs
-        const label = key
-          .replace(/([a-z\d])([A-Z])/g, '$1 $2')           // Insert space between lowercase/digit and uppercase
-          .replace(/([A-Z]+)([A-Z][a-z]{2,})/g, '$1 $2')   // Insert space before word after acronym (requires 2+ lowercase)
-          .trim();
-        const formattedLabel = label.charAt(0).toUpperCase() + label.slice(1);
+        const label = formatMetricLabel(key);
         metricsHTML += `
           <div class="evo-metric-card">
-            <div class="evo-metric-label">${formattedLabel}</div>
+            <div class="evo-metric-label">${label}</div>
             <div class="evo-metric-value">${formatMetricValue(value)}</div>
           </div>
         `;
@@ -1145,12 +1442,40 @@ document.addEventListener('DOMContentLoaded', async () => {
       let insightsHTML = '';
       insights.forEach(insight => {
         const severityClass = `evo-insight-${insight.severity || 'info'}`;
+        const isError = insight.type === 'ERROR' || insight.severity === 'critical';
+        
         insightsHTML += `
           <div class="evo-insight ${severityClass}">
             <div class="evo-insight-type">${insight.type || 'INSIGHT'}</div>
             <div class="evo-insight-message">${insight.message}</div>
             
-            ${insight.diagnosedCauses && insight.diagnosedCauses.length > 0 ? `
+            ${isError && insight.recommendation ? `
+              <div class="evo-insight-recommendation">→ ${insight.recommendation}</div>
+              <div class="evo-insight-retry-container" style="margin-top: 16px;">
+                <button class="btn-retry-analysis" data-step="${stepNumber}" style="
+                  padding: 10px 20px;
+                  background: var(--color-accent-orange);
+                  color: var(--color-bg-dark);
+                  border: none;
+                  border-radius: 4px;
+                  font-family: 'Press Start 2P', monospace;
+                  font-size: 10px;
+                  cursor: pointer;
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                  transition: all 0.2s ease;
+                ">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 4 23 10 17 10"></polyline>
+                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                  </svg>
+                  Retry Analysis
+                </button>
+              </div>
+            ` : ''}
+            
+            ${!isError && insight.diagnosedCauses && insight.diagnosedCauses.length > 0 ? `
               <div class="evo-diagnosed-causes">
                 <div class="evo-diagnosed-causes-label">E.V.O. Diagnosed Issues:</div>
                 <div class="evo-diagnosed-causes-list">
@@ -1218,7 +1543,7 @@ document.addEventListener('DOMContentLoaded', async () => {
               </div>
             ` : ''}
             
-            ${insight.recommendation ? `<div class="evo-insight-recommendation">→ ${insight.recommendation}</div>` : ''}
+            ${!isError && insight.recommendation ? `<div class="evo-insight-recommendation">→ ${insight.recommendation}</div>` : ''}
           </div>
         `;
       });
@@ -1231,8 +1556,56 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('analysis-loading').style.display = 'none';
     document.getElementById('analysis-results').style.display = 'block';
     
+    // Add event listener for retry button if present
+    setTimeout(() => {
+      const retryBtn = insightsContainer.querySelector('.btn-retry-analysis');
+      if (retryBtn) {
+        retryBtn.addEventListener('click', function() {
+          const stepNum = parseInt(this.dataset.step);
+          console.log(`🔄 Retry button clicked for step ${stepNum}`);
+          
+          // Close modal
+          modal.style.display = 'none';
+          
+          // Calculate page number
+          const pageNum = stepNum + 1;
+          
+          // Clear cached data
+          delete evoDataCache[stepNum];
+          
+          // Retry with force refresh
+          fetchAndDisplayEVOData(pageNum, true);
+        });
+        
+        // Add hover effect
+        retryBtn.addEventListener('mouseenter', function() {
+          this.style.transform = 'scale(1.05)';
+          this.style.boxShadow = '0 4px 12px rgba(255, 107, 0, 0.4)';
+        });
+        
+        retryBtn.addEventListener('mouseleave', function() {
+          this.style.transform = 'scale(1)';
+          this.style.boxShadow = 'none';
+        });
+      }
+    }, 0);
+    
     // Show modal
     modal.style.display = 'flex';
+  }
+
+  /**
+   * Format metric label for display
+   * @param {string} key - Metric key in camelCase
+   * @returns {string} Formatted label
+   */
+  function formatMetricLabel(key) {
+    // Convert camelCase to Title Case, preserving acronyms like URLs
+    const label = key
+      .replace(/([a-z\d])([A-Z])/g, '$1 $2')           // Insert space between lowercase/digit and uppercase
+      .replace(/([A-Z]+)([A-Z][a-z]{2,})/g, '$1 $2')   // Insert space before word after acronym (requires 2+ lowercase)
+      .trim();
+    return label.charAt(0).toUpperCase() + label.slice(1);
   }
 
   /**

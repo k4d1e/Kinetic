@@ -11,6 +11,18 @@
 </head>
 <body>
 
+    <!-- Top Navigation Bar -->
+    <nav class="top-nav">
+        <button id="logout-btn" class="btn-logout">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            Logout
+        </button>
+    </nav>
+
     <!-- Onboarding Modal Container (loaded dynamically) -->
     <div id="onboarding-modal-container"></div>
 
@@ -790,6 +802,35 @@
     <script src="assets/js/protocolDefinitions.js"></script>
     <script src="assets/js/sprintPlan.js"></script>
     <script src="assets/js/completedCards.js"></script>
+
+    <!-- Logout Handler -->
+    <script>
+        // Handle logout button click
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoutBtn = document.getElementById('logout-btn');
+            
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', async function() {
+                    try {
+                        console.log('🚪 Logging out...');
+                        
+                        // Call logout API
+                        const api = window.kineticAPI || new KineticAPI();
+                        await api.logout();
+                        
+                        console.log('✓ Logged out successfully');
+                        
+                        // Redirect to login page (or reload to trigger auth check)
+                        window.location.href = '/';
+                    } catch (error) {
+                        console.error('Error during logout:', error);
+                        // Still redirect even if logout API fails
+                        window.location.href = '/';
+                    }
+                });
+            }
+        });
+    </script>
 
     <!-- E.V.O. Agent Interface -->
     <script>

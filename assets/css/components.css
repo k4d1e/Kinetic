@@ -1,8 +1,52 @@
 /* components.css */
 
+/* Top Navigation Bar */
+.top-nav {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 20px 40px;
+  background: transparent;
+  z-index: 1000;
+  pointer-events: none; /* Allow clicks through the nav */
+}
+
+.btn-logout {
+  pointer-events: auto; /* Re-enable clicks on the button */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: rgba(20, 20, 30, 0.8);
+  border: 1px solid var(--color-darkest-blue);
+  border-radius: 4px;
+  color: var(--color-accent-orange);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.btn-logout:hover {
+  background: var(--color-accent-orange);
+  color: var(--color-bg-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 0, 0.4);
+}
+
+.btn-logout svg {
+  width: 16px;
+  height: 16px;
+}
+
 /* Greeting Section */
 .greeting-section {
-  padding: 40px 20px;
+  padding: 60px 20px 40px 20px; /* Added top padding for fixed nav */
   text-align: center;
 }
 
@@ -3362,6 +3406,9 @@ datalist option:hover {
   animation: btn-spin 1s linear infinite;
   flex-shrink: 0;
   margin-right: 0.5rem;
+  display: inline-block;
+  opacity: 1;
+  visibility: visible;
 }
 
 .btn-analysis-container {

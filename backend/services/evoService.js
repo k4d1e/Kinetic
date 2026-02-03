@@ -30,7 +30,9 @@ const {
   analyzeResonanceContext,
   analyzeResonanceHealth,
   analyzeCatalysts,
-  analyzeElixirHealth
+  analyzeElixirHealth,
+  analyzeContentInventory,
+  getDateDaysAgo
 } = require('./gscService');
 
 const {
@@ -631,6 +633,117 @@ async function analyzeElixirDimension(pool, userId, siteUrl) {
 }
 
 /**
+ * INVENTORY DIMENSION (Content Performance)
+ * Analyze content inventory and keyword performance
+ * Used by Content Opportunity Protocol - Step 1
+ */
+async function analyzeInventoryDimension(pool, userId, siteUrl) {
+  console.log('📚 Analyzing INVENTORY (Content Performance)...');
+  
+  try {
+    // Initialize progress
+    setProgress(userId, 'inventory', {
+      status: 'fetching_gsc_data',
+      message: 'Fetching GSC query data...',
+      percent: 10
+    });
+    
+    // Calculate date range (last 16 months for maximum GSC data)
+    const endDate = getDateDaysAgo(1); // Yesterday
+    const startDate = getDateDaysAgo(480); // ~16 months ago
+    
+    // Update progress
+    setProgress(userId, 'inventory', {
+      status: 'analyzing_content',
+      message: 'Analyzing content performance...',
+      percent: 50
+    });
+    
+    // Analyze content inventory
+    const inventoryAnalysis = await analyzeContentInventory(pool, userId, siteUrl, startDate, endDate);
+    
+    // Update progress
+    setProgress(userId, 'inventory', {
+      status: 'complete',
+      message: 'Content inventory analysis complete',
+      percent: 100
+    });
+    
+    console.log(`   └─ Score: ${inventoryAnalysis.healthScore}/100 (${inventoryAnalysis.status})`);
+    
+    // Clear progress on completion
+    clearProgress(userId, 'inventory');
+    
+    // Format response to match E.V.O. dimension structure
+    return {
+      health: {
+        score: inventoryAnalysis.healthScore,
+        status: inventoryAnalysis.status,
+        metrics: inventoryAnalysis.metrics,
+        insights: inventoryAnalysis.insights
+      }
+    };
+  } catch (error) {
+    // Enhanced error logging with full context
+    console.error('❌ Error in analyzeInventoryDimension:');
+    console.error('   └─ User ID:', userId);
+    console.error('   └─ Site URL:', siteUrl);
+    console.error('   └─ Error Message:', error.message);
+    console.error('   └─ Error Stack:', error.stack);
+    if (error.response) {
+      console.error('   └─ Response Data:', error.response.data);
+    }
+    
+    // Update progress with error
+    setProgress(userId, 'inventory', {
+      status: 'error',
+      message: `Error: ${error.message}`,
+      percent: 0
+    });
+    
+    // Determine if this is an authentication issue or a data issue
+    const isAuthError = error.message?.includes('authentication') || 
+                       error.message?.includes('expired') || 
+                       error.message?.includes('log back in');
+    const isPermissionError = error.message?.includes('Access denied') || 
+                             error.message?.includes('permission');
+    const isNoDataError = error.message?.includes('No search data') || 
+                         error.message?.includes('not received any search traffic');
+    const isNoDataInRange = error.message?.includes('No user data') ||
+                           error.message?.includes('no data in date range');
+    
+    let recommendation = 'Check your Google Search Console connection and try again.';
+    
+    if (isAuthError) {
+      recommendation = 'Please log out of Kinetic and log back in to reconnect your Google Search Console account.';
+    } else if (isPermissionError) {
+      recommendation = 'Verify that the property is verified in Google Search Console and you have "Owner" or "Full User" permission level.';
+    } else if (isNoDataError || isNoDataInRange) {
+      recommendation = 'Wait for Google Search Console to collect search data for this property (typically 1-2 days after verification), or select a different property that has existing data.';
+    }
+    
+    return {
+      health: { 
+        score: 0, 
+        status: 'error', 
+        metrics: {
+          totalPages: 0,
+          rankingKeywords: 0,
+          avgPosition: 0,
+          contentCoverage: 0
+        }, 
+        insights: [{
+          type: 'ERROR',
+          severity: 'critical',
+          message: `Failed to analyze content inventory: ${error.message}`,
+          recommendation
+        }]
+      }
+    };
+  }
+}
+
+/**
  * Detect Emergence Patterns Across Dimensions
  * Identifies interconnections and cascading effects
  */
@@ -907,6 +1020,7 @@ module.exports = {
   analyzeResonanceDimension,
   analyzeWeaveDimension,
   analyzeElixirDimension,
+  analyzeInventoryDimension,
   detectEmergencePatterns,
   generateSystemIntelligence,
   generateActionPriorities,
