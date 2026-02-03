@@ -3495,6 +3495,13 @@ datalist option:hover {
   padding: 2rem;
   position: relative;
   box-shadow: 0 10px 50px rgba(45, 212, 191, 0.3);
+  /* Hide scrollbar while maintaining scroll functionality */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.analysis-modal-content::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 .analysis-modal-close {
@@ -3764,8 +3771,8 @@ datalist option:hover {
 }
 
 .evo-diagnosed-causes-label::before {
-  content: '🔍';
-  font-size: 1rem;
+  content: '✦';
+  font-size: 1.5rem;
 }
 
 .evo-diagnosed-causes-list {
@@ -3976,6 +3983,13 @@ datalist option:hover {
   border-radius: 4px;
   max-height: 300px;
   overflow-y: auto;
+  /* Hide scrollbar while maintaining scroll functionality */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.evo-diagnosed-urls-list::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 .evo-diagnosed-url {

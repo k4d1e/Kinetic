@@ -1312,7 +1312,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                       <div class="evo-diagnosed-cause-fix">→ ${opportunity.opportunity || opportunity.action}</div>
                       ${opportunity.keywords && opportunity.keywords.length > 0 ? `
                         <div class="evo-diagnosed-urls">
-                          <button class="evo-diagnosed-urls-toggle" data-cause-index="${index}">
+                          <button class="evo-diagnosed-urls-toggle" data-cause-index="${index}" data-toggle-type="keywords">
                             <svg class="evo-toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                               <polyline points="6 9 12 15 18 9"></polyline>
                             </svg>
@@ -1515,7 +1515,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                       ` : ''}
                       ${cause.urls && cause.urls.length > 0 ? `
                         <div class="evo-diagnosed-urls">
-                          <button class="evo-diagnosed-urls-toggle" data-cause-index="${index}">
+                          <button class="evo-diagnosed-urls-toggle" data-cause-index="${index}" data-toggle-type="urls">
                             <svg class="evo-toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                               <polyline points="6 9 12 15 18 9"></polyline>
                             </svg>
@@ -1600,6 +1600,15 @@ document.addEventListener('DOMContentLoaded', async () => {
    * @returns {string} Formatted label
    */
   function formatMetricLabel(key) {
+    // Custom labels for specific metrics
+    const customLabels = {
+      'underperformingPages': 'Low Perf. Pages'
+    };
+    
+    if (customLabels[key]) {
+      return customLabels[key];
+    }
+    
     // Convert camelCase to Title Case, preserving acronyms like URLs
     const label = key
       .replace(/([a-z\d])([A-Z])/g, '$1 $2')           // Insert space between lowercase/digit and uppercase
@@ -1652,6 +1661,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       e.preventDefault();
       const button = e.target.closest('.evo-diagnosed-urls-toggle');
       const causeIndex = button.dataset.causeIndex;
+      const toggleType = button.dataset.toggleType; // 'urls' or 'keywords'
       const modal = document.getElementById('analysis-modal');
       const urlsList = modal.querySelector(`.evo-diagnosed-urls-list[data-cause-index="${causeIndex}"]`);
       const icon = button.querySelector('.evo-toggle-icon');
@@ -1663,24 +1673,24 @@ document.addEventListener('DOMContentLoaded', async () => {
           icon.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
         }
         
-        // Update button text properly
-        const newText = isHidden ? 'Hide URLs' : 'View affected URLs';
-        
-        // Find and update only the text node (not creating new ones)
-        let textNode = null;
-        for (let i = 0; i < button.childNodes.length; i++) {
-          if (button.childNodes[i].nodeType === 3) { // Text node
-            textNode = button.childNodes[i];
-            break;
-          }
-        }
-        
-        if (textNode) {
-          textNode.textContent = newText;
+        // Update button text based on toggle type
+        let newText;
+        if (toggleType === 'keywords') {
+          newText = isHidden ? 'Hide related keywords' : 'View related keywords';
         } else {
-          // If no text node exists, create one
-          button.appendChild(document.createTextNode(newText));
+          newText = isHidden ? 'Hide URLs' : 'View affected URLs';
         }
+        
+        // Remove all existing text nodes to prevent duplication
+        const childNodes = Array.from(button.childNodes);
+        childNodes.forEach(node => {
+          if (node.nodeType === 3) { // Text node
+            button.removeChild(node);
+          }
+        });
+        
+        // Add the new text node
+        button.appendChild(document.createTextNode(newText));
       }
     }
   });
