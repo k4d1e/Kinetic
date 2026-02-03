@@ -649,9 +649,9 @@ async function analyzeInventoryDimension(pool, userId, siteUrl) {
       percent: 10
     });
     
-    // Calculate date range (last 16 months for maximum GSC data)
+    // Calculate date range (last 3 months for current GSC data)
     const endDate = getDateDaysAgo(1); // Yesterday
-    const startDate = getDateDaysAgo(480); // ~16 months ago
+    const startDate = getDateDaysAgo(90); // 3 months ago
     
     // Update progress
     setProgress(userId, 'inventory', {
@@ -760,9 +760,9 @@ async function analyzeKeywordOpportunitiesDimension(pool, userId, siteUrl) {
       percent: 10
     });
     
-    // Calculate date range (last 16 months for maximum GSC data)
+    // Calculate date range (last 3 months for current GSC data)
     const endDate = getDateDaysAgo(1); // Yesterday
-    const startDate = getDateDaysAgo(480); // ~16 months ago
+    const startDate = getDateDaysAgo(90); // 3 months ago
     
     // Update progress
     setProgress(userId, 'keyword_opportunities', {

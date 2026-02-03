@@ -372,8 +372,7 @@ Your analysis should produce:
 - Baseline metrics for comparison in future steps
 
 CONTEXT & REQUIREMENTS:
-- Use Google Search Console API for accurate ranking data
-- Work with last 16 months of data if available (GSC maximum)
+- Work with Google Search Console API data (3-month window)
 - Focus on ${executionInstructions.concept}
 - Provide data in structured format (tables, CSV, or JSON)
 - Include visualization recommendations (charts showing content distribution)
@@ -425,7 +424,7 @@ ${actualMetricsSection}
 
 INSTRUCTIONS:
 1. Pull comprehensive GSC query data
-   - Access Google Search Console API for the last 16 months of data
+   - Access Google Search Console API for the last 3 months of data
    - Extract all queries with impressions > 10 to filter noise
    - Collect metrics: query, impressions, clicks, CTR, average position
    - Include queries ranking anywhere (even page 5+) to find hidden opportunities
@@ -480,7 +479,7 @@ INSTRUCTIONS:
    - Content gap severity (high-volume queries with weak positions)
 
 CONTEXT & REQUIREMENTS:
-- Work with Google Search Console API data (16-month maximum)
+- Work with Google Search Console API data (3-month window)
 - Focus on ${executionInstructions.concept}
 - Provide data in structured tables or CSV format
 - Include visualization recommendations (CTR gap charts, position distribution)
