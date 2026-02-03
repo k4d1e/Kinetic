@@ -147,6 +147,7 @@ No execution instructions found for this protocol step. Please ensure protocolDe
     const isSchemaProtocol = executionInstructions.schemaType !== undefined;
     const isAnalysisProtocol = executionInstructions.dataSource !== undefined;
     const isLinkProtocol = protocolKey === 'internal_link_expansion_protocol';
+    const isContentPlanningProtocol = protocolKey === 'keyword_coverage_gap_protocol' && stepNumber === 4;
 
     // Generate appropriate prompt based on protocol type
     if (isSchemaProtocol) {
@@ -155,6 +156,8 @@ No execution instructions found for this protocol step. Please ensure protocolDe
       return this.generateAnalysisPrompt(context, fileName);
     } else if (isLinkProtocol) {
       return this.generateLinkExpansionPrompt(context, fileName);
+    } else if (isContentPlanningProtocol) {
+      return this.generateContentPlanningPrompt(context, fileName);
     } else {
       return this.generateGenericPrompt(context, fileName);
     }
@@ -220,7 +223,12 @@ The plan should be actionable, technology-agnostic, and ready for immediate impl
    * @returns {string} Analysis-focused prompt
    */
   generateAnalysisPrompt(context, fileName) {
-    const { mission, stepName, executionInstructions, stepNumber, diagnosedCause } = context;
+    const { mission, stepName, executionInstructions, stepNumber, diagnosedCause, protocolKey } = context;
+    
+    // Check if this is Content Opportunity Protocol Step 1 - use content-focused prompt
+    if (protocolKey === 'keyword_coverage_gap_protocol' && stepNumber === 1) {
+      return this.generateContentInventoryPrompt(context, fileName);
+    }
     
     // Check if we have specific diagnostic data with URLs and strategies
     if (diagnosedCause && diagnosedCause.urls && diagnosedCause.strategies) {
@@ -228,7 +236,7 @@ The plan should be actionable, technology-agnostic, and ready for immediate impl
       return this.generateDataDrivenAnalysisPrompt(context, fileName);
     }
     
-    // Otherwise, use standard E.V.O. metrics approach
+    // Otherwise, use standard E.V.O. metrics approach (for indexation protocols)
     console.log('✓ Using standard E.V.O. metrics prompt');
     
     // Try to get E.V.O. data from the page
@@ -296,6 +304,161 @@ The plan should include:
 - Testing and validation approach
 
 Make the analysis actionable and ready for immediate implementation.`;
+  },
+
+  /**
+   * Generate Content Inventory Prompt (for Content Opportunity Protocol - Step 1)
+   * @param {Object} context - Page context
+   * @param {string} fileName - Output file name
+   * @returns {string} Content inventory-focused prompt
+   */
+  generateContentInventoryPrompt(context, fileName) {
+    const { mission, stepName, executionInstructions, stepNumber } = context;
+    
+    // Try to get E.V.O. data from the page
+    const evoData = this.getEVODataForStep(stepNumber);
+    
+    // Build actual metrics section if E.V.O. data is available
+    let actualMetricsSection = '';
+    if (evoData) {
+      actualMetricsSection = this.buildContentInventoryMetricsSection(evoData, executionInstructions);
+    }
+
+    return `You are implementing ${stepName} as part of ${mission}.
+
+OBJECTIVE: ${executionInstructions.action}
+
+IMPLEMENTATION FOCUS:
+${executionInstructions.implementation}
+
+DATA SOURCE: ${executionInstructions.dataSource}
+
+${actualMetricsSection}
+
+INSTRUCTIONS:
+1. Conduct a comprehensive content inventory
+   - Crawl all pages on the site or identify pages from sitemap
+   - Extract target keywords from title tags, meta descriptions, and H1 tags
+   - Map each page to its primary content focus and intent
+
+2. Pull GSC data to map actual keyword performance
+   - Connect to Google Search Console API or guide manual export
+   - For each page URL, extract all queries it ranks for (with impressions, clicks, position)
+   - Create a mapping: Page URL → Keywords → Current Positions → Traffic Data
+
+3. Analyze content coverage and performance:
+   - Identify pages with strong keyword rankings (positions 1-10)
+   - Find pages with moderate rankings (positions 11-20) that need optimization
+   - Detect pages with weak rankings (positions 21+) or no significant traffic
+   - Calculate average position per page and content quality indicators
+
+4. Identify content inventory insights:
+   - Which pages are capturing the most organic traffic?
+   - Which pages have high impressions but low clicks (poor CTR)?
+   - Which pages rank for many keywords vs single-focus pages?
+   - What content gaps exist (keywords with impressions but no dedicated page)?
+
+CONTENT INVENTORY DELIVERABLES:
+Your analysis should produce:
+- Complete page inventory with URLs and primary topics
+- Keyword mapping for each page (what it ranks for today)
+- Performance tiers: High performers, moderate performers, underperformers
+- Content quality assessment based on ranking patterns
+- Baseline metrics for comparison in future steps
+
+CONTEXT & REQUIREMENTS:
+- Use Google Search Console API for accurate ranking data
+- Work with last 16 months of data if available (GSC maximum)
+- Focus on ${executionInstructions.concept}
+- Provide data in structured format (tables, CSV, or JSON)
+- Include visualization recommendations (charts showing content distribution)
+- Identify quick wins (pages close to page 1 that need small optimizations)
+
+DELIVERABLE:
+Create a detailed content inventory audit saved as: ${fileName}
+
+The audit should include:
+- Executive summary: Total pages, keyword coverage, performance overview
+- Detailed page-by-page breakdown with rankings and traffic
+- Content performance tiers with specific page examples
+- Content gaps and opportunities for new pages
+- Baseline metrics for measuring future improvement
+
+This inventory will serve as the foundation for Steps 2-4 of the Content Opportunity Protocol.
+
+Make the inventory comprehensive, data-driven, and ready to inform content strategy decisions.`;
+  },
+
+  /**
+   * Build Content Inventory Metrics Section
+   * Formats E.V.O. data for Content Opportunity Protocol Step 1
+   * @param {Object} evoData - E.V.O. dimension data
+   * @param {Object} executionInstructions - Step execution instructions
+   * @returns {string} Formatted metrics section
+   */
+  buildContentInventoryMetricsSection(evoData, executionInstructions) {
+    const health = evoData.health || {};
+    const metrics = health.metrics || {};
+    const insights = health.insights || [];
+    
+    let section = `\n═══════════════════════════════════════════════════════════
+ACTUAL SITE DATA (Content Inventory Analysis)
+═══════════════════════════════════════════════════════════\n\n`;
+    
+    section += `CONTENT HEALTH STATUS: ${health.status || 'unknown'} (Score: ${health.score || 'N/A'}/100)\n\n`;
+    
+    // Add key content metrics
+    section += `CONTENT INVENTORY METRICS:\n`;
+    
+    // Prioritize content-specific metrics
+    const priorityMetrics = ['totalPages', 'rankingKeywords', 'avgPosition', 'contentCoverage', 'topPerformingPages', 'underperformingPages'];
+    const displayedMetrics = new Set();
+    
+    priorityMetrics.forEach(key => {
+      if (metrics[key] !== undefined) {
+        displayedMetrics.add(key);
+        const label = key.replace(/([A-Z])/g, ' $1').trim();
+        const formattedLabel = label.charAt(0).toUpperCase() + label.slice(1);
+        section += `- ${formattedLabel}: ${metrics[key]}\n`;
+      }
+    });
+    
+    // Add remaining metrics
+    Object.entries(metrics).forEach(([key, value]) => {
+      if (!displayedMetrics.has(key)) {
+        const label = key.replace(/([A-Z])/g, ' $1').trim();
+        const formattedLabel = label.charAt(0).toUpperCase() + label.slice(1);
+        section += `- ${formattedLabel}: ${value}\n`;
+      }
+    });
+    
+    // Add content opportunities if available
+    if (insights.length > 0) {
+      section += `\nCONTENT OPPORTUNITIES:\n`;
+      insights.forEach((insight, index) => {
+        section += `${index + 1}. [${insight.severity?.toUpperCase() || 'INFO'}] ${insight.type}\n`;
+        section += `   ${insight.message}\n`;
+        
+        if (insight.contentOpportunities && insight.contentOpportunities.length > 0) {
+          insight.contentOpportunities.forEach(opp => {
+            section += `   • ${opp.topic || opp.keyword}: ${opp.impressions || 0} impressions\n`;
+            section += `     → ${opp.opportunity || opp.action}\n`;
+          });
+        }
+        
+        if (insight.recommendation) {
+          section += `   → ${insight.recommendation}\n`;
+        }
+        section += `\n`;
+      });
+    }
+    
+    section += `═══════════════════════════════════════════════════════════\n\n`;
+    section += `IMPORTANT: Use the actual content inventory metrics above when creating your analysis.\n`;
+    section += `Reference specific page counts, keyword coverage, and performance tiers.\n`;
+    section += `Your inventory should establish a baseline for the remaining steps of the Content Opportunity Protocol.\n\n`;
+    
+    return section;
   },
 
   /**
@@ -464,6 +627,71 @@ The plan should include:
 Make the plan actionable, technology-agnostic, and ready for immediate implementation${isImplementationStep ? ', with special attention to preserving UX and architectural integrity' : ''}.`;
 
     return basePrompt;
+  },
+
+  /**
+   * Generate Content Planning Prompt (for keyword coverage gap protocol)
+   * @param {Object} context - Page context
+   * @param {string} fileName - Output file name
+   * @returns {string} Content planning prompt
+   */
+  generateContentPlanningPrompt(context, fileName) {
+    const { mission, stepName, executionInstructions } = context;
+    
+    return `You are implementing ${stepName} as part of ${mission}.
+
+OBJECTIVE: ${executionInstructions.action}
+
+IMPLEMENTATION FOCUS:
+${executionInstructions.implementation}
+
+CONTEXT:
+You have access to:
+1. Content Inventory Audit - List of existing pages and their ranking keywords from GSC
+2. GSC Keyword Discovery - All queries with impressions, clicks, CTR, and positions
+3. Coverage Gap Analysis - High-impression keywords with poor performance or no dedicated page
+
+INSTRUCTIONS:
+1. Analyze the coverage gaps and prioritize opportunities
+   - Review high-impression queries with no dedicated targeting pages
+   - Identify keyword clusters that can be grouped into single pages
+   - Consider user intent and search journey from query data
+   - Assess current position and potential improvement (page 2 to page 1 = highest ROI)
+
+2. Create a comprehensive content plan that includes:
+   - New page recommendations with specific URLs
+   - Primary and secondary keyword targets for each page
+   - Content structure and key sections to include
+   - Internal linking strategy from existing pages
+   - Priority ranking based on traffic potential and effort
+
+3. For each recommended page, provide:
+   - Suggested URL path (SEO-friendly)
+   - Primary keyword (highest volume/relevance)
+   - Secondary keywords to target (2-5 keywords)
+   - Content outline with H2/H3 structure
+   - Word count recommendation
+   - Key topics and questions to address
+   - Internal links from existing relevant pages
+
+4. Adapt to the site's technology stack:
+   - For static sites: Create new HTML files with proper structure
+   - For CMSs: Provide content briefs for CMS entry
+   - For frameworks (React/Next/Vue): Plan components and routing
+   - For dynamic sites: Consider URL patterns and templates
+
+DELIVERABLE:
+Create a detailed content planning strategy saved as: ${fileName}
+
+The plan should include:
+- Executive summary of opportunity size (total potential impressions and estimated traffic gain)
+- Prioritized list of 5-10 new or optimized pages based on GSC data
+- Detailed brief for each page (URL, primary query, related queries from GSC, outline, links)
+- Quick wins: Queries ranking 11-20 that need optimization (highest ROI)
+- New content: High-impression queries with no dedicated page
+- Success metrics to track (target positions, CTR improvements, click gains)
+
+Make the plan actionable, prioritized by GSC impression data and position improvement potential, ready for immediate content creation.`;
   },
 
   /**

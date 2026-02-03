@@ -11,6 +11,7 @@ const {
   analyzeResonanceDimension,
   analyzeWeaveDimension,
   analyzeElixirDimension,
+  analyzeInventoryDimension,
   detectEmergencePatterns,
   generateSystemIntelligence,
   getProgress
@@ -202,10 +203,13 @@ async function getDimensionAnalysis(req, res) {
       case 'elixir':
         data = await analyzeElixirDimension(pool, userId, siteUrl);
         break;
+      case 'inventory':
+        data = await analyzeInventoryDimension(pool, userId, siteUrl);
+        break;
       default:
         return res.status(400).json({
           error: 'Bad Request',
-          message: `Unknown dimension: ${dimension}. Valid: substrate, crawl, sitemap, redirect, lattice, synapse, resonance, weave, elixir`
+          message: `Unknown dimension: ${dimension}. Valid: substrate, crawl, sitemap, redirect, lattice, synapse, resonance, weave, elixir, inventory`
         });
     }
 

@@ -111,7 +111,8 @@ CREATE INDEX IF NOT EXISTS idx_sprint_steps_completed_card_id ON sprint_card_ste
 INSERT INTO sprint_action_cards (card_type, display_name, total_steps, description) VALUES
 ('meta_surgeon_protocol', 'Meta Surgeon Protocol', 4, 'Inject 4 Truth Layers to establish entity identity'),
 ('gsc_indexation_protocol', 'Index Diagnostic Protocol', 4, 'Audit and optimize GSC indexation health: coverage, crawl stats, sitemaps, and redirects'),
-('internal_link_expansion_protocol', 'Link Architecture Protocol', 4, 'Optimize internal linking structure to distribute authority and guide users')
+('internal_link_expansion_protocol', 'Link Architecture Protocol', 4, 'Optimize internal linking structure to distribute authority and guide users'),
+('keyword_coverage_gap_protocol', 'Content Opportunity Protocol', 4, 'Use GSC impression data to identify content gaps and optimization opportunities')
 ON CONFLICT (card_type) DO NOTHING;
 
 -- Module Card Types table: Store metadata for each calibration module type

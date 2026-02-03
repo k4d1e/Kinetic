@@ -50,12 +50,24 @@ function getAuthStatus(req, res) {
 /**
  * Logout user
  */
-function logout(req, res) {
+async function logout(req, res) {
+  const userId = req.user?.id;
+  
   req.logout((err) => {
     if (err) {
       return res.status(500).json({
         error: 'Logout failed',
         message: err.message
+      });
+    }
+    
+    // Clear tokens from database if we have a user ID
+    if (userId && req.app.locals.pool) {
+      req.app.locals.pool.query(
+        'UPDATE users SET access_token = NULL, refresh_token = NULL, token_expiry = NULL WHERE id = $1',
+        [userId]
+      ).catch(err => {
+        console.error('Error clearing tokens on logout:', err);
       });
     }
     

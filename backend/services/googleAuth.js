@@ -92,6 +92,11 @@ async function getOAuth2Client(pool, userId) {
 
   const user = result.rows[0];
   
+  // Check if refresh token exists
+  if (!user.refresh_token) {
+    throw new Error('No refresh token found. Please log out and log back in to reconnect Google Search Console.');
+  }
+  
   const oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
@@ -142,6 +147,18 @@ async function ensureFreshToken(pool, userId) {
     return credentials.access_token;
   } catch (error) {
     console.error('Error refreshing token:', error);
+    console.error('Error details:', error.response?.data || error.message);
+    
+    // Check if it's an invalid_grant error
+    if (error.message?.includes('invalid_grant') || error.response?.data?.error === 'invalid_grant') {
+      // Clear the invalid tokens from the database
+      await pool.query(
+        'UPDATE users SET access_token = NULL, refresh_token = NULL, token_expiry = NULL WHERE id = $1',
+        [userId]
+      );
+      throw new Error('Your Google authentication has expired or been revoked. Please log out and log back in to reconnect Google Search Console.');
+    }
+    
     throw new Error('Failed to refresh access token. Please re-authenticate.');
   }
 }

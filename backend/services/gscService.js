@@ -101,13 +101,19 @@ async function fetchSearchAnalytics(pool, userId, siteUrl, options = {}) {
     // Provide more specific error messages based on the error type
     let errorMessage = 'Failed to fetch search analytics data';
     
-    if (error.code === 403) {
+    // Check for invalid_grant first (most common token issue)
+    if (error.message?.includes('invalid_grant') || 
+        error.response?.data?.error === 'invalid_grant' ||
+        error.message?.includes('Invalid Credentials')) {
+      errorMessage = 'invalid_grant';
+      throw new Error(errorMessage);
+    } else if (error.code === 403) {
       errorMessage = `Access denied. Verify that the property "${siteUrl}" is verified in Google Search Console and you have permission to access it.`;
     } else if (error.code === 404) {
       errorMessage = `Property not found. "${siteUrl}" does not exist in your Google Search Console account. Please check the URL format.`;
     } else if (error.message?.includes('No user data')) {
       errorMessage = `No search data available for "${siteUrl}". This property may be newly verified or has not received any search traffic yet.`;
-    } else if (error.message?.includes('invalid_grant') || error.message?.includes('Invalid token') || error.message?.includes('Token has been expired') || error.response?.data?.error === 'invalid_grant') {
+    } else if (error.message?.includes('Invalid token') || error.message?.includes('Token has been expired')) {
       errorMessage = 'Your Google authentication has expired. Please log out and log back in to reconnect Google Search Console.';
     } else if (error.message) {
       // Include the actual error message from Google API

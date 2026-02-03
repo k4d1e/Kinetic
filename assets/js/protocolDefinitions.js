@@ -205,6 +205,75 @@ const protocolDefinitions = {
   },
 
   /**
+   * Keyword Coverage Gap Protocol
+   * Focus: Identifying content opportunities through GSC impression data analysis
+   */
+  keyword_coverage_gap_protocol: {
+    missionTitle: "Content Opportunity Protocol",
+    entityLabel: "Content Coverage Strength",
+    page1: {
+      insight: "Google is already showing your site for thousands of search queries, but many are buried on page 2 or have terrible click-through rates. Right now, there's search demand finding you in impressions but never clicking through. Let's analyze your GSC data, map impression opportunities to your content inventory, and identify high-value gaps where new or optimized pages can capture that waiting traffic.",
+      companyName: "{{PROPERTY_NAME}}"
+    },
+    steps: [
+      {
+        title: "Content Inventory Audit",
+        description: "First, we map every page on your site to the keywords it's actually ranking for in GSC. We'll see which pages own which queries, how many clicks they get, and what positions they hold. This creates our baseline: what content exists and what it's capturing today.",
+        executionInstructions: {
+          concept: "comprehensive content and keyword inventory",
+          action: "Audit existing pages and map them to their currently ranking keywords",
+          dataSource: "Google Search Console API + site crawl",
+          implementation: "Crawl all pages, extract target keywords from meta tags and content, pull GSC ranking data for each page, create mapping of pages → keywords → positions → traffic",
+          deliverable: "content-inventory-audit.md",
+          evoDimension: "inventory",
+          evoMetrics: ["totalPages", "rankingKeywords", "avgPosition", "contentCoverage"],
+          healthThreshold: 70
+        }
+      },
+      {
+        title: "Keyword Discovery from GSC",
+        description: "Next, we pull every search query from GSC that generated impressions—even if you rank on page 5. We'll find queries with high impressions but terrible CTR, queries stuck on page 2, and queries where Google shows you but users never click. This is your hidden opportunity list.",
+        executionInstructions: {
+          concept: "GSC-based keyword discovery and opportunity mapping",
+          action: "Extract all queries from GSC to identify keywords with impressions that could drive more traffic",
+          dataSource: "Google Search Console Search Analytics API",
+          implementation: "Pull GSC query data for last 16 months (max available), filter for queries with impressions > 10, identify low-CTR queries (impressions > clicks ratio poor), find queries ranking positions 11-50, flag queries with high impressions but low clicks as quick wins, group by search intent",
+          deliverable: "keyword-demand-research.md",
+          gscMetrics: ["query", "impressions", "clicks", "ctr", "position"]
+        }
+      },
+      {
+        title: "Coverage Gap Analysis",
+        description: "Now we compare: What queries have impressions but no dedicated page? What queries rank on page 2 with a small push needed? What high-impression queries have embarrassing CTRs? We'll score each gap by traffic potential—impressions × expected CTR improvement = your content roadmap.",
+        executionInstructions: {
+          concept: "GSC-based coverage gap identification",
+          action: "Compare GSC query performance against existing content to find coverage gaps and opportunities",
+          dataSource: "Google Search Console Search Analytics API",
+          implementation: "Cross-reference GSC query data with content inventory from Step 1, identify high-impression queries (>100) with poor positions (>10), find queries with multiple weak-ranking pages (cannibalization), detect queries with impressions but no clear target page, calculate opportunity score using (impressions × expected_CTR_improvement), prioritize by potential traffic gain",
+          deliverable: "coverage-gap-analysis.md",
+          opportunityMetrics: ["impressions", "current_position", "potential_position", "traffic_gain"]
+        }
+      },
+      {
+        title: "Content Planning Strategy",
+        description: "Finally, we design the pages. For each gap, we'll cluster related GSC queries, plan URL structure, outline content sections based on search intent, and map internal links. You'll get a prioritized list of pages to create or optimize—ranked by traffic potential and effort required.",
+        executionInstructions: {
+          concept: "strategic content planning relative to keyword demand",
+          action: "Plan new pages and content updates to capture identified keyword opportunities",
+          implementation: "Group related keywords into topical clusters, design page structure and content briefs for each cluster, plan URL hierarchy and internal linking strategy, prioritize implementation by traffic potential and difficulty, provide specific page creation guidance",
+          deliverable: "content-planning-strategy.md",
+          promptType: "content_planning"
+        }
+      }
+    ],
+    completion: {
+      scanning: "Status: Analyzing Coverage Gaps",
+      established: "Status: Content Strategy Complete.",
+      success: "Success: Your content roadmap is ready. Opportunity pages identified."
+    }
+  },
+
+  /**
    * Template for future protocols
    * Copy this structure when adding new protocols
    */
