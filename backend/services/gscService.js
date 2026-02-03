@@ -1975,6 +1975,335 @@ async function analyzeContentInventory(pool, userId, siteUrl, startDate, endDate
   };
 }
 
+/**
+ * KEYWORD DISCOVERY ANALYSIS
+ * Analyze keyword opportunities from GSC (queries with impressions but poor CTR/positions)
+ * Used by Content Opportunity Protocol - Step 2
+ * @param {Pool} pool - PostgreSQL connection pool
+ * @param {number} userId - User ID
+ * @param {string} siteUrl - GSC property URL
+ * @param {string} startDate - Start date (YYYY-MM-DD)
+ * @param {string} endDate - End date (YYYY-MM-DD)
+ * @returns {Object} - Keyword opportunity metrics and insights
+ */
+async function analyzeKeywordDiscovery(pool, userId, siteUrl, startDate, endDate) {
+  console.log(`🔍 Starting Keyword Discovery Analysis for ${siteUrl}...`);
+  
+  // Fetch GSC query data with query+page dimensions to get URLs
+  const response = await fetchSearchAnalytics(pool, userId, siteUrl, {
+    startDate: startDate,
+    endDate: endDate,
+    dimensions: ['query', 'page'],
+    rowLimit: 25000 // Higher limit for comprehensive keyword discovery
+  });
+  
+  const rows = response.rows || [];
+  
+  if (!rows || rows.length === 0) {
+    return {
+      metrics: {
+        totalQueries: 0,
+        lowCTROpportunities: 0,
+        page2QuickWins: 0,
+        highVolumeOpportunities: 0,
+        zeroClickQueries: 0,
+        totalImpressions: 0,
+        avgCTR: 0,
+        avgPosition: 0,
+        potentialTrafficGain: 0
+      },
+      insights: [{
+        type: 'NO_DATA',
+        severity: 'warning',
+        message: 'No GSC query data available for the selected date range. Wait for Google to collect data or check if the property is verified.',
+        recommendation: 'Ensure your site is verified in Google Search Console and has been receiving organic traffic.'
+      }],
+      healthScore: 0,
+      status: 'critical'
+    };
+  }
+  
+  console.log(`✓ Fetched ${rows.length} query-page combinations from GSC`);
+  
+  // Aggregate query-level data (sum across all pages for each query)
+  const queryData = {};
+  
+  rows.forEach(row => {
+    const query = row.keys[0];
+    const page = row.keys[1];
+    const position = row.position;
+    const impressions = row.impressions;
+    const clicks = row.clicks;
+    const ctr = row.ctr;
+    
+    if (!queryData[query]) {
+      queryData[query] = {
+        query,
+        totalImpressions: 0,
+        totalClicks: 0,
+        pages: [],
+        bestPosition: position,
+        bestPage: page
+      };
+    }
+    
+    queryData[query].totalImpressions += impressions;
+    queryData[query].totalClicks += clicks;
+    queryData[query].pages.push({ page, position, impressions, clicks, ctr });
+    
+    // Track best-ranking page (lowest position)
+    if (position < queryData[query].bestPosition) {
+      queryData[query].bestPosition = position;
+      queryData[query].bestPage = page;
+    }
+  });
+  
+  console.log(`✓ Aggregated data for ${Object.keys(queryData).length} unique queries`);
+  
+  // Initialize opportunity categories
+  const lowCTROpps = [];
+  const page2QuickWins = [];
+  const highVolumeOpps = [];
+  const zeroClickQueries = [];
+  
+  let totalImpressions = 0;
+  let totalClicks = 0;
+  let totalCTR = 0;
+  let totalPosition = 0;
+  let potentialTrafficGain = 0;
+  let queryCount = 0;
+  
+  // Analyze each query for opportunities
+  Object.values(queryData).forEach(qData => {
+    const query = qData.query;
+    const impressions = qData.totalImpressions;
+    const clicks = qData.totalClicks;
+    const ctr = clicks / impressions;
+    const position = qData.bestPosition;
+    const page = qData.bestPage;
+    
+    queryCount++;
+    totalImpressions += impressions;
+    totalClicks += clicks;
+    totalCTR += ctr;
+    totalPosition += position;
+    
+    const expectedCTR = getExpectedCTR(position);
+    const ctrGap = expectedCTR - ctr;
+    const potentialGain = Math.round(impressions * ctrGap);
+    
+    // Category 1: Low CTR Opportunities (ranking well but poor CTR)
+    if (impressions > 50 && position <= 10 && ctr < expectedCTR * 0.7) {
+      lowCTROpps.push({
+        query,
+        page,
+        impressions,
+        clicks,
+        ctr: Math.round(ctr * 10000) / 100, // Convert to percentage
+        position: Math.round(position * 10) / 10,
+        expectedCTR: Math.round(expectedCTR * 10000) / 100,
+        priority: position <= 5 ? 'high' : 'medium',
+        opportunity: `CTR is ${Math.round((ctr / expectedCTR) * 100)}% of expected - optimize title/meta`,
+        potentialGain,
+        category: 'low_ctr'
+      });
+      potentialTrafficGain += potentialGain;
+    }
+    
+    // Category 2: Page 2 Quick Wins (positions 11-20)
+    if (impressions > 30 && position >= 11 && position <= 20) {
+      const targetCTR = getExpectedCTR(5); // Target position 5
+      const quickWinGain = Math.round(impressions * (targetCTR - ctr));
+      
+      page2QuickWins.push({
+        query,
+        page,
+        impressions,
+        clicks,
+        ctr: Math.round(ctr * 10000) / 100,
+        position: Math.round(position * 10) / 10,
+        expectedCTR: Math.round(targetCTR * 10000) / 100,
+        priority: position <= 15 ? 'high' : 'medium',
+        opportunity: `Move from position ${Math.round(position)} to top 5 for ${quickWinGain}+ monthly clicks`,
+        potentialGain: quickWinGain,
+        category: 'page_2'
+      });
+      potentialTrafficGain += quickWinGain;
+    }
+    
+    // Category 3: High Volume Low Position (>100 impressions, position >20)
+    if (impressions > 100 && position > 20) {
+      const targetCTR = getExpectedCTR(10); // Target position 10
+      const highVolGain = Math.round(impressions * (targetCTR - ctr));
+      
+      highVolumeOpps.push({
+        query,
+        page,
+        impressions,
+        clicks,
+        ctr: Math.round(ctr * 10000) / 100,
+        position: Math.round(position * 10) / 10,
+        expectedCTR: Math.round(targetCTR * 10000) / 100,
+        priority: impressions > 500 ? 'high' : impressions > 200 ? 'medium' : 'low',
+        opportunity: `High search volume (${impressions} impressions) - create dedicated optimized content`,
+        potentialGain: highVolGain,
+        category: 'high_volume'
+      });
+      potentialTrafficGain += highVolGain;
+    }
+    
+    // Category 4: Zero-Click Queries (impressions but no clicks)
+    if (impressions > 20 && clicks === 0 && position < 30) {
+      const zeroClickGain = Math.round(impressions * expectedCTR);
+      
+      zeroClickQueries.push({
+        query,
+        page,
+        impressions,
+        clicks: 0,
+        ctr: 0,
+        position: Math.round(position * 10) / 10,
+        expectedCTR: Math.round(expectedCTR * 10000) / 100,
+        priority: position < 15 ? 'high' : 'medium',
+        opportunity: `Visible but never clicked - improve title/snippet appeal`,
+        potentialGain: zeroClickGain,
+        category: 'zero_click'
+      });
+      potentialTrafficGain += zeroClickGain;
+    }
+  });
+  
+  // Sort each category by potential gain
+  lowCTROpps.sort((a, b) => b.potentialGain - a.potentialGain);
+  page2QuickWins.sort((a, b) => b.potentialGain - a.potentialGain);
+  highVolumeOpps.sort((a, b) => b.potentialGain - a.potentialGain);
+  zeroClickQueries.sort((a, b) => b.potentialGain - a.potentialGain);
+  
+  const totalQueries = queryCount;
+  const avgCTR = totalCTR / totalQueries;
+  const avgPosition = totalPosition / totalQueries;
+  
+  console.log(`✓ Found ${lowCTROpps.length} low CTR opportunities`);
+  console.log(`✓ Found ${page2QuickWins.length} page 2 quick wins`);
+  console.log(`✓ Found ${highVolumeOpps.length} high volume opportunities`);
+  console.log(`✓ Found ${zeroClickQueries.length} zero-click queries`);
+  
+  // Generate insights
+  const insights = [];
+  
+  // Insight 1: Overview
+  insights.push({
+    type: 'KEYWORD_DISCOVERY_OVERVIEW',
+    severity: 'info',
+    message: `Analyzed ${totalQueries.toLocaleString()} queries with ${totalImpressions.toLocaleString()} total impressions. Average position: ${avgPosition.toFixed(1)}, Average CTR: ${(avgCTR * 100).toFixed(2)}%.`,
+    recommendation: potentialTrafficGain > 1000 
+      ? `Identified ${potentialTrafficGain.toLocaleString()}+ monthly clicks in untapped opportunities across ${lowCTROpps.length + page2QuickWins.length + highVolumeOpps.length + zeroClickQueries.length} keywords.`
+      : `Found ${lowCTROpps.length + page2QuickWins.length + highVolumeOpps.length + zeroClickQueries.length} keyword opportunities to optimize for better performance.`
+  });
+  
+  // Insight 2: Low CTR Opportunities
+  if (lowCTROpps.length > 0) {
+    insights.push({
+      type: 'LOW_CTR_OPPORTUNITIES',
+      severity: 'warning',
+      message: `${lowCTROpps.length} queries rank on page 1 but have CTR below expected rates. These are quick wins - you already rank well, just need better titles/meta descriptions.`,
+      keywordOpportunities: lowCTROpps.slice(0, 15),
+      recommendation: `Focus on the top ${Math.min(10, lowCTROpps.length)} low CTR keywords first. Rewrite title tags and meta descriptions to be more compelling and match search intent.`
+    });
+  }
+  
+  // Insight 3: Page 2 Quick Wins
+  if (page2QuickWins.length > 0) {
+    insights.push({
+      type: 'PAGE_2_QUICK_WINS',
+      severity: 'warning',
+      message: `${page2QuickWins.length} queries rank on page 2 (positions 11-20) with ${page2QuickWins.reduce((sum, q) => sum + q.impressions, 0).toLocaleString()} combined impressions. Small optimizations could push these to page 1.`,
+      keywordOpportunities: page2QuickWins.slice(0, 15),
+      recommendation: `Target the top ${Math.min(10, page2QuickWins.length)} page 2 keywords. Add more content depth, improve on-page SEO, and build internal links to these pages.`
+    });
+  }
+  
+  // Insight 4: High Volume Opportunities
+  if (highVolumeOpps.length > 0) {
+    insights.push({
+      type: 'HIGH_VOLUME_OPPORTUNITIES',
+      severity: 'info',
+      message: `${highVolumeOpps.length} high-volume queries (>100 impressions each) rank beyond position 20. These represent significant untapped demand worth ${highVolumeOpps.reduce((sum, q) => sum + q.potentialGain, 0).toLocaleString()}+ monthly clicks.`,
+      keywordOpportunities: highVolumeOpps.slice(0, 15),
+      recommendation: `Create dedicated, comprehensive content pages for the top ${Math.min(5, highVolumeOpps.length)} high-volume keywords. These need focused optimization and quality content to compete.`
+    });
+  }
+  
+  // Insight 5: Zero-Click Queries
+  if (zeroClickQueries.length > 0) {
+    insights.push({
+      type: 'ZERO_CLICK_QUERIES',
+      severity: 'warning',
+      message: `${zeroClickQueries.length} queries show your site in search results but have never received a single click, despite ${zeroClickQueries.reduce((sum, q) => sum + q.impressions, 0).toLocaleString()} total impressions.`,
+      keywordOpportunities: zeroClickQueries.slice(0, 15),
+      recommendation: `Investigate why these queries get zero clicks. Check if titles/descriptions are missing, unappealing, or if featured snippets are stealing clicks. Fix the most visible ones first.`
+    });
+  }
+  
+  // Calculate health score
+  let healthScore = 50; // Start at middle
+  
+  // Factor 1: Average position (0-20 points)
+  if (avgPosition <= 15) healthScore += 20;
+  else if (avgPosition <= 25) healthScore += 10;
+  else if (avgPosition <= 35) healthScore += 5;
+  
+  // Factor 2: CTR performance (0-15 points)
+  const avgExpectedCTR = getExpectedCTR(avgPosition);
+  const ctrRatio = avgCTR / avgExpectedCTR;
+  if (ctrRatio >= 0.8) healthScore += 15;
+  else if (ctrRatio >= 0.6) healthScore += 10;
+  else if (ctrRatio >= 0.4) healthScore += 5;
+  
+  // Factor 3: High-value queries (0-15 points)
+  const highImpressionQueries = rows.filter(r => r.impressions > 100).length;
+  const highImpressionRatio = highImpressionQueries / totalQueries;
+  if (highImpressionRatio >= 0.1) healthScore += 15;
+  else if (highImpressionRatio >= 0.05) healthScore += 10;
+  else if (highImpressionRatio >= 0.02) healthScore += 5;
+  
+  // Factor 4: Zero-click penalty (0 to -10 points)
+  const zeroClickRatio = zeroClickQueries.length / totalQueries;
+  if (zeroClickRatio > 0.3) healthScore -= 10;
+  else if (zeroClickRatio > 0.2) healthScore -= 5;
+  
+  // Factor 5: Low CTR penalty (0 to -10 points)
+  const lowCTRRatio = lowCTROpps.length / totalQueries;
+  if (lowCTRRatio > 0.3) healthScore -= 10;
+  else if (lowCTRRatio > 0.2) healthScore -= 5;
+  
+  healthScore = Math.round(Math.max(0, Math.min(100, healthScore)));
+  
+  // Determine health status
+  let status = 'healthy';
+  if (healthScore < 50) status = 'critical';
+  else if (healthScore < 70) status = 'warning';
+  
+  console.log(`✓ Keyword Discovery Health Score: ${healthScore}/100 (${status})`);
+  
+  return {
+    metrics: {
+      totalQueries,
+      lowCTROpportunities: lowCTROpps.length,
+      page2QuickWins: page2QuickWins.length,
+      highVolumeOpportunities: highVolumeOpps.length,
+      zeroClickQueries: zeroClickQueries.length,
+      totalImpressions,
+      avgCTR: Math.round(avgCTR * 10000) / 100, // Percentage
+      avgPosition: Math.round(avgPosition * 10) / 10,
+      potentialTrafficGain: Math.round(potentialTrafficGain)
+    },
+    insights,
+    healthScore,
+    status
+  };
+}
+
 module.exports = {
   fetchUserProperties,
   fetchSearchAnalytics,
@@ -1998,5 +2327,6 @@ module.exports = {
   analyzeCatalysts,
   calculateTransmutationScore,
   analyzeElixirHealth,
-  analyzeContentInventory
+  analyzeContentInventory,
+  analyzeKeywordDiscovery
 };

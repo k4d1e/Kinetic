@@ -239,6 +239,9 @@ const protocolDefinitions = {
           dataSource: "Google Search Console Search Analytics API",
           implementation: "Pull GSC query data for last 16 months (max available), filter for queries with impressions > 10, identify low-CTR queries (impressions > clicks ratio poor), find queries ranking positions 11-50, flag queries with high impressions but low clicks as quick wins, group by search intent",
           deliverable: "keyword-demand-research.md",
+          evoDimension: "keyword_opportunities",
+          evoMetrics: ["totalQueries", "lowCTROpportunities", "page2QuickWins", "highVolumeOpportunities", "potentialTrafficGain"],
+          healthThreshold: 70,
           gscMetrics: ["query", "impressions", "clicks", "ctr", "position"]
         }
       },

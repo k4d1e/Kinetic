@@ -230,6 +230,11 @@ The plan should be actionable, technology-agnostic, and ready for immediate impl
       return this.generateContentInventoryPrompt(context, fileName);
     }
     
+    // Check if this is Content Opportunity Protocol Step 2 - use keyword discovery prompt
+    if (protocolKey === 'keyword_coverage_gap_protocol' && stepNumber === 2) {
+      return this.generateKeywordDiscoveryPrompt(context, fileName);
+    }
+    
     // Check if we have specific diagnostic data with URLs and strategies
     if (diagnosedCause && diagnosedCause.urls && diagnosedCause.strategies) {
       console.log('✓ Using data-driven prompt with diagnosed cause data');
@@ -390,6 +395,116 @@ Make the inventory comprehensive, data-driven, and ready to inform content strat
   },
 
   /**
+   * Generate Keyword Discovery Prompt (for Content Opportunity Protocol - Step 2)
+   * @param {Object} context - Page context
+   * @param {string} fileName - Output file name
+   * @returns {string} Keyword discovery-focused prompt
+   */
+  generateKeywordDiscoveryPrompt(context, fileName) {
+    const { mission, stepName, executionInstructions, stepNumber } = context;
+    
+    // Try to get E.V.O. data from the page
+    const evoData = this.getEVODataForStep(stepNumber);
+    
+    // Build actual metrics section if E.V.O. data is available
+    let actualMetricsSection = '';
+    if (evoData) {
+      actualMetricsSection = this.buildKeywordDiscoveryMetricsSection(evoData, executionInstructions);
+    }
+
+    return `You are implementing ${stepName} as part of ${mission}.
+
+OBJECTIVE: ${executionInstructions.action}
+
+IMPLEMENTATION FOCUS:
+${executionInstructions.implementation}
+
+DATA SOURCE: ${executionInstructions.dataSource}
+
+${actualMetricsSection}
+
+INSTRUCTIONS:
+1. Pull comprehensive GSC query data
+   - Access Google Search Console API for the last 16 months of data
+   - Extract all queries with impressions > 10 to filter noise
+   - Collect metrics: query, impressions, clicks, CTR, average position
+   - Include queries ranking anywhere (even page 5+) to find hidden opportunities
+
+2. Categorize keyword opportunities into 4 groups:
+
+   A. LOW CTR OPPORTUNITIES (Page 1 Rankings with Poor CTR)
+      - Queries ranking positions 1-10
+      - CTR significantly below expected rate for position
+      - High impressions but low click-through
+      - Action: Optimize title tags and meta descriptions
+      - Calculate potential gain: impressions × (expected_CTR - current_CTR)
+
+   B. PAGE 2 QUICK WINS (Positions 11-20)
+      - Queries ranking on page 2
+      - Minimum 30+ impressions per month
+      - Close to page 1 breakthrough
+      - Action: Content enhancement, internal linking, on-page SEO
+      - Calculate potential: impressions × (top_5_CTR - current_CTR)
+
+   C. HIGH VOLUME OPPORTUNITIES (Position 20+)
+      - Queries with 100+ monthly impressions
+      - Ranking beyond position 20
+      - Significant search demand but weak visibility
+      - Action: Create comprehensive, optimized content pages
+      - Calculate potential: impressions × expected_CTR_position_10
+
+   D. ZERO-CLICK QUERIES (Visible but Never Clicked)
+      - Queries with 20+ impressions
+      - Zero clicks despite visibility
+      - Position < 30 (within reach)
+      - Action: Investigate title/snippet appeal, featured snippets
+      - Calculate potential: impressions × expected_CTR_for_position
+
+3. Prioritize opportunities by:
+   - Potential traffic gain (monthly click increase)
+   - Implementation difficulty (page 2 = easy, position 50 = hard)
+   - Search intent alignment (commercial > informational)
+   - Competition level (lower is better)
+
+4. For each opportunity category, provide:
+   - Total opportunity count
+   - Combined impression volume
+   - Aggregate potential traffic gain
+   - Top 10-15 specific keyword examples with full metrics
+   - Recommended action strategy
+
+5. Calculate overall keyword opportunity score:
+   - Total untapped monthly clicks across all categories
+   - Quick win ratio (page 2 opportunities / total queries)
+   - CTR optimization potential (low CTR on page 1)
+   - Content gap severity (high-volume queries with weak positions)
+
+CONTEXT & REQUIREMENTS:
+- Work with Google Search Console API data (16-month maximum)
+- Focus on ${executionInstructions.concept}
+- Provide data in structured tables or CSV format
+- Include visualization recommendations (CTR gap charts, position distribution)
+- Segment by search intent where possible (transactional, commercial, informational)
+- Identify patterns: Are certain topic clusters underperforming?
+- Consider seasonality in impression data
+
+DELIVERABLE:
+Create a detailed keyword discovery analysis saved as: ${fileName}
+
+The analysis should include:
+- Executive summary: Total opportunities and aggregate traffic potential
+- Category-by-category breakdown with top opportunities
+- Detailed keyword tables with all metrics (query, impressions, clicks, CTR, position, potential gain)
+- Priority recommendations: Which keywords to optimize first
+- Action plan: Specific next steps for each opportunity type
+- Success metrics: How to measure improvement after implementation
+
+This keyword discovery will inform Step 3 (Coverage Gap Analysis) and Step 4 (Content Planning Strategy).
+
+Make the analysis comprehensive, data-driven, and actionable—ready to guide content optimization and creation decisions.`;
+  },
+
+  /**
    * Build Content Inventory Metrics Section
    * Formats E.V.O. data for Content Opportunity Protocol Step 1
    * @param {Object} evoData - E.V.O. dimension data
@@ -457,6 +572,93 @@ ACTUAL SITE DATA (Content Inventory Analysis)
     section += `IMPORTANT: Use the actual content inventory metrics above when creating your analysis.\n`;
     section += `Reference specific page counts, keyword coverage, and performance tiers.\n`;
     section += `Your inventory should establish a baseline for the remaining steps of the Content Opportunity Protocol.\n\n`;
+    
+    return section;
+  },
+
+  /**
+   * Build Keyword Discovery Metrics Section
+   * Formats E.V.O. data for Content Opportunity Protocol Step 2
+   * @param {Object} evoData - E.V.O. dimension data
+   * @param {Object} executionInstructions - Step execution instructions
+   * @returns {string} Formatted metrics section
+   */
+  buildKeywordDiscoveryMetricsSection(evoData, executionInstructions) {
+    const health = evoData.health || {};
+    const metrics = health.metrics || {};
+    const insights = health.insights || [];
+    
+    let section = `\n═══════════════════════════════════════════════════════════
+ACTUAL SITE DATA (Keyword Discovery Analysis)
+═══════════════════════════════════════════════════════════\n\n`;
+    
+    section += `KEYWORD OPPORTUNITY STATUS: ${health.status || 'unknown'} (Score: ${health.score || 'N/A'}/100)\n\n`;
+    
+    // Add key keyword opportunity metrics
+    section += `KEYWORD OPPORTUNITY METRICS:\n`;
+    
+    // Prioritize keyword-specific metrics
+    const priorityMetrics = ['totalQueries', 'lowCTROpportunities', 'page2QuickWins', 'highVolumeOpportunities', 'zeroClickQueries', 'potentialTrafficGain', 'avgPosition', 'avgCTR'];
+    const displayedMetrics = new Set();
+    
+    priorityMetrics.forEach(key => {
+      if (metrics[key] !== undefined) {
+        displayedMetrics.add(key);
+        const label = key.replace(/([A-Z])/g, ' $1').trim();
+        const formattedLabel = label.charAt(0).toUpperCase() + label.slice(1);
+        let value = metrics[key];
+        
+        // Format specific metrics
+        if (key === 'avgCTR') {
+          value = `${value}%`;
+        } else if (key === 'potentialTrafficGain') {
+          value = `+${value.toLocaleString()} clicks/month`;
+        } else if (typeof value === 'number' && key !== 'avgPosition') {
+          value = value.toLocaleString();
+        }
+        
+        section += `- ${formattedLabel}: ${value}\n`;
+      }
+    });
+    
+    // Add remaining metrics
+    Object.entries(metrics).forEach(([key, value]) => {
+      if (!displayedMetrics.has(key)) {
+        const label = key.replace(/([A-Z])/g, ' $1').trim();
+        const formattedLabel = label.charAt(0).toUpperCase() + label.slice(1);
+        section += `- ${formattedLabel}: ${value}\n`;
+      }
+    });
+    
+    // Add keyword opportunities if available
+    if (insights.length > 0) {
+      section += `\nKEYWORD OPPORTUNITY CATEGORIES:\n`;
+      insights.forEach((insight, index) => {
+        if (insight.type !== 'ERROR' && insight.type !== 'NO_DATA') {
+          section += `${index + 1}. [${insight.severity?.toUpperCase() || 'INFO'}] ${insight.type}\n`;
+          section += `   ${insight.message}\n`;
+          
+          if (insight.keywordOpportunities && insight.keywordOpportunities.length > 0) {
+            const topKeywords = insight.keywordOpportunities.slice(0, 5); // Show top 5 per category
+            section += `   Top Opportunities:\n`;
+            topKeywords.forEach(kw => {
+              section += `   • "${kw.query}": ${kw.impressions} impressions, Position ${kw.position}, CTR ${kw.ctr}% (Expected: ${kw.expectedCTR}%)\n`;
+              section += `     → ${kw.opportunity} [+${kw.potentialGain} clicks/mo]\n`;
+            });
+          }
+          
+          if (insight.recommendation) {
+            section += `   → ${insight.recommendation}\n`;
+          }
+          section += `\n`;
+        }
+      });
+    }
+    
+    section += `═══════════════════════════════════════════════════════════\n\n`;
+    section += `IMPORTANT: Use the actual keyword opportunity metrics above when creating your analysis.\n`;
+    section += `Reference specific queries, CTR gaps, position opportunities, and traffic potential calculations.\n`;
+    section += `Your keyword discovery should identify the highest-value opportunities for optimization and content creation.\n\n`;
     
     return section;
   },
