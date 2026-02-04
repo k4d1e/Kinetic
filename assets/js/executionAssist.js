@@ -164,6 +164,125 @@ No execution instructions found for this protocol step. Please ensure protocolDe
   },
 
   /**
+   * Open modal with keyword optimization prompt
+   * @param {Object} cachedData - Cached E.V.O. data with keyword opportunities
+   */
+  openModalWithKeywordData(cachedData) {
+    if (!this.modal) return;
+    
+    const { dimensionData } = cachedData;
+    const insights = dimensionData.health?.insights || [];
+    
+    // Collect all keyword opportunities with their pages
+    const allOpportunities = [];
+    insights.forEach(insight => {
+      if (insight.keywordOpportunities && insight.keywordOpportunities.length > 0) {
+        insight.keywordOpportunities.forEach(kw => {
+          if (kw.page && kw.query) {
+            allOpportunities.push({
+              query: kw.query,
+              page: kw.page,
+              position: kw.position,
+              ctr: kw.ctr,
+              expectedCTR: kw.expectedCTR,
+              impressions: kw.impressions,
+              potentialGain: kw.potentialGain,
+              category: kw.category
+            });
+          }
+        });
+      }
+    });
+    
+    if (allOpportunities.length === 0) {
+      alert('No keyword opportunities with page URLs found. Please ensure the analysis has completed successfully.');
+      return;
+    }
+    
+    // Generate the prompt using centralized method
+    const prompt = this.generateKeywordOptimizationPrompt(allOpportunities);
+    
+    // Set context
+    const context = {
+      mission: 'Content Opportunity Protocol',
+      stepNumber: 2,
+      stepName: 'Keyword Discovery from GSC'
+    };
+    
+    this.currentPrompt = prompt;
+    
+    // Populate modal content
+    document.getElementById('assist-mission').textContent = context.mission;
+    document.getElementById('assist-step').textContent = `Step ${context.stepNumber}: ${context.stepName}`;
+    document.getElementById('assist-prompt').textContent = prompt;
+    
+    // Show modal
+    this.modal.classList.add('active');
+    this.modal.style.display = 'flex';
+    
+    console.log('✓ Execution Assist modal opened with keyword optimization prompt');
+  },
+
+  /**
+   * Generate Keyword Optimization Prompt
+   * @param {Array} opportunities - Array of keyword opportunity objects
+   * @returns {string} Generated prompt
+   */
+  generateKeywordOptimizationPrompt(opportunities) {
+    return `You are optimizing title tags and meta descriptions to improve CTR for keyword opportunities identified in Google Search Console.
+
+OBJECTIVE: Optimize titles and meta descriptions for ${opportunities.length} pages to increase click-through rates and capture more organic traffic.
+
+KEYWORD-TO-PAGE MAPPING:
+${opportunities.map((kw, index) => `
+${index + 1}. Keyword: "${kw.query}"
+   Page URL: ${kw.page}
+   Current Position: ${kw.position}
+   Current CTR: ${kw.ctr}% (Expected: ${kw.expectedCTR}%)
+   Impressions: ${kw.impressions}
+   Potential Gain: +${kw.potentialGain} clicks/month
+   Category: ${kw.category.replace('_', ' ')}
+`).join('\n')}
+
+INSTRUCTIONS:
+1. For each page URL listed above:
+   - Locate the HTML file or template that generates that page
+   - Identify the current <title> tag and <meta name="description"> content
+   - Read the page content to understand the topic and value proposition
+
+2. Optimize the title tag:
+   - Include the target keyword naturally (preferably near the beginning)
+   - Keep it under 60 characters to avoid truncation in search results
+   - Make it compelling and click-worthy (use power words, numbers, or questions)
+   - Ensure it accurately represents the page content
+   - Stand out from competitors ranking for the same keyword
+
+3. Optimize the meta description:
+   - Include the target keyword and related terms
+   - Keep it under 155 characters to avoid truncation
+   - Write compelling copy that encourages clicks (include benefits, CTAs)
+   - Match the search intent behind the keyword
+   - Use active voice and direct language
+
+4. Best practices:
+   - Research competitor titles/descriptions for the same keywords
+   - Use emotional triggers (save money, solve problems, get results)
+   - Include unique selling propositions (local, fast, guaranteed, etc.)
+   - Add current year if relevant for freshness signals
+   - Use schema markup if applicable (FAQ, HowTo, etc.)
+
+5. Create a markdown file with:
+   - Original vs. optimized title/description for each page
+   - Reasoning for each optimization decision
+   - Expected CTR improvement based on changes
+   - Implementation instructions (which files to edit)
+
+DELIVERABLE: Create title-optimization-plan.md with all optimized titles and meta descriptions ready for implementation.
+
+Focus on the highest-potential opportunities first (those with the most impressions and largest CTR gaps).`;
+  },
+
+  /**
    * Generate Schema Implementation Prompt (for protocols like Meta Surgeon)
    * @param {Object} context - Page context
    * @param {string} fileName - Output file name

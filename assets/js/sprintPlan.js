@@ -1396,6 +1396,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     }, 0);
     
+    // Hide Execution Assist button (not needed for this step)
+    const executionAssistBtn = document.getElementById('analysis-execution-assist-btn');
+    if (executionAssistBtn) {
+      executionAssistBtn.style.display = 'none';
+    }
+    
     // Show modal
     modal.style.display = 'flex';
   }
@@ -1577,6 +1583,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Show modal
     modal.style.display = 'flex';
+    
+    // Show Execution Assist button for keyword optimization
+    const executionAssistBtn = document.getElementById('analysis-execution-assist-btn');
+    if (executionAssistBtn) {
+      executionAssistBtn.style.display = 'flex';
+      
+      // Remove any existing listeners
+      const newBtn = executionAssistBtn.cloneNode(true);
+      executionAssistBtn.parentNode.replaceChild(newBtn, executionAssistBtn);
+      
+      // Add click handler that calls ExecutionAssist method
+      newBtn.addEventListener('click', () => {
+        if (typeof ExecutionAssist !== 'undefined') {
+          ExecutionAssist.openModalWithKeywordData(cachedData);
+        } else {
+          console.error('ExecutionAssist module not available');
+        }
+      });
+    }
   }
 
   /**
@@ -1775,6 +1800,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
       }
     }, 0);
+    
+    // Hide Execution Assist button (not needed for this step)
+    const executionAssistBtn = document.getElementById('analysis-execution-assist-btn');
+    if (executionAssistBtn) {
+      executionAssistBtn.style.display = 'none';
+    }
     
     // Show modal
     modal.style.display = 'flex';
