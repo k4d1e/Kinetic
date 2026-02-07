@@ -1,0 +1,338 @@
+---
+description: Universal Git workflow and commit policies - prevents automatic pushes to any remote repository
+globs:
+  - "**/*"  # Applies to ALL files in the repository
+---
+
+# Git Workflow Policy (STRICT)
+
+## Critical Rules - MUST FOLLOW
+
+### NEVER Execute These Commands Automatically
+
+- ❌ **NEVER run `git push` without explicit user permission**
+- ❌ **NEVER chain `git commit && git push` automatically**
+- ❌ **NEVER assume "commit" means "commit and push"**
+- ❌ **NEVER push when user only asked to "save changes"**
+- ❌ **NEVER push when user says "commit all changes"**
+- ❌ **NEVER use `git push --force` without extremely explicit permission**
+
+### ALWAYS Follow These Rules
+
+- ✅ **ALWAYS stop after creating a commit**
+- ✅ **ALWAYS ask before pushing to remote**
+- ✅ **ALWAYS show what will be pushed (files, commit message, branch, remote)**
+- ✅ **ALWAYS respect "no" or silence as "don't push"**
+- ✅ **ALWAYS wait for explicit "push" or confirmation before pushing**
+
+## The User is the ONLY Authority
+
+**Only the user can authorize pushing to remote repositories.**
+
+The agent is NOT authorized to push code to any remote repository without explicit permission each time.
+
+## Context-Specific Authorization (CRITICAL)
+
+### Authorization Does NOT Carry Forward
+
+Permission for one step **DOES NOT** authorize subsequent steps.
+
+**Examples of Non-Authorization:**
+
+❌ **User says:** "Yes, update all files with the new configuration"
+- **This authorizes:** File updates only
+- **This DOES NOT authorize:** Commit or push
+
+❌ **User says:** "Yes, commit those changes"  
+- **This authorizes:** Creating a local commit only
+- **This DOES NOT authorize:** Push to remote
+
+❌ **User says:** "Go ahead and save everything"
+- **This authorizes:** File edits and possibly local commit
+- **This DOES NOT authorize:** Push to remote
+
+❌ **User says:** "Commit and push"
+- **This authorizes:** Both commit AND push
+- **But still requires:** Showing summary before executing push
+
+### Each Destructive Action Requires Fresh Permission
+
+**Destructive actions that ALWAYS require separate, explicit permission:**
+1. `git push` (pushes to remote repository)
+2. `git push --force` (can overwrite remote history)
+3. `git reset --hard` (can lose local work)
+4. `git push --delete` (removes remote branches)
+5. `git push --tags --force` (can overwrite remote tags)
+
+**Rule:** Even if user said "yes" to step 1, you MUST ask again for step 2.
+
+### Correct Multi-Step Flow
+
+**Example 1: File Updates**
+```
+User: "Update all the config files with the new settings"
+Agent: [Updates files] ✓ Files updated. 
+       Ready to commit?
+User: "Yes"
+Agent: [Commits] ✓ Committed locally (commit: abc123f).
+       Ready to push to origin/main?
+User: "Yes, push"
+Agent: [Pushes] ✓ Pushed to origin/main.
+```
+
+**Example 2: Stopping After Commit**
+```
+User: "Yes, update those files"
+Agent: [Updates files] ✓ Files updated.
+       Ready to commit?
+User: "Yes"
+Agent: [Commits] ✓ Committed locally (commit: def456a).
+       Ready to push to origin/main?
+User: "No, I want to test first"
+Agent: ✓ Changes saved locally. You can test and push later with 'git push'.
+```
+
+**Each step requires fresh authorization.**
+
+### Why This Matters
+
+**Real-world incident that prompted this rule:**
+- User said: "Yes, update all files with the new configuration"
+- Agent correctly updated files
+- Agent correctly committed changes
+- Agent INCORRECTLY pushed to remote without asking
+- **Problem:** The word "yes" was about updating files, NOT about pushing to remote
+
+**Prevention:** Every destructive operation (especially `git push`) requires its own explicit "yes".
+
+## Approved Workflow for Committing Changes
+
+When the user asks you to commit changes, follow this exact workflow:
+
+### Step 1: Stage Changes
+```bash
+git add <relevant-files>
+```
+
+### Step 2: Create Commit
+```bash
+git commit -m "Descriptive commit message"
+```
+
+### Step 3: STOP and Report
+Display a summary:
+- ✓ Commit created: `[commit-hash]`
+- Files changed: `[list of files]`
+
+### Step 4: Ask for Permission
+**Required question format:**
+> "I've committed the changes locally. Would you like me to push to the remote repository?"
+
+**Always specify:**
+- Target remote (e.g., "origin")
+- Target branch (e.g., "main", "develop", "feature/xyz")
+
+### Step 5: Wait for Response
+- **If user says "push", "yes push", "go ahead"** → Execute `git push`
+- **If user says "no" or doesn't respond** → Do nothing, changes stay local
+- **If unclear** → Ask for clarification
+
+## Explicit Permission Keywords
+
+The agent may ONLY push if the user uses one of these explicit commands:
+
+- "Push"
+- "Push it"
+- "Push to [remote/branch]"
+- "Yes, push"
+- "Go ahead and push"
+- "Push changes"
+- "Commit and push"
+- "git push" (user explicitly types the command)
+
+**Context matters:** If asking "Ready to push?", user must respond with clear affirmation.
+
+## Commands That DO NOT Authorize Push
+
+These commands mean commit locally ONLY:
+
+- "Commit changes"
+- "Save my work"
+- "Commit all changes"
+- "Create a commit"
+- "Save these files"
+- "Stage and commit"
+
+## Review Checklist Before Asking to Push
+
+Before asking about pushing, display in chat:
+
+1. **Files Changed:** List all modified files
+2. **Commit Message:** Show the commit message used
+3. **Summary:** Brief description of what changed
+4. **Branch Info:** Current branch and target remote/branch
+5. **Potential Impact:** Note any breaking changes, migrations, or sensitive updates
+
+## Example Interaction
+
+**User:** "Commit these changes"
+
+**Agent Response:**
+```
+✓ Changes staged and committed locally.
+
+Commit: a1b2c3d
+Files changed:
+  - .cursor/rules/git-workflow.mdc (new file)
+
+Ready to push to origin/main?
+```
+
+**Then wait for user response.**
+
+## Branch and Remote Awareness
+
+### Always Specify Target
+When asking to push, always mention:
+- **Remote name** (typically "origin", but could be "upstream", "fork", etc.)
+- **Branch name** (e.g., "main", "master", "develop", "feature/xyz")
+
+### Examples
+- "Ready to push to origin/main?"
+- "Ready to push to origin/develop?"
+- "Ready to push to fork/feature-branch?"
+
+### Common Remote Scenarios
+- **origin**: Primary remote repository (most common)
+- **upstream**: Original repository (in forked workflows)
+- **fork**: User's fork of the project
+- **custom names**: User-defined remote names
+
+## Exception Cases
+
+The agent may push WITHOUT asking ONLY if:
+
+1. **User explicitly said "commit and push"** in the same request
+2. **User explicitly said "push"** as a follow-up command
+3. **User is following up immediately** with "yes push" to a previous push question
+
+## Anti-Patterns (What NOT to Do)
+
+### ❌ Bad: Automatic Push After Commit
+
+**Wrong:**
+```bash
+git add . && git commit -m "Changes" && git push
+```
+
+**Why:** Bypasses user review, pushes untested code to remote
+
+### ❌ Bad: Assuming User Wants Push
+
+**Wrong:**
+```
+User: "Commit all changes"
+Agent: [creates commit and immediately pushes]
+```
+
+**Why:** User said "commit", not "push"
+
+### ❌ Bad: Not Showing What Will Be Pushed
+
+**Wrong:**
+```
+Agent: "Committed. Push?"
+```
+
+**Why:** User can't review what they're pushing to remote
+
+### ❌ Bad: Using Force Push Without Warning
+
+**Wrong:**
+```bash
+git push --force
+```
+
+**Why:** Extremely dangerous, can overwrite team members' work
+
+## Correct Patterns (What TO Do)
+
+### ✅ Good: Stop After Commit
+
+**Correct:**
+```bash
+git add .cursor/rules/git-workflow.mdc
+git commit -m "Add git workflow rules"
+# STOP HERE - do not push
+```
+
+Then display very short and concise summary in chat and ask permission.
+
+### ✅ Good: Detailed Review Before Push
+
+**Correct:**
+```
+✓ Commit created: b4e3f2a
+
+Changes:
+  - .cursor/rules/git-workflow.mdc (new file, 245 lines)
+  
+Summary: Added strict git workflow rules to prevent automatic pushes
+
+Ready to push to origin/main?
+```
+
+### ✅ Good: Clear Question Format
+
+**Correct:**
+- "Ready to push to origin/main?"
+- "Ready to push these changes to the remote repository?"
+- "Ready to push to origin/develop?"
+- "Ready to push to upstream/main?"
+
+**Wrong:**
+- "Push?" (too vague)
+- "Done!" (implies it's already pushed)
+
+## Git Commands That Are ALWAYS Safe
+
+These commands can be run without asking permission:
+
+- `git status` - Check repository state
+- `git diff` - View changes
+- `git log` - View commit history
+- `git add` - Stage changes
+- `git commit` - Create local commit
+- `git branch` - List/create branches
+- `git checkout` - Switch branches
+- `git checkout -b` - Create new branch
+- `git fetch` - Download remote changes (doesn't merge)
+- `git stash` - Temporarily save changes
+- `git show` - Show commit details
+
+## Git Commands That REQUIRE Permission
+
+These commands require explicit user authorization:
+
+- `git push` - Push to remote (ALWAYS ask first)
+- `git push --force` / `git push -f` - Force push (EXTREMELY dangerous, require explicit confirmation)
+- `git push --force-with-lease` - Safer force push (still require confirmation)
+- `git push --delete` - Delete remote branch (require confirmation)
+- `git push --tags` - Push tags to remote (require confirmation)
+- `git reset --hard` - Discard local changes (require confirmation)
+- `git clean -fd` - Delete untracked files (require confirmation)
+- `git rebase` (if pushing afterward) - Rewriting history (require confirmation for push)
+
+## Summary: Key Principles
+
+1. **Separation of Concerns**: Committing ≠ Pushing
+2. **User Authority**: Only the user authorizes pushing to remote repositories
+3. **Explicit Permission**: "Push" must be explicitly stated
+4. **Review Before Push**: Show what will be pushed, where it's going
+5. **Safety First**: When in doubt, don't push
+6. **Branch Awareness**: Always specify remote and branch names
+7. **Universal Application**: These rules apply to all repositories (personal, open source, team, enterprise)
+
+---
+
+**Remember: The user owns the repository and its remote state. The agent is a helpful assistant for local operations, not an automatic deployment system. Pushing changes to remote repositories always requires explicit user authorization.**
