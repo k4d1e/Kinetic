@@ -1200,6 +1200,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
     
+    // Check if this is Content Opportunity Protocol Step 3
+    if (currentCardType === 'keyword_coverage_gap_protocol' && stepNumber === 3) {
+      openCoverageGapAnalysisModal(stepNumber, cachedData);
+      return;
+    }
+    
     // Default indexation-focused analysis for other protocols
     openIndexationAnalysisModal(stepNumber, cachedData);
   }
@@ -1601,6 +1607,207 @@ document.addEventListener('DOMContentLoaded', async () => {
           console.error('ExecutionAssist module not available');
         }
       });
+    }
+  }
+
+  /**
+   * Open Coverage Gap Analysis Modal (Content Opportunity Protocol - Step 3)
+   * @param {number} stepNumber - Step number
+   * @param {Object} cachedData - Cached E.V.O. data
+   */
+  function openCoverageGapAnalysisModal(stepNumber, cachedData) {
+    const modal = document.getElementById('analysis-modal');
+    if (!modal) return;
+    
+    const { dimensionData, stepData, healthScore, needsFixes } = cachedData;
+    const health = dimensionData.health || {};
+    const metrics = health.metrics || {};
+    const insights = health.insights || [];
+    
+    // Populate context
+    document.getElementById('analysis-step').textContent = stepData.title;
+    document.getElementById('analysis-dimension').textContent = 'COVERAGE GAPS';
+    
+    const healthEl = document.getElementById('analysis-health');
+    healthEl.textContent = `${healthScore}/100`;
+    healthEl.style.color = healthScore >= 70 ? 'var(--color-primary-green)' : 'var(--color-error)';
+    
+    // Populate metrics - Gap-focused display
+    const metricsContainer = document.getElementById('analysis-metrics');
+    let metricsHTML = '';
+    
+    if (Object.keys(metrics).length === 0) {
+      metricsHTML = '<div class="evo-no-metrics">No metrics available</div>';
+    } else {
+      // Prioritize gap-specific metrics
+      const metricOrder = ['totalGaps', 'positionGaps', 'contentGaps', 'ctrGaps', 'totalOpportunityClicks', 'avgGapPosition', 'avgGapImpressions'];
+      const displayedMetrics = new Set();
+      
+      // Display prioritized metrics first
+      metricOrder.forEach(key => {
+        if (metrics[key] !== undefined) {
+          displayedMetrics.add(key);
+          const label = formatMetricLabel(key);
+          const valueColor = key === 'totalOpportunityClicks' ? 'var(--color-primary-green)' : '';
+          const valueStyle = valueColor ? `style="color: ${valueColor};"` : '';
+          metricsHTML += `
+            <div class="evo-metric-card">
+              <div class="evo-metric-label">${label}</div>
+              <div class="evo-metric-value" ${valueStyle}>${formatMetricValue(metrics[key])}</div>
+            </div>
+          `;
+        }
+      });
+      
+      // Display remaining metrics
+      Object.entries(metrics).forEach(([key, value]) => {
+        if (!displayedMetrics.has(key)) {
+          const label = formatMetricLabel(key);
+          metricsHTML += `
+            <div class="evo-metric-card">
+              <div class="evo-metric-label">${label}</div>
+              <div class="evo-metric-value">${formatMetricValue(value)}</div>
+            </div>
+          `;
+        }
+      });
+    }
+    
+    metricsContainer.innerHTML = metricsHTML;
+    
+    // Populate insights - Gap-focused insights
+    const insightsContainer = document.getElementById('analysis-insights');
+    if (insights.length > 0) {
+      let insightsHTML = '';
+      insights.forEach(insight => {
+        const severityClass = `evo-insight-${insight.severity || 'info'}`;
+        const isError = insight.type === 'ERROR' || insight.severity === 'critical';
+        
+        insightsHTML += `
+          <div class="evo-insight ${severityClass}">
+            <div class="evo-insight-type">${insight.type || 'COVERAGE GAP INSIGHT'}</div>
+            <div class="evo-insight-message">${insight.message}</div>
+            
+            ${isError && insight.recommendation ? `
+              <div class="evo-insight-recommendation">→ ${insight.recommendation}</div>
+              <div class="evo-insight-retry-container" style="margin-top: 16px;">
+                <button class="btn-retry-analysis" data-step="${stepNumber}" style="
+                  padding: 10px 20px;
+                  background: var(--color-accent-orange);
+                  color: var(--color-bg-dark);
+                  border: none;
+                  border-radius: 4px;
+                  font-family: 'Press Start 2P', monospace;
+                  font-size: 10px;
+                  cursor: pointer;
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                  transition: all 0.2s ease;
+                ">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 4 23 10 17 10"></polyline>
+                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                  </svg>
+                  Retry Analysis
+                </button>
+              </div>
+            ` : ''}
+            
+            ${!isError && insight.gapOpportunities && insight.gapOpportunities.length > 0 ? `
+              <div class="evo-diagnosed-causes">
+                <div class="evo-diagnosed-causes-label">Gap Opportunities (sorted by traffic potential):</div>
+                <div class="evo-diagnosed-causes-list">
+                  ${insight.gapOpportunities.map((gap, index) => {
+                    const gapTypeLabel = gap.gapType === 'position' ? '📍 Position' : 
+                                        gap.gapType === 'content' ? '📄 Content' : 
+                                        gap.gapType === 'ctr' ? '👁️ CTR' : 'Gap';
+                    const gapTypeClass = gap.gapType === 'position' ? 'medium' :
+                                        gap.gapType === 'content' ? 'high' :
+                                        gap.gapType === 'ctr' ? 'medium' : 'low';
+                    
+                    return `
+                      <div class="evo-diagnosed-cause evo-diagnosed-${gapTypeClass}">
+                        <div class="evo-diagnosed-cause-header">
+                          <span class="evo-diagnosed-cause-reason">${gap.query}</span>
+                          <span class="evo-diagnosed-cause-count" style="color: var(--color-primary-green);">+${gap.trafficPotential} clicks/mo</span>
+                        </div>
+                        <div class="evo-diagnosed-cause-metrics" style="display: flex; gap: 16px; font-size: 11px; color: var(--color-text-dim); margin-top: 4px;">
+                          <span>${gapTypeLabel}</span>
+                          <span>Position: #${gap.currentPosition}</span>
+                          <span>${gap.impressions.toLocaleString()} impressions</span>
+                          <span>CTR: ${gap.currentCTR}%</span>
+                        </div>
+                        <div class="evo-diagnosed-cause-fix">→ ${gap.opportunity}</div>
+                        ${gap.rankingUrl ? `<div class="evo-diagnosed-cause-url" style="margin-top: 8px; font-size: 12px; color: var(--color-text-muted); word-break: break-all;">🌐 ${gap.rankingUrl}</div>` : ''}
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+            ` : !isError && insight.possibleCauses && insight.possibleCauses.length > 0 ? `
+              <div class="evo-insight-causes">
+                <div class="evo-insight-causes-label">Areas to Explore:</div>
+                <ul class="evo-insight-causes-list">
+                  ${insight.possibleCauses.map(cause => `<li>${cause}</li>`).join('')}
+                </ul>
+              </div>
+            ` : !isError && insight.recommendation ? `
+              <div class="evo-insight-recommendation">→ ${insight.recommendation}</div>
+            ` : ''}
+          </div>
+        `;
+      });
+      insightsContainer.innerHTML = insightsHTML;
+    } else {
+      insightsContainer.innerHTML = '<div class="evo-no-insights">✓ Coverage gap analysis complete. Proceed to content planning in Step 4.</div>';
+    }
+    
+    // Show results, hide loading
+    document.getElementById('analysis-loading').style.display = 'none';
+    document.getElementById('analysis-results').style.display = 'block';
+    
+    // Add event listener for retry button if present
+    setTimeout(() => {
+      const retryBtn = insightsContainer.querySelector('.btn-retry-analysis');
+      if (retryBtn) {
+        retryBtn.addEventListener('click', function() {
+          const stepNum = parseInt(this.dataset.step);
+          console.log(`🔄 Retry button clicked for step ${stepNum}`);
+          
+          // Close modal
+          modal.style.display = 'none';
+          
+          // Calculate page number
+          const pageNum = stepNum + 1;
+          
+          // Clear cached data
+          delete evoDataCache[stepNum];
+          
+          // Retry with force refresh
+          fetchAndDisplayEVOData(pageNum, true);
+        });
+        
+        // Add hover effect
+        retryBtn.addEventListener('mouseenter', function() {
+          this.style.transform = 'scale(1.05)';
+          this.style.boxShadow = '0 0 20px rgba(255, 165, 0, 0.5)';
+        });
+        
+        retryBtn.addEventListener('mouseleave', function() {
+          this.style.transform = 'scale(1)';
+          this.style.boxShadow = 'none';
+        });
+      }
+    }, 0);
+    
+    // Show modal
+    modal.style.display = 'flex';
+    
+    // Hide Execution Assist button for gap analysis
+    const executionAssistBtn = document.getElementById('analysis-execution-assist-btn');
+    if (executionAssistBtn) {
+      executionAssistBtn.style.display = 'none';
     }
   }
 

@@ -33,6 +33,7 @@ const {
   analyzeElixirHealth,
   analyzeContentInventory,
   analyzeKeywordDiscovery,
+  analyzeCoverageGaps,
   getDateDaysAgo
 } = require('./gscService');
 
@@ -861,6 +862,119 @@ async function analyzeKeywordOpportunitiesDimension(pool, userId, siteUrl) {
 }
 
 /**
+ * Analyze Content Coverage Gaps Dimension
+ * Used by Content Opportunity Protocol - Step 3
+ */
+async function analyzeContentCoverageGapsDimension(pool, userId, siteUrl) {
+  console.log('🔍 Analyzing CONTENT COVERAGE GAPS (Gap Analysis)...');
+  
+  try {
+    // Initialize progress
+    setProgress(userId, 'content_coverage_gaps', {
+      status: 'fetching_gsc_data',
+      message: 'Fetching GSC query data...',
+      percent: 10
+    });
+    
+    // Calculate date range (last 3 months for current GSC data)
+    const endDate = getDateDaysAgo(1); // Yesterday
+    const startDate = getDateDaysAgo(90); // 3 months ago
+    
+    // Update progress
+    setProgress(userId, 'content_coverage_gaps', {
+      status: 'analyzing_gaps',
+      message: 'Analyzing coverage gaps...',
+      percent: 50
+    });
+    
+    // Analyze coverage gaps
+    const gapAnalysis = await analyzeCoverageGaps(pool, userId, siteUrl, startDate, endDate);
+    
+    // Update progress
+    setProgress(userId, 'content_coverage_gaps', {
+      status: 'complete',
+      message: 'Coverage gap analysis complete',
+      percent: 100
+    });
+    
+    console.log(`   └─ Score: ${gapAnalysis.healthScore}/100 (${gapAnalysis.status})`);
+    
+    // Clear progress on completion
+    clearProgress(userId, 'content_coverage_gaps');
+    
+    // Format response to match E.V.O. dimension structure
+    return {
+      health: {
+        score: gapAnalysis.healthScore,
+        status: gapAnalysis.status,
+        metrics: gapAnalysis.metrics,
+        insights: gapAnalysis.insights
+      }
+    };
+  } catch (error) {
+    // Enhanced error logging with full context
+    console.error('❌ Error in analyzeContentCoverageGapsDimension:');
+    console.error('   └─ User ID:', userId);
+    console.error('   └─ Site URL:', siteUrl);
+    console.error('   └─ Error Message:', error.message);
+    console.error('   └─ Error Stack:', error.stack);
+    if (error.response) {
+      console.error('   └─ Response Data:', error.response.data);
+    }
+    
+    // Update progress with error
+    setProgress(userId, 'content_coverage_gaps', {
+      status: 'error',
+      message: `Error: ${error.message}`,
+      percent: 0
+    });
+    
+    // Determine if this is an authentication issue or a data issue
+    const isAuthError = error.message?.includes('authentication') || 
+                       error.message?.includes('expired') || 
+                       error.message?.includes('log back in');
+    const isPermissionError = error.message?.includes('Access denied') || 
+                             error.message?.includes('permission');
+    const isNoDataError = error.message?.includes('No search data') || 
+                         error.message?.includes('not received any search traffic');
+    const isNoDataInRange = error.message?.includes('No user data') ||
+                           error.message?.includes('no data in date range');
+    
+    let recommendation = 'Check your Google Search Console connection and try again.';
+    
+    if (isAuthError) {
+      recommendation = 'Please log out of Kinetic and log back in to reconnect your Google Search Console account.';
+    } else if (isPermissionError) {
+      recommendation = 'Verify that the property is verified in Google Search Console and you have "Owner" or "Full User" permission level.';
+    } else if (isNoDataError || isNoDataInRange) {
+      recommendation = 'Wait for Google Search Console to collect search data for this property (typically 1-2 days after verification), or select a different property that has existing data.';
+    }
+    
+    return {
+      health: { 
+        score: 0, 
+        status: 'error', 
+        metrics: {
+          totalGaps: 0,
+          positionGaps: 0,
+          contentGaps: 0,
+          ctrGaps: 0,
+          totalOpportunityClicks: 0,
+          avgGapPosition: 0,
+          avgGapImpressions: 0
+        }, 
+        insights: [{
+          type: 'ERROR',
+          severity: 'critical',
+          message: `Failed to analyze coverage gaps: ${error.message}`,
+          recommendation
+        }]
+      }
+    };
+  }
+}
+
+/**
  * Detect Emergence Patterns Across Dimensions
  * Identifies interconnections and cascading effects
  */
@@ -1139,6 +1253,7 @@ module.exports = {
   analyzeElixirDimension,
   analyzeInventoryDimension,
   analyzeKeywordOpportunitiesDimension,
+  analyzeContentCoverageGapsDimension,
   detectEmergencePatterns,
   generateSystemIntelligence,
   generateActionPriorities,

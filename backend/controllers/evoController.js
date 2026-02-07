@@ -13,6 +13,7 @@ const {
   analyzeElixirDimension,
   analyzeInventoryDimension,
   analyzeKeywordOpportunitiesDimension,
+  analyzeContentCoverageGapsDimension,
   detectEmergencePatterns,
   generateSystemIntelligence,
   getProgress
@@ -210,10 +211,13 @@ async function getDimensionAnalysis(req, res) {
       case 'keyword_opportunities':
         data = await analyzeKeywordOpportunitiesDimension(pool, userId, siteUrl);
         break;
+      case 'content_coverage_gaps':
+        data = await analyzeContentCoverageGapsDimension(pool, userId, siteUrl);
+        break;
       default:
         return res.status(400).json({
           error: 'Bad Request',
-          message: `Unknown dimension: ${dimension}. Valid: substrate, crawl, sitemap, redirect, lattice, synapse, resonance, weave, elixir, inventory, keyword_opportunities`
+          message: `Unknown dimension: ${dimension}. Valid: substrate, crawl, sitemap, redirect, lattice, synapse, resonance, weave, elixir, inventory, keyword_opportunities, content_coverage_gaps`
         });
     }
 

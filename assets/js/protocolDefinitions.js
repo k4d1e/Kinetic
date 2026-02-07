@@ -254,7 +254,10 @@ const protocolDefinitions = {
           dataSource: "Google Search Console Search Analytics API",
           implementation: "Cross-reference GSC query data with content inventory from Step 1, identify high-impression queries (>100) with poor positions (>10), find queries with multiple weak-ranking pages (cannibalization), detect queries with impressions but no clear target page, calculate opportunity score using (impressions × expected_CTR_improvement), prioritize by potential traffic gain",
           deliverable: "coverage-gap-analysis.md",
-          opportunityMetrics: ["impressions", "current_position", "potential_position", "traffic_gain"]
+          opportunityMetrics: ["impressions", "current_position", "potential_position", "traffic_gain"],
+          evoDimension: "content_coverage_gaps",
+          evoMetrics: ["totalGaps", "positionGaps", "contentGaps", "ctrGaps", "totalOpportunityClicks", "avgGapPosition", "avgGapImpressions"],
+          healthThreshold: 70
         }
       },
       {

@@ -2304,6 +2304,310 @@ async function analyzeKeywordDiscovery(pool, userId, siteUrl, startDate, endDate
   };
 }
 
+/**
+ * Analyze Coverage Gaps - Step 3 of Content Opportunity Protocol
+ * Identifies queries with impressions but poor positions, missing content, or low CTR
+ * @param {Object} pool - Database connection pool
+ * @param {number} userId - User ID
+ * @param {string} siteUrl - Site URL
+ * @param {string} startDate - Start date (YYYY-MM-DD)
+ * @param {string} endDate - End date (YYYY-MM-DD)
+ * @returns {Object} Coverage gap analysis with metrics and insights
+ */
+async function analyzeCoverageGaps(pool, userId, siteUrl, startDate, endDate) {
+  console.log(`🔍 Starting Coverage Gap Analysis for ${siteUrl}...`);
+  
+  // Fetch GSC query data with query+page dimensions
+  const response = await fetchSearchAnalytics(pool, userId, siteUrl, {
+    startDate: startDate,
+    endDate: endDate,
+    dimensions: ['query', 'page'],
+    rowLimit: 25000 // Higher limit for comprehensive gap analysis
+  });
+  
+  const rows = response.rows || [];
+  
+  if (!rows || rows.length === 0) {
+    return {
+      metrics: {
+        totalGaps: 0,
+        positionGaps: 0,
+        contentGaps: 0,
+        ctrGaps: 0,
+        totalOpportunityClicks: 0,
+        avgGapPosition: 0,
+        avgGapImpressions: 0
+      },
+      insights: [{
+        type: 'NO_DATA',
+        severity: 'warning',
+        message: 'No GSC data available for the selected date range. Wait for Google to collect data or check if the property is verified.',
+        recommendation: 'Ensure your site is verified in Google Search Console and has been receiving organic traffic.'
+      }],
+      healthScore: 0,
+      status: 'critical'
+    };
+  }
+  
+  console.log(`✓ Fetched ${rows.length} query-page combinations from GSC`);
+  
+  // Aggregate query-level data (sum across all pages for each query)
+  const queryData = {};
+  
+  rows.forEach(row => {
+    const query = row.keys[0];
+    const page = row.keys[1];
+    const position = row.position;
+    const impressions = row.impressions;
+    const clicks = row.clicks;
+    const ctr = row.ctr;
+    
+    if (!queryData[query]) {
+      queryData[query] = {
+        query,
+        totalImpressions: 0,
+        totalClicks: 0,
+        pages: [],
+        bestPosition: position,
+        bestPage: page
+      };
+    }
+    
+    queryData[query].totalImpressions += impressions;
+    queryData[query].totalClicks += clicks;
+    queryData[query].pages.push({ page, position, impressions, clicks, ctr });
+    
+    // Track best-ranking page (lowest position)
+    if (position < queryData[query].bestPosition) {
+      queryData[query].bestPosition = position;
+      queryData[query].bestPage = page;
+    }
+  });
+  
+  console.log(`✓ Aggregated data for ${Object.keys(queryData).length} unique queries`);
+  
+  // Initialize gap categories
+  const positionGaps = [];
+  const contentGaps = [];
+  const ctrGaps = [];
+  
+  let totalImpressions = 0;
+  let totalClicks = 0;
+  let totalOpportunityClicks = 0;
+  let gapCount = 0;
+  let totalGapPosition = 0;
+  let totalGapImpressions = 0;
+  
+  // Analyze each query for gaps
+  Object.values(queryData).forEach(qData => {
+    const query = qData.query;
+    const impressions = qData.totalImpressions;
+    const clicks = qData.totalClicks;
+    const currentCTR = (clicks / impressions) * 100;
+    const position = qData.bestPosition;
+    const page = qData.bestPage;
+    
+    totalImpressions += impressions;
+    totalClicks += clicks;
+    
+    // Only analyze queries with meaningful impression volume
+    if (impressions < 100) return;
+    
+    // Get expected CTR for current position
+    const expectedCTR = getExpectedCTR(position);
+    const expectedCTRPercent = expectedCTR * 100;
+    
+    // GAP TYPE 1: Position Gaps (page 2+, should be higher)
+    if (position > 10 && position <= 50) {
+      const potentialPosition = 5; // Target: top 5
+      const potentialCTR = getExpectedCTR(potentialPosition) * 100;
+      const trafficPotential = Math.round(impressions * (potentialCTR - currentCTR) / 100);
+      
+      if (trafficPotential > 10) {
+        positionGaps.push({
+          query,
+          gapType: 'position',
+          impressions,
+          clicks,
+          currentPosition: Math.round(position * 10) / 10,
+          potentialPosition,
+          currentCTR: Math.round(currentCTR * 10) / 10,
+          expectedCTR: Math.round(potentialCTR * 10) / 10,
+          trafficPotential,
+          rankingUrl: page,
+          opportunity: position > 20 
+            ? `Ranking on page ${Math.ceil(position / 10)}—optimize content depth and internal linking to reach page 1`
+            : `Ranking #${Math.round(position)} on page 2—small push needed to reach top 10`
+        });
+        
+        gapCount++;
+        totalGapPosition += position;
+        totalGapImpressions += impressions;
+        totalOpportunityClicks += trafficPotential;
+      }
+    }
+    
+    // GAP TYPE 2: Content Gaps (page 3+, weak content match)
+    if (position > 20) {
+      const hasMultipleWeakPages = qData.pages.length > 2 && qData.pages.every(p => p.position > 20);
+      const potentialCTR = getExpectedCTR(5) * 100;
+      const trafficPotential = Math.round(impressions * (potentialCTR - currentCTR) / 100);
+      
+      if (trafficPotential > 10) {
+        contentGaps.push({
+          query,
+          gapType: 'content',
+          impressions,
+          clicks,
+          currentPosition: Math.round(position * 10) / 10,
+          currentCTR: Math.round(currentCTR * 10) / 10,
+          expectedCTR: Math.round(potentialCTR * 10) / 10,
+          trafficPotential,
+          rankingUrl: page,
+          opportunity: hasMultipleWeakPages
+            ? `Multiple pages ranking poorly—consolidate into one authoritative page targeting this query`
+            : `No strong content match—create dedicated page optimized for this search intent`
+        });
+        
+        gapCount++;
+        totalGapPosition += position;
+        totalGapImpressions += impressions;
+        totalOpportunityClicks += trafficPotential;
+      }
+    }
+    
+    // GAP TYPE 3: CTR Gaps (page 1 but low CTR)
+    if (position <= 10 && currentCTR < expectedCTRPercent * 0.7) {
+      const trafficPotential = Math.round(impressions * (expectedCTRPercent - currentCTR) / 100);
+      
+      if (trafficPotential > 10) {
+        ctrGaps.push({
+          query,
+          gapType: 'ctr',
+          impressions,
+          clicks,
+          currentPosition: Math.round(position * 10) / 10,
+          currentCTR: Math.round(currentCTR * 10) / 10,
+          expectedCTR: Math.round(expectedCTRPercent * 10) / 10,
+          trafficPotential,
+          rankingUrl: page,
+          opportunity: `Ranking #${Math.round(position)} but CTR is ${Math.round((currentCTR / expectedCTRPercent) * 100)}% of expected—improve title tag and meta description`
+        });
+        
+        gapCount++;
+        totalGapPosition += position;
+        totalGapImpressions += impressions;
+        totalOpportunityClicks += trafficPotential;
+      }
+    }
+  });
+  
+  console.log(`✓ Identified ${positionGaps.length} position gaps, ${contentGaps.length} content gaps, ${ctrGaps.length} CTR gaps`);
+  
+  // Sort each category by traffic potential
+  positionGaps.sort((a, b) => b.trafficPotential - a.trafficPotential);
+  contentGaps.sort((a, b) => b.trafficPotential - a.trafficPotential);
+  ctrGaps.sort((a, b) => b.trafficPotential - a.trafficPotential);
+  
+  // Combine and get top 20 opportunities overall
+  const allGaps = [...positionGaps, ...contentGaps, ...ctrGaps]
+    .sort((a, b) => b.trafficPotential - a.trafficPotential)
+    .slice(0, 20);
+  
+  // Calculate metrics
+  const totalGaps = positionGaps.length + contentGaps.length + ctrGaps.length;
+  const avgGapPosition = gapCount > 0 ? totalGapPosition / gapCount : 0;
+  const avgGapImpressions = gapCount > 0 ? totalGapImpressions / gapCount : 0;
+  const totalQueries = Object.keys(queryData).length;
+  
+  // Calculate health score (fewer gaps = better health)
+  // 0 gaps = 100, 50% of queries with gaps = 50, 100% gaps = 0
+  const gapPercentage = totalQueries > 0 ? (totalGaps / totalQueries) * 100 : 0;
+  let healthScore = Math.max(0, Math.min(100, 100 - gapPercentage));
+  
+  // Boost score if opportunity clicks are low (fewer serious gaps)
+  if (totalOpportunityClicks < 500) {
+    healthScore = Math.min(100, healthScore + 10);
+  }
+  
+  // Determine status
+  let status = 'healthy';
+  if (healthScore < 40) status = 'critical';
+  else if (healthScore < 70) status = 'needs_attention';
+  
+  console.log(`✓ Health Score: ${Math.round(healthScore)}/100 (${status})`);
+  console.log(`✓ Total opportunity: +${totalOpportunityClicks} clicks/month`);
+  
+  // Generate insights
+  const insights = [];
+  
+  // Main insight with top opportunities
+  if (allGaps.length > 0) {
+    const topGap = allGaps[0];
+    insights.push({
+      type: 'COVERAGE_GAPS',
+      severity: totalOpportunityClicks > 1000 ? 'high' : 'medium',
+      message: `Found ${totalGaps} coverage gaps with ${totalOpportunityClicks.toLocaleString()} clicks/month potential. Top opportunity: "${topGap.query}" could gain +${topGap.trafficPotential} clicks/month.`,
+      gapOpportunities: allGaps
+    });
+  } else {
+    insights.push({
+      type: 'STRONG_COVERAGE',
+      severity: 'success',
+      message: 'Excellent content coverage! Your pages are well-matched to search queries with strong positions and CTRs.',
+      recommendation: 'Continue monitoring for new keyword opportunities and maintain content quality.'
+    });
+  }
+  
+  // Position gaps insight
+  if (positionGaps.length > 0) {
+    const totalPositionOpportunity = positionGaps.reduce((sum, gap) => sum + gap.trafficPotential, 0);
+    insights.push({
+      type: 'POSITION_GAPS',
+      severity: 'medium',
+      message: `${positionGaps.length} queries ranking on page 2+ could gain ${totalPositionOpportunity.toLocaleString()} clicks/month with better positions.`,
+      recommendation: 'Focus on improving content depth, adding internal links, and building topical authority for these pages.'
+    });
+  }
+  
+  // Content gaps insight
+  if (contentGaps.length > 0) {
+    const totalContentOpportunity = contentGaps.reduce((sum, gap) => sum + gap.trafficPotential, 0);
+    insights.push({
+      type: 'CONTENT_GAPS',
+      severity: 'high',
+      message: `${contentGaps.length} high-impression queries lack dedicated pages, representing ${totalContentOpportunity.toLocaleString()} clicks/month opportunity.`,
+      recommendation: 'Create new pages or consolidate existing pages to better target these search intents.'
+    });
+  }
+  
+  // CTR gaps insight
+  if (ctrGaps.length > 0) {
+    const totalCTROpportunity = ctrGaps.reduce((sum, gap) => sum + gap.trafficPotential, 0);
+    insights.push({
+      type: 'CTR_GAPS',
+      severity: 'medium',
+      message: `${ctrGaps.length} page 1 rankings have poor CTRs, missing ${totalCTROpportunity.toLocaleString()} clicks/month.`,
+      recommendation: 'Optimize title tags and meta descriptions to be more compelling and match search intent.'
+    });
+  }
+  
+  return {
+    metrics: {
+      totalGaps,
+      positionGaps: positionGaps.length,
+      contentGaps: contentGaps.length,
+      ctrGaps: ctrGaps.length,
+      totalOpportunityClicks,
+      avgGapPosition: Math.round(avgGapPosition * 10) / 10,
+      avgGapImpressions: Math.round(avgGapImpressions * 10) / 10
+    },
+    insights,
+    healthScore: Math.round(healthScore),
+    status
+  };
+}
+
 module.exports = {
   fetchUserProperties,
   fetchSearchAnalytics,
@@ -2328,5 +2632,6 @@ module.exports = {
   calculateTransmutationScore,
   analyzeElixirHealth,
   analyzeContentInventory,
-  analyzeKeywordDiscovery
+  analyzeKeywordDiscovery,
+  analyzeCoverageGaps
 };
