@@ -1,0 +1,375 @@
+# Index Diagnostic Protocol - Sprint Plan Action Card Definition
+
+## Protocol Identity
+- **Protocol Key**: `gsc_indexation_protocol`
+- **Mission Title**: Index Diagnostic Protocol
+- **Display Name**: Index Diagnostic Protocol
+- **Protocol Type**: analysis-based (E.V.O. integrated)
+- **Entity Label**: Crawl Budget Efficiency
+- **Total Steps**: 4
+- **Sprint Circle Index**: 1
+
+## Description
+Audit and optimize GSC indexation health through 4 diagnostic steps: Coverage analysis, crawl stats evaluation, sitemap optimization, and redirect chain resolution. Uses E.V.O. dimension analysis to identify specific issues and provide data-driven recommendations.
+
+## Page 1: Strategist Insight
+
+### Insight Message
+"Google's crawlers visit your site daily, but are they wasting time on broken pages or focusing on your money-makers? Right now, googlebot might be burning crawl budget on redirect chains, duplicate content, and 404 black holes. Let's audit the raw GSC data and redirect their attention to pages that convert."
+
+### Dynamic Placeholders
+- `{{PROPERTY_NAME}}`: Replaced with actual GSC property name from `window.currentPropertyName`
+- `{{COMPANY_NAME}}`: Same as PROPERTY_NAME for this protocol
+
+## Step 1: Indexation Audit
+
+### Step Definition
+```yaml
+title: "Indexation Audit"
+description: "Pull all indexed pages versus submitted pages from GSC Coverage Report. We'll identify coverage gaps, unwanted indexed content (like staging URLs or parameter pages), and pages excluded by errors. This reveals what Google actually knows about your site."
+```
+
+### Execution Instructions
+```yaml
+concept: "GSC Coverage Report analysis"
+action: "Export and analyze indexed vs submitted pages from Google Search Console Coverage Report"
+dataSource: "Google Search Console API or manual CSV export from Coverage Report"
+implementation: "Connect to GSC API or guide manual export, parse coverage data (indexed, excluded, errors, valid with warnings), identify issues like excluded pages, 404s, duplicate content, soft 404s, and pages blocked by robots.txt"
+deliverable: "indexation-audit-report.md"
+evoDimension: "substrate"
+evoMetrics: ["rootDensity", "exclusionRate", "mycelialExpansion", "soilQuality"]
+healthThreshold: 70
+```
+
+### E.V.O. Dimension Mapping
+- **Dimension**: `substrate` (foundation layer - what's indexed)
+- **Key Metrics**:
+  - `rootDensity`: Total indexed pages
+  - `exclusionRate`: Percentage of submitted pages excluded
+  - `mycelialExpansion`: Growth rate of indexed pages
+  - `soilQuality`: Health of indexed content (no errors)
+
+### Health Score Calculation
+```javascript
+score = 100 - (exclusionRate * 2) - (errorPageRatio * 3)
+// If score >= 70: Healthy, skip Execution Assist
+// If score < 70: Show Execution Assist with diagnosed issues
+```
+
+### Diagnosed Cause Structure
+```yaml
+diagnosedCauses:
+  - reason: "404 errors blocking indexation"
+    count: 23
+    severity: "high" # high, medium, low
+    fix: "Update or remove broken internal links pointing to these URLs"
+    urls: ["url1", "url2", "url3"]
+    strategies:
+      - category: "Immediate Actions"
+        items:
+          - "Run site crawl to find all internal links pointing to 404 pages"
+          - "Update links to point to correct URLs or remove links"
+          - "Set up 301 redirects for valuable old URLs"
+      - category: "Prevention"
+        items:
+          - "Implement automated broken link checking"
+          - "Add pre-deployment link validation"
+```
+
+### Analysis Modal Display
+- Show health score: `${score}/100`
+- Display metrics in grid layout
+- List diagnosed causes with expandable URL lists
+- Show indexation strategies for each cause
+- Enable "Execution Assist" buttons per diagnosed cause
+
+## Step 2: Crawl Stats Analysis
+
+### Step Definition
+```yaml
+title: "Crawl Stats Analysis"
+description: "Analyze crawl frequency, response times, and file sizes from GSC Crawl Stats. We'll identify which pages googlebot visits most, which ones are slow to respond, and where server errors are blocking indexation. This shows how efficiently we're using crawl budget."
+```
+
+### Execution Instructions
+```yaml
+concept: "Crawl budget efficiency analysis"
+action: "Export and analyze crawl frequency, response times, and resource consumption from GSC Crawl Stats"
+dataSource: "Google Search Console Crawl Stats section (last 90 days data)"
+implementation: "Extract crawl stats data showing total crawl requests, kilobytes downloaded, time spent downloading pages. Identify pages with slow response times (>500ms), server errors (5xx), and high-frequency crawls on low-value pages. Calculate crawl budget waste."
+deliverable: "crawl-stats-analysis.md"
+evoDimension: "crawl"
+evoMetrics: ["crawlRequests", "responseTime", "serverErrors"]
+healthThreshold: 70
+```
+
+### E.V.O. Dimension Mapping
+- **Dimension**: `crawl` (crawler behavior)
+- **Key Metrics**:
+  - `crawlRequests`: Total crawl requests per day
+  - `responseTime`: Average server response time (ms)
+  - `serverErrors`: Count of 5xx errors encountered
+
+### Health Score Calculation
+```javascript
+score = 100 - (serverErrorRate * 5) - (slowPageRatio * 2)
+// Penalty for high server error rates and slow response times
+```
+
+### Diagnosed Cause Examples
+- "Server errors preventing crawl": 5xx responses, timeout issues
+- "Slow response times wasting crawl budget": Pages taking >2s to respond
+- "Crawl budget spent on low-value pages": Admin/login pages crawled frequently
+
+## Step 3: Sitemap Optimization
+
+### Step Definition
+```yaml
+title: "Sitemap Optimization"
+description: "Validate sitemap.xml structure and ensure priority pages are properly mapped for crawler discovery. We'll remove any 404s, redirects, or noindex pages from sitemaps, and confirm your most important pages are submitted. Clean sitemaps = efficient crawling."
+```
+
+### Execution Instructions
+```yaml
+concept: "Sitemap validation and optimization"
+action: "Audit sitemap.xml files and cross-reference with GSC data to ensure clean, accurate sitemaps"
+dataSource: "Site's sitemap.xml files + GSC Sitemaps report"
+implementation: "Parse all sitemap files, validate XML structure, check each URL for: 404 errors, redirect chains, noindex tags, canonicalization issues. Cross-reference with GSC to identify submitted but not indexed URLs. Verify priority pages are included and low-value pages excluded."
+deliverable: "sitemap-optimization-plan.md"
+evoDimension: "sitemap"
+evoMetrics: ["sitemapIndexation", "submittedVsIndexed"]
+healthThreshold: 70
+```
+
+### E.V.O. Dimension Mapping
+- **Dimension**: `sitemap` (discovery mechanism)
+- **Key Metrics**:
+  - `sitemapIndexation`: Percentage of sitemap URLs indexed
+  - `submittedVsIndexed`: Ratio of submitted to indexed URLs
+
+### Diagnosed Cause Examples
+- "Sitemap contains 404 URLs": X URLs in sitemap return 404
+- "Sitemap includes noindex pages": X URLs have noindex tags
+- "Sitemap has redirect chains": X URLs redirect before final destination
+
+## Step 4: Redirect Chain Resolution
+
+### Step Definition
+```yaml
+title: "Redirect Chain Resolution"
+description: "Map all redirect chains and eliminate multi-hop redirects that waste crawl budget. We'll fix broken internal links creating 404 errors, consolidate redirect chains into single 301s, and ensure all critical pages are directly accessible. Every redirect costs crawl budget."
+```
+
+### Execution Instructions
+```yaml
+concept: "Redirect mapping and 404 elimination"
+action: "Map all redirect chains, identify 404 errors, and create optimization plan to fix redirect inefficiencies"
+dataSource: "Site crawl data + server logs + GSC Coverage errors"
+implementation: "Crawl the site to map all redirects (301, 302, 307, 308). Identify redirect chains (A→B→C) and consolidate to single redirects (A→C). Find broken internal links causing 404s. Check for redirect loops. Verify all critical pages are directly accessible without redirects."
+deliverable: "redirect-resolution-plan.md"
+evoDimension: "redirect"
+evoMetrics: ["errorPages", "redirectChains"]
+healthThreshold: 70
+```
+
+### E.V.O. Dimension Mapping
+- **Dimension**: `redirect` (navigation efficiency)
+- **Key Metrics**:
+  - `errorPages`: Count of 404 and error pages
+  - `redirectChains`: Count of multi-hop redirects
+
+### Diagnosed Cause Examples
+- "Redirect chains wasting crawl budget": X URLs have 2+ redirect hops
+- "Internal links pointing to 404s": X broken links found
+- "Redirect loops detected": X URLs redirect in circles
+
+## Page 6: Completion Status
+
+### Status Lines
+```yaml
+scanning: "Status: Analyzing GSC Coverage Data"
+established: "Status: Crawl Budget Optimized."
+success: "Success: Your site is now prioritizing high-value pages. Crawl efficiency maximized."
+```
+
+## Button State Logic
+
+### Analysis Button
+- **Initial State**: Visible, loading state
+- **Auto-Trigger**: Fetch E.V.O. dimension data on page load
+- **Loading State**: Shows spinner + "Analyzing..." text
+- **Ready State**: Enabled, shows "Analysis" text
+- **Error State**: Shows "Error - Click to Retry"
+- **Action**: Opens analysis modal with health score, metrics, and diagnosed causes
+
+### Execution Assist Button
+- **Initial State**: Hidden
+- **Show Trigger**: Health score < 70 (needs fixes)
+- **Hide Trigger**: Health score >= 70 (no fixes needed)
+- **Purpose**: Generate Cursor prompt with diagnosed issues and URLs
+- **Action**: Opens modal with data-driven prompt including specific URLs and fixes
+
+### Next Step Button
+- **Initial State**: Disabled
+- **Auto-Enable Trigger**: Health score >= 70 (no fixes needed)
+- **Manual Enable Trigger**: User copies prompt from Execution Assist
+- **Action**: Advance to next step page
+
+### Complete Button (Page 5 only)
+- **Initial State**: Disabled
+- **Enable Triggers**:
+  - Step 4 health score >= 70, OR
+  - User copies Step 4 prompt
+- **Action**: Navigate to Page 6, save completion, unlock next circle
+
+## E.V.O. Integration Flow
+
+### 1. Page Load (Pages 2-5)
+```javascript
+// sprintPlan.js - showPage()
+if (pageNum >= 2 && pageNum <= 5 && currentCardType === 'gsc_indexation_protocol') {
+  fetchAndDisplayEVOData(pageNum);
+}
+```
+
+### 2. Fetch E.V.O. Dimension
+```javascript
+// API call: GET /api/gsc/evo/dimension/${evoDimension}
+const response = await api.getDimension('substrate', siteUrl, forceRefresh);
+// Returns: { data: dimensionData, fromCache: boolean }
+```
+
+### 3. Cache Results
+```javascript
+evoDataCache[stepNumber] = {
+  dimensionData,
+  stepData,
+  needsFixes: healthScore < healthThreshold,
+  healthScore,
+  healthThreshold
+};
+```
+
+### 4. Update UI
+```javascript
+// Show Analysis button as ready
+setAnalysisButtonReady(currentPage, stepNumber);
+
+// Show/hide Execution Assist based on health
+updateExecutionAssistVisibility(pageNumber, needsFixes, dimensionData);
+```
+
+## Data-Driven Prompt Generation
+
+### Standard Prompt (No E.V.O. Data)
+Uses generic analysis template from `generateAnalysisPrompt()`
+
+### Enhanced Prompt (With E.V.O. Data)
+Uses `generateDataDrivenAnalysisPrompt()` with:
+- Actual health metrics from E.V.O.
+- Specific diagnosed causes
+- Real URLs with issues
+- Prioritized fix strategies
+- Quantified impact (X pages affected)
+
+### Example Enhanced Prompt Structure
+```
+You are implementing Indexation Audit as part of Index Diagnostic Protocol.
+
+OBJECTIVE: Export and analyze indexed vs submitted pages from GSC Coverage Report
+
+CURRENT SITE HEALTH:
+Score: 65/100 (Below threshold of 70)
+Status: Needs optimization
+
+KEY METRICS:
+- Root Density: 450 indexed pages
+- Exclusion Rate: 15% (67 pages excluded)
+- Error Pages: 23 pages with errors
+
+DIAGNOSED ISSUES:
+
+1. 404 Errors Blocking Indexation (23 pages) [HIGH SEVERITY]
+   Problem: Internal links pointing to non-existent pages
+   Fix: Update or remove broken links, set up 301 redirects
+   
+   Affected URLs:
+   - https://site.com/old-page-1
+   - https://site.com/deleted-service
+   [... more URLs]
+   
+   INDEXATION STRATEGY:
+   Immediate Actions:
+   - Run site crawl to find all internal links pointing to these 404s
+   - Update links to correct URLs or remove if no longer relevant
+   - Set up 301 redirects from old URLs to new destinations
+   
+   Prevention:
+   - Implement automated broken link checking
+   - Add pre-deployment link validation tests
+
+[Additional diagnosed issues...]
+
+DELIVERABLE: Create indexation-audit-report.md with:
+- Executive summary of findings
+- Detailed breakdown of each issue with URLs
+- Prioritized action plan with specific file changes
+- Expected impact (pages that will be indexed after fixes)
+```
+
+## Database Schema
+
+### sprint_action_cards Entry
+```sql
+INSERT INTO sprint_action_cards (card_type, display_name, total_steps, description)
+VALUES (
+  'gsc_indexation_protocol',
+  'Index Diagnostic Protocol',
+  4,
+  'Audit and optimize GSC indexation health: coverage, crawl stats, sitemaps, and redirects'
+);
+```
+
+## Future E.V.O. Auto-Generation
+
+When E.V.O. generates this card procedurally:
+
+### 1. Trigger Detection
+```yaml
+conditions:
+  - exclusion_rate > 20%
+  - error_pages > 50
+  - crawl_errors > 30
+  - sitemap_coverage < 70%
+trigger: "generate_index_diagnostic_protocol_card"
+priority: "high"
+```
+
+### 2. Dynamic Insight Generation
+```javascript
+// Analyze GSC data and customize insight
+if (exclusionRate > 30) {
+  insight = "Your site has a critical indexation problem: ${exclusionRate}% of submitted pages are excluded by Google. This means crawlers are finding your pages but refusing to index them. Let's diagnose why...";
+}
+```
+
+### 3. Pre-fetch E.V.O. Dimensions
+```javascript
+// Before showing card, pre-analyze all 4 dimensions
+const dimensions = ['substrate', 'crawl', 'sitemap', 'redirect'];
+await Promise.all(dimensions.map(d => api.getDimension(d, siteUrl)));
+// Cache results so Analysis buttons show as "Ready" immediately
+```
+
+### 4. Prioritize Steps
+```javascript
+// Reorder steps based on severity
+if (errorPages > 100 && redirectChains < 10) {
+  // Swap Step 1 and Step 4 to fix errors first
+}
+```
+
+### 5. Generate Custom Completion Message
+```javascript
+completion.success = `Success: Fixed ${fixedErrorPages} errors, optimized ${optimizedRedirects} redirects, and improved indexation by ${improvementPercent}%. Crawl budget saved: ${savedCrawls} requests/day.`;
+```

@@ -1,0 +1,468 @@
+# Content Opportunity Protocol - Sprint Plan Action Card Definition
+
+## Protocol Identity
+- **Protocol Key**: `keyword_coverage_gap_protocol`
+- **Mission Title**: Content Opportunity Protocol
+- **Display Name**: Content Opportunity Protocol
+- **Protocol Type**: analysis-based (E.V.O. integrated, GSC-driven)
+- **Entity Label**: Content Coverage Strength
+- **Total Steps**: 4
+- **Sprint Circle Index**: 3
+
+## Description
+Identify content opportunities through GSC impression data analysis. Maps existing content to ranking keywords, discovers high-impression queries with poor CTR, identifies coverage gaps, and creates data-driven content planning strategy to capture waiting traffic.
+
+## Page 1: Strategist Insight
+
+### Insight Message
+"Google is already showing your site for thousands of search queries, but many are buried on page 2 or have terrible click-through rates. Right now, there's search demand finding you in impressions but never clicking through. Let's analyze your GSC data, map impression opportunities to your content inventory, and identify high-value gaps where new or optimized pages can capture that waiting traffic."
+
+### Dynamic Placeholders
+- `{{PROPERTY_NAME}}`: GSC property name from `window.currentPropertyName`
+- `{{COMPANY_NAME}}`: Same as PROPERTY_NAME
+
+## Step 1: Content Inventory Audit
+
+### Step Definition
+```yaml
+title: "Content Inventory Audit"
+description: "First, we map every page on your site to the keywords it's actually ranking for in GSC. We'll see which pages own which queries, how many clicks they get, and what positions they hold. This creates our baseline: what content exists and what it's capturing today."
+```
+
+### Execution Instructions
+```yaml
+concept: "comprehensive content and keyword inventory"
+action: "Audit existing pages and map them to their currently ranking keywords"
+dataSource: "Google Search Console API + site crawl"
+implementation: "Crawl all pages, extract target keywords from meta tags and content, pull GSC ranking data for each page, create mapping of pages → keywords → positions → traffic"
+deliverable: "content-inventory-audit.md"
+evoDimension: "inventory"
+evoMetrics: ["totalPages", "rankingKeywords", "avgPosition", "contentCoverage"]
+healthThreshold: 70
+```
+
+### E.V.O. Dimension Mapping
+- **Dimension**: `inventory` (content baseline)
+- **Key Metrics**:
+  - `totalPages`: Count of crawlable pages
+  - `rankingKeywords`: Total keywords ranking in GSC
+  - `avgPosition`: Average position across all keywords
+  - `contentCoverage`: Percentage of high-value queries with dedicated pages
+
+### Analysis Modal Display
+- Show content inventory statistics
+- Display top-performing pages (by traffic)
+- List underperforming pages (high impressions, low clicks)
+- Show keyword-to-page mapping summary
+
+### No Execution Assist Needed
+- Health score is informational only
+- Analysis button sufficient for this step
+- Next Step button auto-enabled after analysis loads
+
+## Step 2: Keyword Discovery from GSC
+
+### Step Definition
+```yaml
+title: "Keyword Discovery from GSC"
+description: "Next, we pull every search query from GSC that generated impressions—even if you rank on page 5. We'll find queries with high impressions but terrible CTR, queries stuck on page 2, and queries where Google shows you but users never click. This is your hidden opportunity list."
+```
+
+### Execution Instructions
+```yaml
+concept: "GSC-based keyword discovery and opportunity mapping"
+action: "Extract all queries from GSC to identify keywords with impressions that could drive more traffic"
+dataSource: "Google Search Console Search Analytics API"
+implementation: "Pull GSC query data for last 3 months, filter for queries with impressions > 10, identify low-CTR queries (impressions > clicks ratio poor), find queries ranking positions 11-50, flag queries with high impressions but low clicks as quick wins, group by search intent"
+deliverable: "keyword-demand-research.md"
+evoDimension: "keyword_opportunities"
+evoMetrics: ["totalQueries", "lowCTROpportunities", "page2QuickWins", "highVolumeOpportunities", "potentialTrafficGain"]
+healthThreshold: 70
+gscMetrics: ["query", "impressions", "clicks", "ctr", "position"]
+```
+
+### E.V.O. Dimension Mapping
+- **Dimension**: `keyword_opportunities` (GSC query analysis)
+- **Key Metrics**:
+  - `totalQueries`: All queries with impressions
+  - `lowCTROpportunities`: Queries with impressions > 100 and CTR < expected
+  - `page2QuickWins`: Queries ranking 11-20 (close to page 1)
+  - `highVolumeOpportunities`: Queries with 1000+ impressions/month
+  - `potentialTrafficGain`: Estimated additional clicks if optimized
+
+### Keyword Opportunity Categories
+```yaml
+opportunity_types:
+  low_ctr:
+    description: "High impressions, low CTR (poor title/description)"
+    filter: "impressions > 100 AND ctr < (expected_ctr_by_position * 0.5)"
+    action: "Optimize title tags and meta descriptions"
+    priority: "high"
+    
+  page_2_quickwin:
+    description: "Ranking 11-20, decent impressions (small push needed)"
+    filter: "position BETWEEN 11 AND 20 AND impressions > 50"
+    action: "Add content depth, improve internal links, optimize on-page SEO"
+    priority: "high"
+    
+  high_volume_underperformer:
+    description: "1000+ impressions but ranking >20"
+    filter: "impressions > 1000 AND position > 20"
+    action: "Create dedicated landing page or major content overhaul"
+    priority: "medium"
+    
+  zero_click:
+    description: "Impressions but 0 clicks (ranking very low or poor intent match)"
+    filter: "impressions > 20 AND clicks = 0"
+    action: "Investigate intent mismatch, consider content creation"
+    priority: "low"
+```
+
+### Analysis Modal Display
+- Show keyword opportunity breakdown by category
+- Display top keyword opportunities with:
+  - Query text
+  - Current position
+  - Impressions
+  - Current CTR vs expected CTR
+  - Potential gain (clicks/month)
+  - Ranking URL
+- Enable "Execution Assist" button for title/meta optimization
+
+### Execution Assist Integration
+- **Special Prompt**: Generate keyword optimization prompt with specific URLs
+- **Data Source**: Pull opportunities from E.V.O. analysis
+- **Format**: List query → URL → current title → optimization suggestions
+
+## Step 3: Coverage Gap Analysis
+
+### Step Definition
+```yaml
+title: "Coverage Gap Analysis"
+description: "Now we compare: What queries have impressions but no dedicated page? What queries rank on page 2 with a small push needed? What high-impression queries have embarrassing CTRs? We'll score each gap by traffic potential—impressions × expected CTR improvement = your content roadmap."
+```
+
+### Execution Instructions
+```yaml
+concept: "GSC-based coverage gap identification"
+action: "Compare GSC query performance against existing content to find coverage gaps and opportunities"
+dataSource: "Google Search Console Search Analytics API"
+implementation: "Cross-reference GSC query data with content inventory from Step 1, identify high-impression queries (>100) with poor positions (>10), find queries with multiple weak-ranking pages (cannibalization), detect queries with impressions but no clear target page, calculate opportunity score using (impressions × expected_CTR_improvement), prioritize by potential traffic gain"
+deliverable: "coverage-gap-analysis.md"
+opportunityMetrics: ["impressions", "current_position", "potential_position", "traffic_gain"]
+evoDimension: "content_coverage_gaps"
+evoMetrics: ["totalGaps", "positionGaps", "contentGaps", "ctrGaps", "totalOpportunityClicks", "avgGapPosition", "avgGapImpressions"]
+healthThreshold: 70
+```
+
+### E.V.O. Dimension Mapping
+- **Dimension**: `content_coverage_gaps` (gap identification)
+- **Key Metrics**:
+  - `totalGaps`: Total identified opportunities
+  - `positionGaps`: Queries ranking 11-20 (position improvement opportunities)
+  - `contentGaps`: Queries with impressions but no dedicated page
+  - `ctrGaps`: Queries with low CTR relative to position
+  - `totalOpportunityClicks`: Sum of potential monthly clicks across all gaps
+  - `avgGapPosition`: Average position of gap opportunities
+  - `avgGapImpressions`: Average monthly impressions per gap
+
+### Gap Types
+```yaml
+gap_categories:
+  position_gap:
+    description: "Page ranks 11-20, needs optimization to reach page 1"
+    calculation: "existing_page_position BETWEEN 11 AND 20"
+    solution: "Optimize existing page (content, links, on-page SEO)"
+    icon: "📍"
+    
+  content_gap:
+    description: "Query has impressions but no dedicated page"
+    calculation: "query_has_impressions AND no_page_targets_keyword"
+    solution: "Create new page targeting this query cluster"
+    icon: "📄"
+    
+  ctr_gap:
+    description: "Page ranks well but CTR is below expected for position"
+    calculation: "position <= 10 AND ctr < (expected_ctr * 0.7)"
+    solution: "Optimize title tag and meta description"
+    icon: "👁️"
+    
+  cannibalization:
+    description: "Multiple pages competing for same query"
+    calculation: "multiple_pages_rank_for_query AND all_positions > 10"
+    solution: "Consolidate content or clarify content differentiation"
+    icon: "⚔️"
+```
+
+### Opportunity Scoring Formula
+```javascript
+opportunityScore = impressions * (expectedCTR - currentCTR) * 30
+// Result: Estimated additional clicks per month
+
+priority = {
+  high: opportunityScore > 100,    // 100+ potential clicks/month
+  medium: opportunityScore > 30,   // 30-100 potential clicks/month
+  low: opportunityScore > 10       // 10-30 potential clicks/month
+}
+```
+
+### Analysis Modal Display
+- Show gap opportunities sorted by traffic potential
+- Display each gap with:
+  - Query
+  - Gap type (position/content/CTR)
+  - Current position
+  - Impressions
+  - Current CTR
+  - Potential monthly clicks gained
+  - Ranking URL (if exists)
+- Group by gap type for easier scanning
+
+### No Execution Assist Needed
+- Analysis is informational for Step 4 planning
+- Next Step button auto-enabled after analysis
+
+## Step 4: Content Planning Strategy
+
+### Step Definition
+```yaml
+title: "Content Planning Strategy"
+description: "Finally, we design the pages. For each gap, we'll cluster related GSC queries, plan URL structure, outline content sections based on search intent, and map internal links. You'll get a prioritized list of pages to create or optimize—ranked by traffic potential and effort required."
+```
+
+### Execution Instructions
+```yaml
+concept: "strategic content planning relative to keyword demand"
+action: "Plan new pages and content updates to capture identified keyword opportunities"
+implementation: "Group related keywords into topical clusters, design page structure and content briefs for each cluster, plan URL hierarchy and internal linking strategy, prioritize implementation by traffic potential and difficulty, provide specific page creation guidance"
+deliverable: "content-planning-strategy.md"
+promptType: "content_planning"
+```
+
+### Content Planning Prompt Structure
+
+The Execution Assist prompt for this step should include:
+
+1. **Opportunity Summary** (from Steps 1-3 E.V.O. data)
+   - Total gaps identified
+   - Total potential monthly clicks
+   - Breakdown by gap type
+
+2. **Keyword Clusters** (grouped by topic/intent)
+   ```yaml
+   cluster_example:
+     cluster_name: "Metal Roofing Installation"
+     primary_keyword: "metal roofing installation"
+     related_queries:
+       - "how to install metal roofing"
+       - "metal roof installation cost"
+       - "metal roofing installation near me"
+       - "DIY metal roof installation"
+     total_impressions: 5400
+     potential_monthly_clicks: 245
+     gap_type: "content_gap"
+     recommended_url: "/services/metal-roofing-installation"
+   ```
+
+3. **Content Brief Template** (for each cluster)
+   ```yaml
+   page_brief:
+     target_url: "/services/metal-roofing-installation"
+     primary_keyword: "metal roofing installation"
+     search_intent: "commercial + informational"
+     target_audience: "homeowners researching metal roof installation"
+     
+     content_structure:
+       - section: "Introduction"
+         keywords: ["metal roofing installation", "metal roof benefits"]
+         word_count: 150
+       - section: "Installation Process"
+         keywords: ["how to install metal roofing", "metal roof installation steps"]
+         word_count: 500
+       - section: "Cost Guide"
+         keywords: ["metal roof installation cost", "metal roofing price"]
+         word_count: 300
+       - section: "DIY vs Professional"
+         keywords: ["DIY metal roof installation", "professional metal roofers"]
+         word_count: 250
+       - section: "Local Service Information"
+         keywords: ["metal roofing installation near me", "Portland metal roofers"]
+         word_count: 200
+     
+     internal_links:
+       - "Link to /services/roofing (parent service page)"
+       - "Link to /blog/metal-vs-shingle-roofing (comparison guide)"
+       - "Link to /contact (CTA for quote)"
+     
+     schema_markup:
+       - "Service schema with price range"
+       - "HowTo schema for installation process"
+       - "FAQPage schema for common questions"
+   ```
+
+4. **Implementation Priority Matrix**
+   ```yaml
+   priority_matrix:
+     quick_wins:
+       - query: "metal roofing installation cost"
+         action: "Optimize existing page"
+         effort: "low"
+         potential: 120
+         timeframe: "Week 1"
+     
+     high_impact_new:
+       - query_cluster: "Metal Roofing Installation"
+         action: "Create new page"
+         effort: "medium"
+         potential: 245
+         timeframe: "Week 2"
+     
+     long_term:
+       - query_cluster: "Commercial Roofing Solutions"
+         action: "Create pillar page + 3 supporting pages"
+         effort: "high"
+         potential: 580
+         timeframe: "Month 2"
+   ```
+
+### Execution Assist Prompt Features
+- Uses data from all 3 previous steps
+- Includes specific keyword clusters from GSC
+- Provides content briefs with word counts and structure
+- Suggests URL structure and internal linking
+- Prioritizes by traffic potential and effort
+- Includes schema markup recommendations
+- Technology-agnostic (works for any CMS/framework)
+
+## Page 6: Completion Status
+
+### Status Lines
+```yaml
+scanning: "Status: Analyzing Coverage Gaps"
+established: "Status: Content Strategy Complete."
+success: "Success: Your content roadmap is ready. Opportunity pages identified."
+```
+
+## Button State Logic
+
+### Analysis Button (Steps 1-3)
+- **Initial State**: Visible, loading
+- **Auto-Trigger**: Fetch E.V.O. dimension on page load
+- **Action**: Open modal with content/keyword/gap analysis
+
+### Execution Assist Button
+- **Step 1**: Hidden (analysis only)
+- **Step 2**: Visible if keyword opportunities found
+  - Opens modal with title/meta optimization prompt
+  - Includes specific URLs and current titles
+- **Step 3**: Hidden (analysis only)
+- **Step 4**: Visible (content planning prompt)
+  - Uses data from Steps 1-3
+  - Generates content briefs and implementation plan
+
+### Next Step Button
+- **Steps 1-3**: Auto-enabled after analysis loads (no fixes needed)
+- **Step 4**: Enabled after user copies content planning prompt
+
+### Complete Button (Page 5)
+- **Enable Trigger**: User copies Step 4 content planning prompt
+- **Action**: Save completion, unlock next circle
+
+## E.V.O. Integration Flow
+
+### Sequential Analysis
+Steps 1-3 build upon each other:
+1. **Step 1**: Establish content baseline
+2. **Step 2**: Identify keyword opportunities (uses Step 1 data)
+3. **Step 3**: Find gaps (compares Steps 1 & 2 data)
+4. **Step 4**: Plan solutions (uses all previous data)
+
+### Data Persistence
+```javascript
+// E.V.O. caches data for reuse in subsequent steps
+contentInventory = evoDataCache[1]; // Step 1 data
+keywordOpportunities = evoDataCache[2]; // Step 2 data
+coverageGaps = evoDataCache[3]; // Step 3 data
+
+// Step 4 prompt generation uses all cached data
+generateContentPlanningPrompt(contentInventory, keywordOpportunities, coverageGaps);
+```
+
+## Database Schema
+
+### sprint_action_cards Entry
+```sql
+INSERT INTO sprint_action_cards (card_type, display_name, total_steps, description)
+VALUES (
+  'keyword_coverage_gap_protocol',
+  'Content Opportunity Protocol',
+  4,
+  'Identify content gaps through GSC analysis: inventory, keyword discovery, gap analysis, and content planning'
+);
+```
+
+## Future E.V.O. Auto-Generation
+
+### Trigger Detection
+```yaml
+conditions:
+  - low_ctr_opportunities > 100
+  - page_2_keywords > 50
+  - content_gaps > 30
+  - total_opportunity_clicks > 500
+trigger: "generate_content_opportunity_protocol_card"
+priority: "high"
+```
+
+### Dynamic Insight Generation
+```javascript
+const totalOpportunityClicks = calculateTotalOpportunity(gscData);
+
+insight = `Your GSC data shows ${totalOpportunityClicks} potential monthly clicks being wasted. Google is showing your site for ${highImpressionQueries} high-volume queries, but users aren't clicking. ${contentGaps} queries have impressions but no dedicated page to capture that traffic. Let's turn these impressions into customers...`;
+```
+
+### Pre-Computed Content Clusters
+```javascript
+// Before showing card, pre-cluster keywords
+const clusters = await clusterKeywordsByTopic(gscData.queries);
+
+// Generate content briefs in background
+const contentBriefs = clusters.map(cluster => 
+  generateContentBrief(cluster, competitorAnalysis)
+);
+
+// When user reaches Step 4, prompt includes pre-generated briefs
+```
+
+### Success Tracking
+```javascript
+// Track post-implementation success
+success_metrics = {
+  pages_created: 12,
+  pages_optimized: 8,
+  avg_position_improvement: 5.3,
+  traffic_gained: 847, // monthly clicks
+  traffic_potential_captured: 58% // 58% of identified opportunity
+};
+```
+
+## Success Metrics
+
+### Pre-Implementation
+- Content pages: X
+- Ranking keywords: X
+- Average position: X
+- Monthly organic clicks: X
+
+### Post-Implementation Goals
+- New pages created: Based on content gaps
+- Optimized pages: Based on position/CTR gaps
+- Position improvement: +3-5 positions average
+- Click increase: 40-60% of identified potential
+- New ranking keywords: +20-30%
+
+### 3-Month Impact Target
+- Capture 50%+ of identified opportunity clicks
+- Move 70%+ of page 2 keywords to page 1
+- Improve CTR by 30%+ on optimized pages
+- Rank for 100+ new keyword variations

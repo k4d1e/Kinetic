@@ -1,0 +1,1044 @@
+# E.V.O. Diagnostic Trigger Mapping - Auto-Generation Rules
+
+## Overview
+
+This document defines the intelligent trigger system that determines when E.V.O. should automatically generate Sprint Plan Action Cards based on Google Search Console data analysis. E.V.O. continuously monitors GSC metrics and site health to identify optimization opportunities, then generates the appropriate protocol card with customized insights and data.
+
+## System Architecture
+
+```
+GSC Data Collection
+    ↓
+E.V.O. Analysis Engine
+    ↓
+Diagnostic Evaluation (this mapping)
+    ↓
+Trigger Condition Check
+    ↓
+Priority Calculation
+    ↓
+Card Generation + Dynamic Insight
+    ↓
+User Notification
+```
+
+## Diagnostic Philosophy
+
+E.V.O. follows a **hierarchical diagnosis approach**:
+
+1. **Foundation First**: Fix indexation/crawl issues before optimizing content
+2. **High Impact Priority**: Focus on issues with largest traffic potential
+3. **Quick Wins Balance**: Mix high-impact with quick-win opportunities
+4. **Non-Overlapping**: Generate one card at a time to avoid overwhelming user
+5. **Context-Aware**: Consider site maturity, industry, and existing implementations
+
+## Trigger Conditions Matrix
+
+### Protocol 1: Meta Surgeon Protocol
+
+**Card Type**: `meta_surgeon_protocol`
+
+**Priority**: CRITICAL (Foundation)
+
+**Trigger Conditions**:
+```yaml
+primary_triggers:
+  no_organization_schema:
+    condition: "Organization schema not detected on homepage"
+    data_source: "Schema crawl analysis"
+    severity: "critical"
+    weight: 100
+    
+  missing_local_business_markup:
+    condition: "LocalBusiness schema missing AND business has physical location"
+    data_source: "Schema crawl + business profile data"
+    severity: "high"
+    weight: 80
+    
+  weak_entity_signals:
+    condition: "No structured data detected on >80% of pages"
+    data_source: "Site-wide schema crawl"
+    severity: "high"
+    weight: 75
+
+secondary_triggers:
+  no_service_schema:
+    condition: "Service/Product schema missing on service pages"
+    data_source: "Schema crawl of service pages"
+    severity: "medium"
+    weight: 50
+    
+  missing_review_markup:
+    condition: "Testimonials exist but no Review schema detected"
+    data_source: "Content analysis + schema crawl"
+    severity: "medium"
+    weight: 40
+
+scoring_formula: |
+  score = sum(triggered_weights) / max_possible_weight * 100
+  # If score > 70: Generate card
+  # If score 40-70: Monitor, suggest in dashboard
+  # If score < 40: No action needed
+```
+
+**Detection Method**:
+```javascript
+async function detectMetaSurgeonTrigger(siteUrl) {
+    // Crawl homepage for schema
+    const homepage = await crawlPage(siteUrl);
+    const schemas = extractStructuredData(homepage.html);
+    
+    let score = 0;
+    const triggers = [];
+    
+    // Check Organization schema
+    if (!schemas.includes('Organization') && !schemas.includes('LocalBusiness')) {
+        score += 100;
+        triggers.push({
+            type: 'no_organization_schema',
+            severity: 'critical',
+            message: 'No Organization schema found on homepage'
+        });
+    }
+    
+    // Check LocalBusiness for businesses with physical locations
+    const hasLocation = await detectPhysicalLocation(siteUrl);
+    if (hasLocation && !schemas.includes('LocalBusiness')) {
+        score += 80;
+        triggers.push({
+            type: 'missing_local_business_markup',
+            severity: 'high',
+            message: 'Physical location detected but no LocalBusiness schema'
+        });
+    }
+    
+    // Site-wide schema crawl (sample 20 pages)
+    const samplePages = await crawlSample(siteUrl, 20);
+    const pagesWithSchema = samplePages.filter(p => p.hasStructuredData);
+    const schemaPercentage = (pagesWithSchema.length / samplePages.length) * 100;
+    
+    if (schemaPercentage < 20) {
+        score += 75;
+        triggers.push({
+            type: 'weak_entity_signals',
+            severity: 'high',
+            message: `Only ${schemaPercentage.toFixed(0)}% of pages have structured data`
+        });
+    }
+    
+    return {
+        shouldTrigger: score >= 70,
+        score,
+        triggers,
+        priority: 'critical',
+        cardType: 'meta_surgeon_protocol'
+    };
+}
+```
+
+**Dynamic Insight Generation**:
+```javascript
+function generateMetaSurgeonInsight(triggers, siteData) {
+    const { companyName, schemaPercentage, missingSchemas } = siteData;
+    
+    if (triggers.includes('no_organization_schema')) {
+        return `Right now, Google is guessing who ${companyName} is. Your homepage has no Organization schema—the digital ID card that tells search engines you're a legitimate business. Until we inject this "Truth Layer," you're invisible to entity-based ranking signals. Let's establish your digital identity.`;
+    }
+    
+    if (schemaPercentage < 10) {
+        return `${companyName} exists in a schema void. Less than ${schemaPercentage}% of your pages have structured data. While competitors are speaking the algorithm's native language (schema.org), you're whispering in plain text. Let's translate your site into machine-readable signals.`;
+    }
+    
+    // Default insight
+    return `Before we fight for keywords, we must introduce you to the algorithm. Right now, Google is guessing who you are. By injecting these 4 'Truth Layers' into your code, we force the search engines to recognize ${companyName} as a verified local entity, not just another website.`;
+}
+```
+
+---
+
+### Protocol 2: Index Diagnostic Protocol
+
+**Card Type**: `gsc_indexation_protocol`
+
+**Priority**: CRITICAL (Foundation)
+
+**Trigger Conditions**:
+```yaml
+primary_triggers:
+  high_exclusion_rate:
+    condition: "Excluded pages > 20% of submitted pages"
+    data_source: "GSC Coverage Report"
+    severity: "critical"
+    weight: 100
+    threshold: 20  # percentage
+    
+  excessive_errors:
+    condition: "Error pages > 50 OR error rate > 10%"
+    data_source: "GSC Coverage Report (errors tab)"
+    severity: "critical"
+    weight: 95
+    threshold: 50  # absolute count or 10% rate
+    
+  crawl_budget_waste:
+    condition: "Server errors > 30 per day OR avg response time > 2000ms"
+    data_source: "GSC Crawl Stats"
+    severity: "high"
+    weight: 80
+    threshold: { serverErrors: 30, responseTime: 2000 }
+
+secondary_triggers:
+  sitemap_issues:
+    condition: "Sitemap coverage < 70% OR sitemap has >20 errors"
+    data_source: "GSC Sitemaps Report"
+    severity: "medium"
+    weight: 60
+    threshold: { coverage: 70, errors: 20 }
+    
+  redirect_chains:
+    condition: "Redirect chains detected > 20 URLs"
+    data_source: "Site crawl + GSC Coverage"
+    severity: "medium"
+    weight: 50
+    threshold: 20
+
+scoring_formula: |
+  score = sum(triggered_weights) / max_possible_weight * 100
+  # If score > 70: Generate card immediately
+  # If score 50-70: Generate card within 24 hours
+  # If score < 50: Monitor only
+```
+
+**Detection Method**:
+```javascript
+async function detectIndexDiagnosticTrigger(propertyId) {
+    const gscData = await fetchGSCData(propertyId);
+    
+    let score = 0;
+    const triggers = [];
+    const metrics = {};
+    
+    // Analyze Coverage Report
+    const coverage = gscData.coverage;
+    const totalSubmitted = coverage.valid + coverage.excluded + coverage.errors;
+    const exclusionRate = (coverage.excluded / totalSubmitted) * 100;
+    const errorRate = (coverage.errors / totalSubmitted) * 100;
+    
+    metrics.exclusionRate = exclusionRate;
+    metrics.errorPages = coverage.errors;
+    
+    if (exclusionRate > 20) {
+        score += 100;
+        triggers.push({
+            type: 'high_exclusion_rate',
+            severity: 'critical',
+            message: `${exclusionRate.toFixed(0)}% of submitted pages are excluded by Google`,
+            metric: exclusionRate,
+            threshold: 20
+        });
+    }
+    
+    if (coverage.errors > 50 || errorRate > 10) {
+        score += 95;
+        triggers.push({
+            type: 'excessive_errors',
+            severity: 'critical',
+            message: `${coverage.errors} pages have indexation errors`,
+            metric: coverage.errors,
+            threshold: 50
+        });
+    }
+    
+    // Analyze Crawl Stats
+    const crawlStats = gscData.crawlStats;
+    const avgResponseTime = crawlStats.avgResponseTime;
+    const serverErrorsPerDay = crawlStats.serverErrors / crawlStats.days;
+    
+    metrics.avgResponseTime = avgResponseTime;
+    metrics.serverErrorsPerDay = serverErrorsPerDay;
+    
+    if (serverErrorsPerDay > 30 || avgResponseTime > 2000) {
+        score += 80;
+        triggers.push({
+            type: 'crawl_budget_waste',
+            severity: 'high',
+            message: `Crawl budget wasted: ${serverErrorsPerDay.toFixed(0)} errors/day, ${avgResponseTime}ms avg response`,
+            metrics: { serverErrorsPerDay, avgResponseTime }
+        });
+    }
+    
+    // Analyze Sitemaps
+    const sitemaps = gscData.sitemaps;
+    const sitemapCoverage = (sitemaps.indexed / sitemaps.submitted) * 100;
+    
+    metrics.sitemapCoverage = sitemapCoverage;
+    
+    if (sitemapCoverage < 70 || sitemaps.errors > 20) {
+        score += 60;
+        triggers.push({
+            type: 'sitemap_issues',
+            severity: 'medium',
+            message: `Sitemap health poor: ${sitemapCoverage.toFixed(0)}% coverage, ${sitemaps.errors} errors`,
+            metrics: { coverage: sitemapCoverage, errors: sitemaps.errors }
+        });
+    }
+    
+    return {
+        shouldTrigger: score >= 70,
+        score,
+        triggers,
+        metrics,
+        priority: 'critical',
+        cardType: 'gsc_indexation_protocol',
+        urgency: score >= 90 ? 'immediate' : 'high'
+    };
+}
+```
+
+**Dynamic Insight Generation**:
+```javascript
+function generateIndexDiagnosticInsight(triggers, metrics, propertyName) {
+    const { exclusionRate, errorPages, serverErrorsPerDay } = metrics;
+    
+    // Critical: High exclusion rate
+    if (exclusionRate > 30) {
+        return `Your indexation is bleeding. Google is rejecting ${exclusionRate.toFixed(0)}% of your submitted pages—that's ${errorPages} URLs that should be ranking but are invisible. Every excluded page is lost traffic, lost leads, lost revenue. This is a site emergency. Let's diagnose and fix the foundation before optimizing anything else.`;
+    }
+    
+    // High: Crawl budget waste
+    if (serverErrorsPerDay > 50) {
+        return `Googlebot is hitting ${serverErrorsPerDay.toFixed(0)} server errors per day on ${propertyName}. Your crawl budget is being burned on broken requests instead of discovering your valuable pages. While competitors get fresh crawls, you're wasting yours on dead ends. Let's redirect the crawler's attention.`;
+    }
+    
+    // Medium: General indexation issues
+    if (exclusionRate > 20) {
+        return `Google's crawlers visit your site daily, but are they wasting time on broken pages or focusing on your money-makers? Right now, ${exclusionRate.toFixed(0)}% of your pages are excluded, googlebot might be burning crawl budget on redirect chains, duplicate content, and 404 black holes. Let's audit the raw GSC data and redirect their attention to pages that convert.`;
+    }
+    
+    // Default insight
+    return `Your GSC data shows indexation inefficiencies costing you traffic. Let's analyze coverage, crawl stats, sitemaps, and redirects to ensure Google is crawling and indexing the right pages.`;
+}
+```
+
+---
+
+### Protocol 3: Link Architecture Protocol
+
+**Card Type**: `internal_link_expansion_protocol`
+
+**Priority**: HIGH (Optimization)
+
+**Trigger Conditions**:
+```yaml
+primary_triggers:
+  excessive_orphaned_pages:
+    condition: "Orphaned pages (0 internal links) > 30"
+    data_source: "Site crawl analysis"
+    severity: "high"
+    weight: 100
+    threshold: 30
+    
+  underlinked_money_pages:
+    condition: "High-value pages with < 3 internal links > 10"
+    data_source: "Site crawl + conversion page identification"
+    severity: "high"
+    weight: 90
+    threshold: 10
+    
+  poor_link_distribution:
+    condition: "Top 10% of pages receive > 60% of all internal links"
+    data_source: "Link graph analysis"
+    severity: "medium"
+    weight: 70
+    threshold: 60  # percentage concentration
+
+secondary_triggers:
+  high_link_depth:
+    condition: "Pages requiring > 4 clicks from homepage > 20%"
+    data_source: "Site crawl depth analysis"
+    severity: "medium"
+    weight: 60
+    threshold: { depth: 4, percentage: 20 }
+    
+  weak_topical_clusters:
+    condition: "Topical clusters with < 50% internal connections"
+    data_source: "Content clustering + link analysis"
+    severity: "medium"
+    weight: 50
+    threshold: 50  # percentage interconnected
+
+scoring_formula: |
+  score = sum(triggered_weights) / max_possible_weight * 100
+  # If score > 65: Generate card
+  # If score 40-65: Suggest in recommendations
+  # If score < 40: No action
+```
+
+**Detection Method**:
+```javascript
+async function detectLinkArchitectureTrigger(siteUrl) {
+    // Crawl site and build link graph
+    const crawlResults = await crawlSite(siteUrl, { maxPages: 500 });
+    const linkGraph = buildLinkGraph(crawlResults);
+    
+    let score = 0;
+    const triggers = [];
+    const metrics = {};
+    
+    // Find orphaned pages
+    const orphanedPages = linkGraph.nodes.filter(page => page.incomingLinks === 0);
+    metrics.orphanedPages = orphanedPages.length;
+    
+    if (orphanedPages.length > 30) {
+        score += 100;
+        triggers.push({
+            type: 'excessive_orphaned_pages',
+            severity: 'high',
+            message: `${orphanedPages.length} pages have zero incoming internal links`,
+            metric: orphanedPages.length,
+            threshold: 30,
+            urls: orphanedPages.map(p => p.url).slice(0, 10)
+        });
+    }
+    
+    // Identify high-value pages (money pages)
+    const moneyPages = identifyMoneyPages(crawlResults);
+    const underlinkedMoneyPages = moneyPages.filter(page => {
+        const incomingLinks = linkGraph.getIncomingLinks(page.url);
+        return incomingLinks < 3;
+    });
+    
+    metrics.underlinkedMoneyPages = underlinkedMoneyPages.length;
+    
+    if (underlinkedMoneyPages.length > 10) {
+        score += 90;
+        triggers.push({
+            type: 'underlinked_money_pages',
+            severity: 'high',
+            message: `${underlinkedMoneyPages.length} high-value pages have < 3 internal links`,
+            metric: underlinkedMoneyPages.length,
+            urls: underlinkedMoneyPages.map(p => p.url)
+        });
+    }
+    
+    // Analyze link distribution
+    const totalLinks = linkGraph.edges.length;
+    const sortedByIncoming = linkGraph.nodes.sort((a, b) => b.incomingLinks - a.incomingLinks);
+    const top10Percent = Math.ceil(sortedByIncoming.length * 0.1);
+    const linksToTop10 = sortedByIncoming.slice(0, top10Percent)
+        .reduce((sum, page) => sum + page.incomingLinks, 0);
+    const concentration = (linksToTop10 / totalLinks) * 100;
+    
+    metrics.linkConcentration = concentration;
+    
+    if (concentration > 60) {
+        score += 70;
+        triggers.push({
+            type: 'poor_link_distribution',
+            severity: 'medium',
+            message: `${concentration.toFixed(0)}% of internal links concentrated in top 10% of pages`,
+            metric: concentration,
+            threshold: 60
+        });
+    }
+    
+    return {
+        shouldTrigger: score >= 65,
+        score,
+        triggers,
+        metrics,
+        priority: 'high',
+        cardType: 'internal_link_expansion_protocol'
+    };
+}
+```
+
+**Dynamic Insight Generation**:
+```javascript
+function generateLinkArchitectureInsight(triggers, metrics, companyName) {
+    const { orphanedPages, underlinkedMoneyPages, linkConcentration } = metrics;
+    
+    // Critical: Many orphaned pages
+    if (orphanedPages > 50) {
+        return `${companyName} has ${orphanedPages} orphaned pages—content that Google and users can barely find. These isolated pages are bleeding potential traffic because they're not connected to your site's link architecture. You've created content, but buried it. Let's build strategic pathways to make these pages discoverable.`;
+    }
+    
+    // High: Money pages underlinked
+    if (underlinkedMoneyPages > 15) {
+        return `Your ${underlinkedMoneyPages} highest-value pages—the ones that drive conversions—have almost no internal links pointing to them. You're hiding your best products. Meanwhile, your blog posts are hoarding all the link authority. Let's redistribute link equity to the pages that matter.`;
+    }
+    
+    // Medium: Poor distribution
+    if (linkConcentration > 70) {
+        return `${linkConcentration.toFixed(0)}% of your internal links are concentrated in just 10% of your pages. This creates authority deserts—valuable pages starved for link equity while others are oversaturated. Let's balance the link distribution to amplify your entire site.`;
+    }
+    
+    // Default insight
+    return `Internal links are the pathways that distribute authority and guide users through your site. Right now, you might have orphaned pages, weak topical signals, and missed opportunities to connect high-value content. Let's architect a strategic linking system that amplifies authority and enhances user experience.`;
+}
+```
+
+---
+
+### Protocol 4: Content Opportunity Protocol
+
+**Card Type**: `keyword_coverage_gap_protocol`
+
+**Priority**: MEDIUM-HIGH (Growth)
+
+**Trigger Conditions**:
+```yaml
+primary_triggers:
+  high_impression_low_ctr:
+    condition: "Keywords with >100 impressions and CTR < 50% of expected > 100"
+    data_source: "GSC Search Analytics"
+    severity: "high"
+    weight: 100
+    threshold: 100  # keyword count
+    
+  page_2_opportunities:
+    condition: "Keywords ranking positions 11-20 with >50 impressions > 50"
+    data_source: "GSC Search Analytics"
+    severity: "high"
+    weight: 95
+    threshold: 50  # keyword count
+    
+  content_gaps:
+    condition: "High-impression keywords with no dedicated page > 30"
+    data_source: "GSC queries + site content mapping"
+    severity: "medium"
+    weight: 80
+    threshold: 30
+
+secondary_triggers:
+  total_opportunity_volume:
+    condition: "Total potential monthly clicks > 500"
+    data_source: "Calculated from GSC data"
+    severity: "medium"
+    weight: 70
+    threshold: 500  # potential monthly clicks
+    
+  zero_click_queries:
+    condition: "Queries with >20 impressions but 0 clicks > 50"
+    data_source: "GSC Search Analytics"
+    severity: "low"
+    weight: 40
+    threshold: 50
+
+scoring_formula: |
+  score = sum(triggered_weights) / max_possible_weight * 100
+  # If score > 60: Generate card
+  # If score 35-60: Monitor and suggest
+  # If score < 35: No action
+```
+
+**Detection Method**:
+```javascript
+async function detectContentOpportunityTrigger(propertyId) {
+    // Fetch GSC query data (last 3 months)
+    const queries = await fetchGSCQueries(propertyId, { days: 90 });
+    
+    let score = 0;
+    const triggers = [];
+    const metrics = {};
+    const opportunities = [];
+    
+    // Categorize queries
+    const lowCTROpportunities = queries.filter(q => {
+        const expectedCTR = getExpectedCTRByPosition(q.position);
+        return q.impressions > 100 && q.ctr < (expectedCTR * 0.5);
+    });
+    
+    metrics.lowCTROpportunities = lowCTROpportunities.length;
+    
+    if (lowCTROpportunities.length > 100) {
+        score += 100;
+        const potentialClicks = lowCTROpportunities.reduce((sum, q) => {
+            const expectedCTR = getExpectedCTRByPosition(q.position);
+            return sum + (q.impressions * (expectedCTR - q.ctr));
+        }, 0);
+        
+        triggers.push({
+            type: 'high_impression_low_ctr',
+            severity: 'high',
+            message: `${lowCTROpportunities.length} keywords with poor CTR despite high impressions`,
+            metric: lowCTROpportunities.length,
+            potentialClicks: Math.round(potentialClicks),
+            examples: lowCTROpportunities.slice(0, 5)
+        });
+    }
+    
+    // Page 2 quick wins
+    const page2Keywords = queries.filter(q => 
+        q.position >= 11 && q.position <= 20 && q.impressions > 50
+    );
+    
+    metrics.page2QuickWins = page2Keywords.length;
+    
+    if (page2Keywords.length > 50) {
+        score += 95;
+        triggers.push({
+            type: 'page_2_opportunities',
+            severity: 'high',
+            message: `${page2Keywords.length} keywords on page 2 (positions 11-20) ready for page 1`,
+            metric: page2Keywords.length,
+            examples: page2Keywords.slice(0, 5)
+        });
+    }
+    
+    // Content gaps (keywords with impressions but no dedicated page)
+    const sitePages = await crawlSite(propertyId);
+    const contentGaps = identifyContentGaps(queries, sitePages);
+    
+    metrics.contentGaps = contentGaps.length;
+    
+    if (contentGaps.length > 30) {
+        score += 80;
+        triggers.push({
+            type: 'content_gaps',
+            severity: 'medium',
+            message: `${contentGaps.length} high-impression keywords lack dedicated pages`,
+            metric: contentGaps.length,
+            examples: contentGaps.slice(0, 5)
+        });
+    }
+    
+    // Calculate total opportunity
+    const totalOpportunityClicks = calculateTotalOpportunity(queries);
+    metrics.totalOpportunityClicks = totalOpportunityClicks;
+    
+    if (totalOpportunityClicks > 500) {
+        score += 70;
+        triggers.push({
+            type: 'total_opportunity_volume',
+            severity: 'medium',
+            message: `${totalOpportunityClicks} potential monthly clicks identified across all opportunities`,
+            metric: totalOpportunityClicks
+        });
+    }
+    
+    return {
+        shouldTrigger: score >= 60,
+        score,
+        triggers,
+        metrics,
+        priority: 'medium-high',
+        cardType: 'keyword_coverage_gap_protocol',
+        opportunities: {
+            lowCTR: lowCTROpportunities,
+            page2: page2Keywords,
+            contentGaps: contentGaps
+        }
+    };
+}
+```
+
+**Dynamic Insight Generation**:
+```javascript
+function generateContentOpportunityInsight(triggers, metrics, propertyName) {
+    const { lowCTROpportunities, page2QuickWins, totalOpportunityClicks } = metrics;
+    
+    // High: Large opportunity volume
+    if (totalOpportunityClicks > 1000) {
+        return `Your GSC data shows ${totalOpportunityClicks.toLocaleString()} potential monthly clicks being wasted. Google is showing ${propertyName} for ${lowCTROpportunities + page2QuickWins} keywords, but users aren't clicking or you're buried on page 2. This isn't a content problem—it's a targeting problem. Let's map your impressions to pages and capture that waiting traffic.`;
+    }
+    
+    // High: Many page 2 keywords
+    if (page2QuickWins > 100) {
+        return `You have ${page2QuickWins} keywords stuck on page 2 (positions 11-20). These are "quick win" keywords—they're already close to page 1, but need a small push. One optimized title tag, a few internal links, or deeper content could move them to page 1 and 3x their traffic. Let's identify and execute.`;
+    }
+    
+    // Medium: Low CTR opportunities
+    if (lowCTROpportunities > 150) {
+        return `Google is showing ${propertyName} for ${lowCTROpportunities} high-volume keywords, but your click-through rate is terrible. You're ranking in positions 3-8, getting thousands of impressions, but users are choosing competitors. This is a title/meta description optimization opportunity. Let's rewrite your snippets to be irresistible.`;
+    }
+    
+    // Default insight
+    return `Google is already showing your site for thousands of search queries, but many are buried on page 2 or have terrible click-through rates. Right now, there's search demand finding you in impressions but never clicking through. Let's analyze your GSC data, map impression opportunities to your content inventory, and identify high-value gaps where new or optimized pages can capture that waiting traffic.`;
+}
+```
+
+---
+
+## Multi-Protocol Conflict Resolution
+
+When multiple protocols trigger simultaneously, E.V.O. applies these rules:
+
+### Priority Hierarchy
+```yaml
+priority_order:
+  1_critical_foundation:
+    - meta_surgeon_protocol (if no schema exists)
+    - gsc_indexation_protocol (if errors > 100)
+  
+  2_critical_optimization:
+    - gsc_indexation_protocol (if exclusion rate > 30%)
+  
+  3_high_impact:
+    - internal_link_expansion_protocol (if orphaned > 50)
+    - keyword_coverage_gap_protocol (if opportunity > 1000 clicks)
+  
+  4_medium_impact:
+    - keyword_coverage_gap_protocol
+    - internal_link_expansion_protocol
+```
+
+### Resolution Logic
+```javascript
+function resolveMultipleTriggers(triggers) {
+    // Sort by priority and score
+    const sorted = triggers.sort((a, b) => {
+        // Priority comparison
+        const priorityOrder = {
+            'critical': 4,
+            'high': 3,
+            'medium-high': 2,
+            'medium': 1
+        };
+        
+        if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
+            return priorityOrder[b.priority] - priorityOrder[a.priority];
+        }
+        
+        // If same priority, sort by score
+        return b.score - a.score;
+    });
+    
+    // Special rules
+    const topTrigger = sorted[0];
+    
+    // Rule 1: Always prioritize Meta Surgeon if no schema exists
+    const metaTrigger = triggers.find(t => t.cardType === 'meta_surgeon_protocol');
+    if (metaTrigger && metaTrigger.score >= 90) {
+        return metaTrigger;
+    }
+    
+    // Rule 2: Always prioritize Index Diagnostic if errors > 100
+    const indexTrigger = triggers.find(t => t.cardType === 'gsc_indexation_protocol');
+    if (indexTrigger && indexTrigger.metrics?.errorPages > 100) {
+        return indexTrigger;
+    }
+    
+    // Rule 3: Choose highest priority/score
+    return topTrigger;
+}
+```
+
+### Sequential Card Generation
+```javascript
+// E.V.O. tracks completed protocols per property
+const completedProtocols = await getCompletedProtocols(propertyId);
+
+// Filter out completed protocols from triggers
+const availableTriggers = triggers.filter(t => 
+    !completedProtocols.includes(t.cardType)
+);
+
+// Generate next protocol in sequence
+const nextCard = resolveMultipleTriggers(availableTriggers);
+```
+
+---
+
+## Monitoring and Alerts
+
+### Continuous Monitoring Schedule
+```yaml
+monitoring_frequency:
+  gsc_data_sync:
+    interval: "daily"
+    time: "02:00 UTC"
+    action: "Fetch latest GSC data for all connected properties"
+  
+  trigger_evaluation:
+    interval: "daily"
+    time: "03:00 UTC"
+    action: "Run diagnostic evaluation on all properties"
+  
+  schema_crawl:
+    interval: "weekly"
+    day: "Sunday"
+    time: "01:00 UTC"
+    action: "Re-crawl sites for schema changes"
+  
+  link_graph_update:
+    interval: "bi-weekly"
+    action: "Rebuild link graphs for all properties"
+```
+
+### Alert Thresholds
+```yaml
+immediate_alerts:
+  - condition: "gsc_indexation_protocol score > 90"
+    action: "Send email alert + generate card immediately"
+    message: "Critical indexation issues detected"
+  
+  - condition: "errorPages > 200"
+    action: "Send Slack notification + email"
+    message: "Severe indexation errors require immediate attention"
+
+high_priority_alerts:
+  - condition: "Any protocol score > 80"
+    action: "Generate card + dashboard notification"
+    message: "High-impact optimization opportunity detected"
+
+medium_priority_alerts:
+  - condition: "Any protocol score 60-80"
+    action: "Dashboard notification only"
+    message: "Optimization opportunity available"
+```
+
+### User Notification System
+```javascript
+async function notifyUser(propertyId, trigger) {
+    const user = await getUserForProperty(propertyId);
+    const notification = {
+        type: 'new_action_card',
+        priority: trigger.priority,
+        cardType: trigger.cardType,
+        score: trigger.score,
+        summary: generateNotificationSummary(trigger),
+        cta: 'View Action Card'
+    };
+    
+    // In-app notification
+    await createDashboardNotification(user.id, notification);
+    
+    // Email for critical/high priority
+    if (trigger.priority === 'critical' || trigger.score >= 85) {
+        await sendEmailNotification(user.email, {
+            subject: `🚨 Critical SEO Issue Detected: ${trigger.cardType}`,
+            body: generateEmailBody(trigger),
+            actionUrl: `/dashboard/sprint-plan?card=${trigger.cardType}`
+        });
+    }
+    
+    // Slack webhook (if configured)
+    if (user.slackWebhook) {
+        await sendSlackNotification(user.slackWebhook, {
+            text: `New Action Card: ${trigger.cardType}`,
+            score: trigger.score,
+            triggers: trigger.triggers.map(t => t.message)
+        });
+    }
+}
+```
+
+---
+
+## Pre-Generation Analysis
+
+Before generating a card, E.V.O. performs pre-analysis to enrich the card with data:
+
+### Pre-Analysis Workflow
+```javascript
+async function preAnalyzeBeforeCardGeneration(propertyId, cardType) {
+    switch (cardType) {
+        case 'meta_surgeon_protocol':
+            // Pre-crawl for existing schema
+            const schemaAnalysis = await analyzeExistingSchema(propertyId);
+            return {
+                missingSchemas: schemaAnalysis.missing,
+                existingSchemas: schemaAnalysis.existing,
+                priority: schemaAnalysis.priority
+            };
+        
+        case 'gsc_indexation_protocol':
+            // Pre-fetch all 4 E.V.O. dimensions
+            const dimensions = ['substrate', 'crawl', 'sitemap', 'redirect'];
+            const analyses = await Promise.all(
+                dimensions.map(d => fetchEVODimension(d, propertyId))
+            );
+            return {
+                substrate: analyses[0],
+                crawl: analyses[1],
+                sitemap: analyses[2],
+                redirect: analyses[3],
+                preAnalyzed: true
+            };
+        
+        case 'internal_link_expansion_protocol':
+            // Pre-build link graph
+            const linkGraph = await buildLinkGraph(propertyId);
+            return {
+                orphanedPages: linkGraph.orphaned,
+                underlinkedPages: linkGraph.underlinked,
+                topOpportunities: linkGraph.opportunities.slice(0, 20)
+            };
+        
+        case 'keyword_coverage_gap_protocol':
+            // Pre-cluster keywords
+            const queries = await fetchGSCQueries(propertyId);
+            const clusters = await clusterKeywords(queries);
+            return {
+                clusters,
+                topOpportunities: queries.slice(0, 50),
+                totalPotential: calculateTotalOpportunity(queries)
+            };
+    }
+}
+```
+
+---
+
+## Implementation Example
+
+### Complete Diagnostic Flow
+```javascript
+/**
+ * Main diagnostic evaluation function
+ * Runs daily for all connected properties
+ */
+async function runDiagnosticEvaluation() {
+    console.log('🔍 Starting E.V.O. diagnostic evaluation...');
+    
+    // Get all properties with GSC connected
+    const properties = await getAllPropertiesWithGSC();
+    
+    for (const property of properties) {
+        try {
+            console.log(`Analyzing property: ${property.url} (ID: ${property.id})`);
+            
+            // Check what protocols are already completed
+            const completedProtocols = await getCompletedProtocols(property.id);
+            console.log(`  Completed protocols: ${completedProtocols.join(', ')}`);
+            
+            // Run all trigger detection functions
+            const triggers = await Promise.all([
+                detectMetaSurgeonTrigger(property.url),
+                detectIndexDiagnosticTrigger(property.id),
+                detectLinkArchitectureTrigger(property.url),
+                detectContentOpportunityTrigger(property.id)
+            ]);
+            
+            // Filter out completed and non-triggering protocols
+            const activeTriggers = triggers.filter(t => 
+                t.shouldTrigger && !completedProtocols.includes(t.cardType)
+            );
+            
+            if (activeTriggers.length === 0) {
+                console.log(`  ✓ No new action cards needed`);
+                continue;
+            }
+            
+            // Resolve conflicts if multiple triggers
+            const selectedTrigger = activeTriggers.length > 1 
+                ? resolveMultipleTriggers(activeTriggers)
+                : activeTriggers[0];
+            
+            console.log(`  🎯 Trigger selected: ${selectedTrigger.cardType}`);
+            console.log(`     Score: ${selectedTrigger.score}`);
+            console.log(`     Priority: ${selectedTrigger.priority}`);
+            
+            // Pre-analyze for card enrichment
+            const preAnalysis = await preAnalyzeBeforeCardGeneration(
+                property.id, 
+                selectedTrigger.cardType
+            );
+            
+            // Generate dynamic insight
+            const insight = generateDynamicInsight(selectedTrigger, property);
+            
+            // Create action card record
+            const card = await createActionCard({
+                propertyId: property.id,
+                cardType: selectedTrigger.cardType,
+                priority: selectedTrigger.priority,
+                score: selectedTrigger.score,
+                triggers: selectedTrigger.triggers,
+                metrics: selectedTrigger.metrics,
+                insight: insight,
+                preAnalysis: preAnalysis,
+                createdAt: new Date()
+            });
+            
+            console.log(`  ✓ Action card created: ${card.id}`);
+            
+            // Notify user
+            await notifyUser(property.id, {
+                ...selectedTrigger,
+                cardId: card.id,
+                insight: insight
+            });
+            
+            console.log(`  ✓ User notified`);
+            
+        } catch (error) {
+            console.error(`  ❌ Error analyzing property ${property.id}:`, error);
+            continue;
+        }
+    }
+    
+    console.log('✓ Diagnostic evaluation complete');
+}
+
+// Schedule daily execution
+schedule.scheduleJob('0 3 * * *', runDiagnosticEvaluation);
+```
+
+---
+
+## Testing and Validation
+
+### Test Scenarios
+```yaml
+test_cases:
+  meta_surgeon_trigger:
+    scenario: "Site with no schema markup"
+    expected_score: 100
+    expected_trigger: true
+    expected_priority: "critical"
+  
+  index_diagnostic_trigger:
+    scenario: "Site with 40% exclusion rate and 75 error pages"
+    expected_score: 100
+    expected_trigger: true
+    expected_priority: "critical"
+  
+  link_architecture_trigger:
+    scenario: "Site with 80 orphaned pages and 15 underlinked money pages"
+    expected_score: 100
+    expected_trigger: true
+    expected_priority: "high"
+  
+  content_opportunity_trigger:
+    scenario: "Site with 200 page 2 keywords and 1500 potential clicks"
+    expected_score: 95
+    expected_trigger: true
+    expected_priority: "medium-high"
+  
+  no_trigger:
+    scenario: "Healthy site with good schema, indexation, links, and content"
+    expected_score: 20
+    expected_trigger: false
+  
+  multiple_triggers:
+    scenario: "Site with schema issues (90) and indexation issues (85)"
+    expected_selected: "meta_surgeon_protocol"
+    reason: "Schema foundation prioritized"
+```
+
+### Validation Checklist
+- [ ] Trigger thresholds are calibrated to real-world site data
+- [ ] Priority hierarchy resolves conflicts correctly
+- [ ] Dynamic insights are contextual and compelling
+- [ ] Pre-analysis enriches cards with useful data
+- [ ] Notifications are sent at appropriate priority levels
+- [ ] Completed protocols are excluded from future triggers
+- [ ] Monitoring runs on schedule without failures
+- [ ] False positives are minimized (score calibration)
+
+---
+
+## Summary
+
+This diagnostic trigger mapping enables E.V.O. to:
+
+✅ **Automatically detect optimization opportunities** from GSC data
+✅ **Prioritize protocols** based on impact and urgency
+✅ **Generate dynamic insights** customized to each site's issues
+✅ **Pre-analyze data** to enrich action cards before showing to users
+✅ **Resolve conflicts** when multiple protocols trigger simultaneously
+✅ **Monitor continuously** and alert users at appropriate times
+✅ **Track completion** to avoid regenerating completed protocols
+
+**Key Principle**: E.V.O. acts as an intelligent SEO diagnostician, continuously analyzing site health and prescribing the right protocol at the right time, with the right data to make it actionable.

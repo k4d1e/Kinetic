@@ -1,0 +1,1165 @@
+# Sprint Plan Action Card - Universal Template Reference
+
+## Overview
+
+This document defines the universal template structure for all Sprint Plan Action Cards in the Kinetic system. Every protocol (Meta Surgeon, Index Diagnostic, Link Architecture, Content Opportunity, etc.) follows this exact 6-page structure with consistent state management, button logic, and progression flow.
+
+## Purpose
+
+Sprint Plan Action Cards are interactive, multi-step workflows that guide users through SEO optimization protocols. Each card:
+- Presents a clear mission and strategic context
+- Breaks complex tasks into 4 linear steps
+- Generates technology-agnostic Cursor prompts
+- Tracks completion and unlocks progression
+- Integrates with E.V.O. analysis (for analysis-based protocols)
+
+## Card Architecture
+
+### 6-Page Structure
+
+```
+┌─────────────────────────────────────────┐
+│  Sprint Plan Action Card                │
+├─────────────────────────────────────────┤
+│  Shared Header (all pages)              │
+│  - Mission Title                        │
+│  - Progress Line (0% → 95%)             │
+│  - Entity Signal Label                  │
+├─────────────────────────────────────────┤
+│  Page 1: Mission Introduction           │
+│  Page 2: Step 1 (Execution)             │
+│  Page 3: Step 2 (Execution)             │
+│  Page 4: Step 3 (Execution)             │
+│  Page 5: Step 4 (Execution)             │
+│  Page 6: Completion Status              │
+└─────────────────────────────────────────┘
+```
+
+### File Locations
+
+```yaml
+html_template: "assets/html/sprintplancard.html"
+javascript_controller: "assets/js/sprintPlan.js"
+protocol_definitions: "assets/js/protocolDefinitions.js"
+execution_assist: "assets/js/executionAssist.js"
+css_styles: "assets/css/styles.css"
+```
+
+## Page Definitions
+
+### Page 1: Mission Introduction
+
+**Purpose**: Set strategic context and explain the "why" behind the protocol.
+
+**HTML Structure**:
+```html
+<div class="sprint-card-page" data-page="1">
+    <div class="strategist-insight">
+        <svg class="strategist-icon"><!-- Sparkle icon --></svg>
+        Strategist Insight:
+    </div>
+    <div class="insight-blockquote">
+        <!-- Dynamic insight message from protocol definition -->
+    </div>
+    <div class="card-footer">
+        <button class="btn-continue">
+            Continue
+            <svg class="btn-arrow-icon"><!-- Arrow icon --></svg>
+        </button>
+    </div>
+</div>
+```
+
+**Key Elements**:
+- `strategist-insight`: Visual header with sparkle icon
+- `insight-blockquote`: Protocol-specific insight message (supports HTML with `{{PLACEHOLDERS}}`)
+- `btn-continue`: Always enabled, advances to Page 2
+
+**Dynamic Placeholders**:
+- `{{COMPANY_NAME}}`: Replaced with business/property name
+- `{{PROPERTY_NAME}}`: Replaced with GSC property name or domain
+
+**Behavior**:
+- Click "Continue" → Navigate to Page 2
+- Update progress line to 25%
+
+---
+
+### Pages 2-5: Execution Steps
+
+**Purpose**: Guide user through 4 sequential execution steps with prompts and analysis.
+
+**HTML Structure**:
+```html
+<div class="sprint-card-page" data-page="2" style="display: none;">
+    <div class="step-header">
+        <svg class="step-icon"><!-- Sparkle icon --></svg>
+        Step 1: {{STEP_TITLE}}
+    </div>
+    <div class="step-body">
+        {{STEP_DESCRIPTION}}
+    </div>
+    
+    <div class="instruction-container">
+        <div class="instruction-label" data-step="1">
+            <svg class="instruction-x-icon"><!-- X icon --></svg>
+            <svg class="instruction-checkmark"><!-- Checkmark icon --></svg>
+            Cursor Instruction
+        </div>
+    </div>
+    
+    <div class="card-footer">
+        <!-- Analysis Button (for E.V.O. protocols) -->
+        <div class="btn-analysis-container">
+            <button class="btn-analysis" data-step="1" style="display: none;">
+                Analysis
+                <svg class="btn-chart-icon"><!-- Chart icon --></svg>
+            </button>
+            <div class="btn-analysis-progress" data-step="1" style="display: none;"></div>
+        </div>
+        
+        <!-- Execution Assist Button (all protocols) -->
+        <button class="btn-execution-assist">
+            Execution Assist
+            <svg class="btn-plus-icon"><!-- Plus icon --></svg>
+        </button>
+        
+        <!-- Next Step Button (Pages 2-4) / Complete Button (Page 5) -->
+        <button class="btn-next-step" data-step="1" disabled>
+            Next Step
+            <svg class="btn-arrow-icon"><!-- Arrow icon --></svg>
+        </button>
+    </div>
+</div>
+```
+
+**Key Elements**:
+- `step-header`: Step number + title from protocol definition
+- `step-body`: Step description from protocol definition
+- `instruction-container`: Visual indicator showing completion state
+- `btn-analysis`: E.V.O. analysis button (only for analysis protocols)
+- `btn-analysis-progress`: Progress text during E.V.O. analysis
+- `btn-execution-assist`: Opens Cursor prompt modal
+- `btn-next-step`: Advances to next page (disabled until prompt copied or analysis passes)
+
+**Page 5 Variant**:
+- Replace `btn-next-step` with `btn-complete`
+- Button text: "Complete" with checkmark icon
+- Action: Navigate to Page 6 and save completion
+
+---
+
+### Page 6: Completion Status
+
+**Purpose**: Animated completion feedback with status progression.
+
+**HTML Structure**:
+```html
+<div class="sprint-card-page" data-page="6" style="display: none;">
+    <div class="strategist-insight">
+        <svg class="strategist-icon"><!-- Sparkle icon --></svg>
+        Strategist:
+    </div>
+    
+    <div class="status-container">
+        <div class="status-line">
+            Status: Scanning Source Code
+            <span class="blink-dot">.</span>
+            <span class="blink-dot">.</span>
+            <span class="blink-dot">.</span>
+        </div>
+        <div class="status-line" style="display: none;">
+            Status: Entity Signal Established.
+        </div>
+        <div class="status-line" style="display: none;">
+            Success: Your business is now a verified entity. 4 Schema Packs Active.
+        </div>
+    </div>
+</div>
+```
+
+**Animation Sequence**:
+1. Line 1 visible with blinking dots (scanning state)
+2. After 2 seconds: Line 2 fades in (established state)
+3. After 2 more seconds: Line 3 fades in (success state)
+4. Trigger `sprintCardAnimationComplete` event
+5. Unlock next sprint circle
+6. Refresh completed cards archive
+7. Close card after 1 second
+
+**Status Messages**:
+All messages come from protocol definition:
+- `completion.scanning`: Initial scanning message
+- `completion.established`: Mid-animation message
+- `completion.success`: Final success message
+
+---
+
+## Shared Header (All Pages)
+
+**HTML Structure**:
+```html
+<div class="sprint-card-header">
+    <div class="mission-header">MISSION:</div>
+    <div class="mission-title">{{PROTOCOL_MISSION_TITLE}}</div>
+    
+    <div class="progress-line-container">
+        <div class="progress-line" style="--progress-fill: 0%;"></div>
+        <div class="entity-signal-label">{{PROTOCOL_ENTITY_LABEL}}</div>
+    </div>
+</div>
+```
+
+**Dynamic Elements**:
+- `mission-title`: Protocol-specific title (e.g., "Meta Surgeon Protocol")
+- `entity-signal-label`: Progress metric label (e.g., "Entity Signal Strength")
+- `progress-line`: CSS variable `--progress-fill` animates from 0% to 95%
+
+**Progress Percentages by Page**:
+```javascript
+progressPercentages = [0, 25, 45, 65, 95, 95]
+// Page 1: 0%
+// Page 2: 25%
+// Page 3: 45%
+// Page 4: 65%
+// Page 5: 95%
+// Page 6: 95% (stays at completion)
+```
+
+---
+
+## Button State Management
+
+### Button Types and Initial States
+
+| Button | Location | Initial State | Enable Trigger |
+|--------|----------|---------------|----------------|
+| **Continue** | Page 1 | Enabled | Always |
+| **Analysis** | Pages 2-5 | Hidden/Loading | E.V.O. analysis complete |
+| **Execution Assist** | Pages 2-5 | Visible | Always (may hide if health score high) |
+| **Next Step** | Pages 2-4 | Disabled | User copies prompt OR health score >= threshold |
+| **Complete** | Page 5 | Disabled | User copies prompt OR health score >= threshold |
+
+### State Machine
+
+```
+Page Load (Pages 2-5)
+    ↓
+[Protocol Type Check]
+    ↓
+┌───────────────────┴────────────────────┐
+│ Schema/Link Protocol                    │ E.V.O. Analysis Protocol
+│                                         │
+│ 1. Hide Analysis Button                │ 1. Show Analysis Button (loading)
+│ 2. Show Execution Assist                │ 2. Auto-fetch E.V.O. dimension
+│ 3. Next Step: DISABLED                  │ 3. Poll progress every 2s
+│                                         │    ↓
+│ User clicks "Execution Assist"          │ [Analysis Complete]
+│    ↓                                    │    ↓
+│ Modal opens with Cursor prompt          │ Check health score
+│    ↓                                    │    ↓
+│ User copies prompt                      │ ┌──────────────┴──────────────┐
+│    ↓                                    │ │ Score < 70                  │ Score >= 70
+│ Next Step: ENABLED                      │ │                             │
+│    ↓                                    │ │ 1. Show Exec Assist         │ 1. Hide Exec Assist
+│ User clicks "Next Step"                 │ │ 2. Next Step: DISABLED      │ 2. Next Step: ENABLED
+│    ↓                                    │ │    ↓                        │    ↓
+│ Navigate to next page                   │ │ User copies prompt          │ Advance automatically
+└─────────────────────────────────────────┘ │    ↓                        │
+                                            │ Next Step: ENABLED          │
+                                            └─────────────────────────────┘
+```
+
+### Copy Detection Mechanism
+
+**Location**: `assets/js/executionAssist.js`
+
+**Flow**:
+```javascript
+// When user clicks copy button in Execution Assist modal
+copyPrompt() {
+    // 1. Copy to clipboard
+    navigator.clipboard.writeText(this.currentPrompt);
+    
+    // 2. Find current page
+    const currentPage = document.querySelector('.sprint-card-page[style*="display: flex"]');
+    
+    // 3. Find Next Step button for this page
+    const stepNumber = parseInt(currentPage.getAttribute('data-page')) - 1;
+    const nextStepBtn = currentPage.querySelector(`.btn-next-step[data-step="${stepNumber}"]`);
+    const completeBtn = currentPage.querySelector('.btn-complete');
+    
+    // 4. Enable the button
+    if (nextStepBtn) {
+        nextStepBtn.disabled = false;
+    } else if (completeBtn) {
+        completeBtn.disabled = false;
+    }
+    
+    // 5. Update instruction label to show completion
+    const instructionLabel = currentPage.querySelector('.instruction-label');
+    instructionLabel.classList.add('completed'); // Shows checkmark instead of X
+    
+    // 6. Close modal
+    this.closeModal();
+    
+    // 7. Log completion
+    console.log(`✓ Prompt copied for step ${stepNumber}`);
+}
+```
+
+**CSS State Classes**:
+```css
+/* Instruction label - initial state (red X) */
+.instruction-label .instruction-x-icon { display: block; }
+.instruction-label .instruction-checkmark { display: none; }
+
+/* Instruction label - completed state (green checkmark) */
+.instruction-label.completed .instruction-x-icon { display: none; }
+.instruction-label.completed .instruction-checkmark { display: block; }
+```
+
+---
+
+## E.V.O. Integration (Analysis Protocols)
+
+### Auto-Fetch on Page Load
+
+**Trigger**: When user navigates to Pages 2-5 of an E.V.O. protocol
+
+**File**: `assets/js/sprintPlan.js`
+
+```javascript
+function showPage(pageNumber) {
+    // Show the selected page
+    cardPages.forEach((page) => {
+        const pageNum = parseInt(page.getAttribute('data-page'));
+        if (pageNum === pageNumber) {
+            page.style.display = 'flex';
+            
+            // Auto-fetch E.V.O. data for analysis protocols
+            if (pageNum >= 2 && pageNum <= 5 && 
+                (currentCardType === 'gsc_indexation_protocol' || 
+                 currentCardType === 'keyword_coverage_gap_protocol')) {
+                fetchAndDisplayEVOData(pageNum);
+            }
+        } else {
+            page.style.display = 'none';
+        }
+    });
+}
+```
+
+### E.V.O. Data Cache
+
+**Purpose**: Store analysis results to avoid re-fetching
+
+```javascript
+// Global cache object (stepNumber → data)
+const evoDataCache = {};
+
+// Cache structure
+evoDataCache[stepNumber] = {
+    dimensionData: {
+        health: {
+            score: 65,
+            status: "warning",
+            metrics: { rootDensity: 450, exclusionRate: 15 },
+            insights: [...]
+        }
+    },
+    stepData: protocolDefinitions[protocolKey].steps[stepNumber - 1],
+    needsFixes: true,  // score < threshold
+    healthScore: 65,
+    healthThreshold: 70
+};
+```
+
+### Analysis Button States
+
+#### Loading State
+```javascript
+function setAnalysisButtonLoading(currentPage, stepNumber, progressText) {
+    const analysisBtn = currentPage.querySelector(`.btn-analysis[data-step="${stepNumber}"]`);
+    analysisBtn.disabled = true;
+    analysisBtn.classList.add('btn-analysis-loading');
+    
+    // Show spinner, hide chart icon
+    // Display progress text
+}
+```
+
+#### Ready State
+```javascript
+function setAnalysisButtonReady(currentPage, stepNumber) {
+    const analysisBtn = currentPage.querySelector(`.btn-analysis[data-step="${stepNumber}"]`);
+    analysisBtn.disabled = false;
+    analysisBtn.classList.remove('btn-analysis-loading');
+    
+    // Show chart icon, hide spinner
+}
+```
+
+#### Error State
+```javascript
+function setAnalysisButtonError(currentPage, stepNumber) {
+    const analysisBtn = currentPage.querySelector(`.btn-analysis[data-step="${stepNumber}"]`);
+    analysisBtn.disabled = false; // Keep enabled for retry
+    analysisBtn.classList.add('btn-analysis-error');
+    analysisBtn.innerHTML = `
+        <svg class="btn-error-icon"><!-- Alert icon --></svg>
+        Error - Click to Retry
+    `;
+}
+```
+
+### Execution Assist Visibility Logic
+
+```javascript
+function updateExecutionAssistVisibility(pageNumber, needsFixes, dimensionData) {
+    const currentPage = cardContainer.querySelector(`.sprint-card-page[data-page="${pageNumber}"]`);
+    const executionAssistBtn = currentPage.querySelector('.btn-execution-assist');
+    const nextStepBtn = currentPage.querySelector('.btn-next-step');
+    
+    if (needsFixes) {
+        // Health score below threshold - show Execution Assist
+        executionAssistBtn.style.display = 'flex';
+        nextStepBtn.disabled = true; // User must copy prompt
+    } else {
+        // Health score acceptable - hide Execution Assist
+        executionAssistBtn.style.display = 'none';
+        nextStepBtn.disabled = false; // Auto-enable, no action needed
+    }
+}
+```
+
+### Special Cases
+
+#### Content Opportunity Protocol - Steps 1 & 2
+```javascript
+// Steps 1 & 2 are analysis-only, no fixes needed
+if (currentCardType === 'keyword_coverage_gap_protocol' && (stepNumber === 1 || stepNumber === 2)) {
+    executionAssistBtn.style.display = 'none';
+    nextStepBtn.disabled = false; // Always enabled after analysis
+}
+```
+
+---
+
+## Progress Tracking
+
+### Page Advancement
+
+**File**: `assets/js/sprintPlan.js`
+
+```javascript
+function navigateToNextPage() {
+    // Capture step completion data (for pages 2-5)
+    if (sprintState.currentPage >= 2 && sprintState.currentPage <= 5) {
+        const stepNumber = sprintState.currentPage - 1;
+        sprintState.completedSteps.push({
+            stepNumber,
+            name: getStepName(stepNumber),
+            description: getStepDescription(stepNumber),
+            completedAt: new Date().toISOString()
+        });
+    }
+    
+    // Advance to next page
+    if (sprintState.currentPage < 6) {
+        sprintState.currentPage++;
+        showPage(sprintState.currentPage);
+        
+        // Update progress line
+        const progressPercentage = sprintState.progressPercentages[sprintState.currentPage - 1];
+        updateProgressLine(progressPercentage);
+    }
+}
+```
+
+### Progress Line Animation
+
+**CSS Variable Update**:
+```javascript
+function updateProgressLine(percentage) {
+    const progressLine = document.querySelector('.sprint-card-header .progress-line');
+    if (progressLine) {
+        progressLine.style.setProperty('--progress-fill', `${percentage}%`);
+    }
+}
+```
+
+**CSS Animation**:
+```css
+.progress-line {
+    width: 100%;
+    height: 3px;
+    background: var(--color-bg-dark);
+    position: relative;
+}
+
+.progress-line::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: var(--progress-fill, 0%);
+    background: var(--color-accent-orange);
+    transition: width 0.5s ease;
+}
+```
+
+---
+
+## Completion Flow
+
+### Handle Complete Button Click
+
+**File**: `assets/js/sprintPlan.js`
+
+```javascript
+async function handleComplete() {
+    console.log('Complete button clicked - saving completion and advancing to status page');
+    
+    // 1. Navigate to Page 6
+    navigateToNextPage();
+    
+    // 2. Build completion data
+    const completionData = {
+        cardType: currentCardType,
+        propertyId: sprintState.currentPropertyId,
+        sprintIndex: sprintState.currentCircle,
+        startedAt: new Date(sprintState.startTime).toISOString(),
+        completedAt: new Date().toISOString(),
+        duration: Date.now() - sprintState.startTime,
+        progressPercentage: 95,
+        steps: sprintState.completedSteps
+    };
+    
+    // 3. Validate property ID exists
+    if (!completionData.propertyId) {
+        console.warn('⚠ Cannot save: No property ID available');
+        return;
+    }
+    
+    // 4. Save to backend
+    try {
+        const result = await api.saveCompletedSprintCard(completionData);
+        console.log('✓ Sprint card completion saved:', result);
+        
+        // 5. Listen for animation completion
+        const animationCompleteHandler = async () => {
+            // Unlock next circle
+            unlockNextCircle(sprintState.currentCircle);
+            
+            // Refresh completed cards archive
+            if (window.loadCompletedCardsArchive) {
+                await window.loadCompletedCardsArchive(sprintState.currentPropertyId);
+                
+                // Scroll to archive
+                const archiveSection = document.querySelector('.completed-cards-section');
+                if (archiveSection) {
+                    setTimeout(() => {
+                        archiveSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 500);
+                }
+            }
+            
+            // Close card after 1 second
+            setTimeout(() => {
+                closeSprintCard();
+            }, 1000);
+            
+            // Remove listener
+            window.removeEventListener('sprintCardAnimationComplete', animationCompleteHandler);
+        };
+        
+        window.addEventListener('sprintCardAnimationComplete', animationCompleteHandler);
+        
+    } catch (error) {
+        console.error('❌ Failed to save sprint card completion:', error);
+        alert('Card completed but could not save to history. Please check your connection.');
+    }
+}
+```
+
+### Unlock Next Circle
+
+```javascript
+function unlockNextCircle(currentIndex) {
+    const nextIndex = currentIndex + 1;
+    
+    if (nextIndex < sprintCircles.length) {
+        const nextCircle = sprintCircles[nextIndex];
+        
+        // Update state
+        sprintState.circles[currentIndex].status = 'completed';
+        sprintState.circles[currentIndex].completed = true;
+        sprintState.circles[nextIndex].status = 'active';
+        
+        // Update DOM
+        sprintCircles[currentIndex].setAttribute('data-status', 'completed');
+        nextCircle.setAttribute('data-status', 'active');
+        
+        // Update visuals
+        updateCircleVisual(sprintCircles[currentIndex], 'completed');
+        updateCircleVisual(nextCircle, 'active');
+        
+        // Add click listener to newly active circle
+        nextCircle.addEventListener('click', () => handleCircleClick(nextIndex));
+        
+        console.log(`✓ Circle ${nextIndex} unlocked`);
+    } else {
+        console.log('All circles completed!');
+    }
+}
+```
+
+---
+
+## Protocol Definition Structure
+
+### File: `assets/js/protocolDefinitions.js`
+
+```javascript
+const protocolDefinitions = {
+    protocol_key: {
+        missionTitle: "Protocol Name",
+        entityLabel: "Progress Metric Label",
+        page1: {
+            insight: "Strategic insight with {{PLACEHOLDERS}}",
+            companyName: "{{COMPANY_NAME}}" // or {{PROPERTY_NAME}}
+        },
+        steps: [
+            {
+                title: "Step Name",
+                description: "What this step accomplishes",
+                executionInstructions: {
+                    // Common to all protocols
+                    concept: "High-level concept",
+                    action: "Specific action to take",
+                    implementation: "How to implement",
+                    deliverable: "output-file-name.md",
+                    
+                    // Schema protocols only
+                    schemaType: "schema.org/Type",
+                    
+                    // Analysis protocols only
+                    dataSource: "Data source description",
+                    evoDimension: "dimension_name",
+                    evoMetrics: ["metric1", "metric2"],
+                    healthThreshold: 70,
+                    
+                    // Content protocols only
+                    promptType: "content_planning",
+                    gscMetrics: ["impressions", "clicks", "ctr", "position"],
+                    opportunityMetrics: ["impressions", "traffic_gain"]
+                }
+            }
+            // ... 3 more steps
+        ],
+        completion: {
+            scanning: "Status: Processing...",
+            established: "Status: Complete.",
+            success: "Success: Achievement message."
+        }
+    }
+};
+```
+
+### Protocol Type Detection
+
+```javascript
+// In executionAssist.js - generatePrompt()
+const isSchemaProtocol = executionInstructions.schemaType !== undefined;
+const isAnalysisProtocol = executionInstructions.dataSource !== undefined;
+const isLinkProtocol = protocolKey === 'internal_link_expansion_protocol';
+const isContentPlanningProtocol = protocolKey === 'keyword_coverage_gap_protocol' && stepNumber === 4;
+
+if (isSchemaProtocol) {
+    return this.generateSchemaPrompt(context, fileName);
+} else if (isAnalysisProtocol) {
+    return this.generateAnalysisPrompt(context, fileName);
+} else if (isLinkProtocol) {
+    return this.generateLinkExpansionPrompt(context, fileName);
+} else if (isContentPlanningProtocol) {
+    return this.generateContentPlanningPrompt(context, fileName);
+}
+```
+
+---
+
+## Database Schema
+
+### Table: `sprint_action_cards`
+
+**Purpose**: Register available protocol types
+
+```sql
+CREATE TABLE sprint_action_cards (
+    id SERIAL PRIMARY KEY,
+    card_type VARCHAR(100) UNIQUE NOT NULL,
+    display_name VARCHAR(200) NOT NULL,
+    total_steps INTEGER NOT NULL DEFAULT 4,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+**Example Entry**:
+```sql
+INSERT INTO sprint_action_cards (card_type, display_name, total_steps, description)
+VALUES (
+    'meta_surgeon_protocol',
+    'Meta Surgeon Protocol',
+    4,
+    'Establish entity signal through structured data'
+);
+```
+
+### Table: `sprint_card_completions`
+
+**Purpose**: Track user progress and completed cards
+
+```sql
+CREATE TABLE sprint_card_completions (
+    id SERIAL PRIMARY KEY,
+    property_id INTEGER NOT NULL REFERENCES properties(id),
+    card_type VARCHAR(100) NOT NULL,
+    sprint_index INTEGER NOT NULL,
+    started_at TIMESTAMP NOT NULL,
+    completed_at TIMESTAMP NOT NULL,
+    duration_ms INTEGER,
+    progress_percentage INTEGER DEFAULT 95,
+    steps JSONB, -- Array of completed step objects
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+**Steps JSON Structure**:
+```json
+[
+    {
+        "stepNumber": 1,
+        "name": "Global Identity",
+        "description": "Hard-code brand DNA...",
+        "completedAt": "2024-01-15T10:30:00Z"
+    },
+    {
+        "stepNumber": 2,
+        "name": "Territory Claim",
+        "description": "Define GEO Circle...",
+        "completedAt": "2024-01-15T10:45:00Z"
+    }
+]
+```
+
+### API Endpoint: Save Completion
+
+**Route**: `POST /api/sprint-cards/complete`
+
+**Request Body**:
+```javascript
+{
+    cardType: "meta_surgeon_protocol",
+    propertyId: 123,
+    sprintIndex: 0,
+    startedAt: "2024-01-15T10:00:00Z",
+    completedAt: "2024-01-15T11:00:00Z",
+    duration: 3600000, // milliseconds
+    progressPercentage: 95,
+    steps: [
+        { stepNumber: 1, name: "Global Identity", completedAt: "..." },
+        { stepNumber: 2, name: "Territory Claim", completedAt: "..." },
+        { stepNumber: 3, name: "Commercial Definition", completedAt: "..." },
+        { stepNumber: 4, name: "Reputation Sync", completedAt: "..." }
+    ]
+}
+```
+
+**Response**:
+```javascript
+{
+    success: true,
+    cardId: 456,
+    message: "Sprint card completion saved successfully"
+}
+```
+
+---
+
+## Sprint Circle Integration
+
+### Sprint Circle States
+
+```javascript
+sprintState = {
+    circles: [
+        { index: 0, status: 'active', completed: false },
+        { index: 1, status: 'locked', completed: false },
+        { index: 2, status: 'locked', completed: false },
+        { index: 3, status: 'locked', completed: false }
+    ],
+    currentCircle: null,
+    currentPage: 1,
+    progressPercentages: [0, 25, 45, 65, 95, 95],
+    startTime: null,
+    completedSteps: [],
+    currentPropertyId: null
+};
+```
+
+### Card Type Mapping
+
+```javascript
+// Sprint Circle Index → Protocol Key
+const cardTypeMapping = {
+    0: 'meta_surgeon_protocol',
+    1: 'gsc_indexation_protocol',
+    2: 'internal_link_expansion_protocol',
+    3: 'keyword_coverage_gap_protocol'
+};
+```
+
+### Load Progress from Database
+
+```javascript
+async function loadSprintProgress(propertyId) {
+    const response = await fetch(`${backendURL}/api/sprint-cards/progress?propertyId=${propertyId}`);
+    const result = await response.json();
+    
+    const { completedSprints, nextAvailableSprint } = result.progress;
+    
+    // Update UI based on progress
+    sprintCircles.forEach((circle, index) => {
+        if (completedSprints.includes(index)) {
+            circle.setAttribute('data-status', 'completed');
+        } else if (index === nextAvailableSprint) {
+            circle.setAttribute('data-status', 'active');
+        } else {
+            circle.setAttribute('data-status', 'locked');
+        }
+    });
+}
+```
+
+---
+
+## Event Flow Diagram
+
+```
+User Opens Dashboard
+    ↓
+Load Sprint Progress (DB)
+    ↓
+Render Sprint Circles (4 circles)
+    ↓
+User Clicks Active Circle
+    ↓
+┌─────────────────────────────────────────┐
+│ Show Sprint Plan Card                    │
+├─────────────────────────────────────────┤
+│ Page 1: Show Strategist Insight         │
+│    ↓                                     │
+│ User clicks "Continue"                   │
+│    ↓                                     │
+│ Page 2: Step 1                           │
+│    ↓                                     │
+│ [If E.V.O. Protocol]                     │
+│    → Auto-fetch dimension analysis       │
+│    → Poll progress every 2s              │
+│    → Show Analysis button when ready     │
+│    → User clicks "Analysis"              │
+│    → Display health score & insights     │
+│    ↓                                     │
+│ [If Health < 70 OR Manual Protocol]      │
+│    → Show "Execution Assist" button      │
+│    → User clicks "Execution Assist"      │
+│    → Modal opens with Cursor prompt      │
+│    → User copies prompt                  │
+│    → Next Step button ENABLED            │
+│    ↓                                     │
+│ [If Health >= 70]                        │
+│    → Hide "Execution Assist" button      │
+│    → Next Step button AUTO-ENABLED       │
+│    ↓                                     │
+│ User clicks "Next Step"                  │
+│    ↓                                     │
+│ Page 3: Step 2 (repeat flow)            │
+│    ↓                                     │
+│ Page 4: Step 3 (repeat flow)            │
+│    ↓                                     │
+│ Page 5: Step 4 (repeat flow)            │
+│    ↓                                     │
+│ User clicks "Complete"                   │
+│    ↓                                     │
+│ Page 6: Animated Completion              │
+│    → Status line 1 (scanning)            │
+│    → Status line 2 (established)         │
+│    → Status line 3 (success)             │
+│    → Trigger animation complete event    │
+│    ↓                                     │
+│ Save Completion to Database              │
+│    ↓                                     │
+│ Unlock Next Sprint Circle                │
+│    ↓                                     │
+│ Refresh Completed Cards Archive          │
+│    ↓                                     │
+│ Close Card                               │
+└─────────────────────────────────────────┘
+```
+
+---
+
+## Styling and CSS Classes
+
+### Key CSS Classes
+
+```css
+/* Container */
+.sprint-plan-card-container { display: none; /* shown when card opens */ }
+.sprint-plan-card { /* card styling */ }
+
+/* Header */
+.sprint-card-header { /* fixed at top */ }
+.mission-title { /* protocol name */ }
+.progress-line { /* orange progress bar */ }
+.entity-signal-label { /* metric label */ }
+
+/* Pages */
+.sprint-card-page { display: none; /* only active page shown */ }
+.sprint-card-page[data-page="1"] { /* first page */ }
+
+/* Page 1 Elements */
+.strategist-insight { /* header with icon */ }
+.insight-blockquote { /* main insight text */ }
+
+/* Page 2-5 Elements */
+.step-header { /* step title */ }
+.step-body { /* step description */ }
+.instruction-container { /* visual completion indicator */ }
+.instruction-label { /* shows X or checkmark */ }
+.instruction-label.completed { /* green checkmark state */ }
+
+/* Buttons */
+.btn-continue { /* Page 1 button */ }
+.btn-analysis { /* E.V.O. analysis button */ }
+.btn-analysis-loading { /* spinner state */ }
+.btn-analysis-error { /* error state */ }
+.btn-execution-assist { /* opens prompt modal */ }
+.btn-next-step { /* advances to next step */ }
+.btn-complete { /* completes card */ }
+
+/* Button States */
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+button:not(:disabled):hover { /* hover effects */ }
+
+/* Page 6 Elements */
+.status-container { /* completion animation */ }
+.status-line { /* animated status messages */ }
+.blink-dot { /* blinking dots animation */ }
+
+/* Icons */
+.strategist-icon { /* sparkle icon */ }
+.step-icon { /* step sparkle icon */ }
+.btn-arrow-icon { /* arrow icon */ }
+.btn-chart-icon { /* chart icon */ }
+.btn-plus-icon { /* plus icon */ }
+.instruction-x-icon { /* red X */ }
+.instruction-checkmark { /* green checkmark */ }
+```
+
+---
+
+## Initialization Sequence
+
+**File**: `assets/js/sprintPlan.js`
+
+```javascript
+document.addEventListener('DOMContentLoaded', async () => {
+    // 1. Load sprint plan card HTML
+    await loadSprintPlanCard();
+    
+    // 2. Initialize API client
+    const api = new KineticAPI();
+    
+    // 3. Initialize sprint circles
+    initSprintCircles();
+    
+    // 4. Load sprint progress if property selected
+    if (window.currentPropertyId) {
+        await loadSprintProgress(window.currentPropertyId);
+    } else {
+        setDefaultSprintState(); // First circle active
+    }
+    
+    // 5. Listen for property selection events
+    window.addEventListener('propertySelected', async (event) => {
+        const propertyId = event.detail.propertyId;
+        await loadSprintProgress(propertyId);
+    });
+    
+    console.log('✓ Sprint Plan system initialized');
+});
+```
+
+---
+
+## Global State Management
+
+### Sprint State Object
+
+```javascript
+const sprintState = {
+    circles: Array,           // Circle status array
+    currentCircle: Number,    // 0-3
+    currentPage: Number,      // 1-6
+    progressPercentages: Array, // [0, 25, 45, 65, 95, 95]
+    startTime: Number,        // Timestamp when card opened
+    completedSteps: Array,    // Step completion records
+    currentPropertyId: Number // Active GSC property
+};
+```
+
+### E.V.O. Data Cache
+
+```javascript
+const evoDataCache = {
+    [stepNumber]: {
+        dimensionData: Object,
+        stepData: Object,
+        needsFixes: Boolean,
+        healthScore: Number,
+        healthThreshold: Number
+    }
+};
+```
+
+### Current Card Context
+
+```javascript
+let currentCardType = null; // 'meta_surgeon_protocol', etc.
+let cardContainer = null;   // DOM element
+let cardPages = null;       // NodeList of page elements
+let continueBtn = null;     // Continue button
+let nextStepBtns = null;    // NodeList of next step buttons
+let completeBtn = null;     // Complete button
+let executionAssistBtns = null; // NodeList of execution assist buttons
+```
+
+---
+
+## Testing and Validation
+
+### Manual Testing Checklist
+
+```yaml
+page_1_tests:
+  - [ ] Insight message displays correctly with replaced placeholders
+  - [ ] Continue button is enabled
+  - [ ] Clicking Continue advances to Page 2
+  - [ ] Progress line animates from 0% to 25%
+
+page_2_5_schema_protocol_tests:
+  - [ ] Step header and description display correctly
+  - [ ] Analysis button is hidden
+  - [ ] Execution Assist button is visible
+  - [ ] Next Step button is disabled
+  - [ ] Clicking Execution Assist opens modal with prompt
+  - [ ] Copying prompt enables Next Step button
+  - [ ] Instruction label shows checkmark after copy
+  - [ ] Next Step button advances to next page
+  - [ ] Progress line updates correctly
+
+page_2_5_analysis_protocol_tests:
+  - [ ] Analysis button shows loading state
+  - [ ] E.V.O. dimension fetches automatically
+  - [ ] Progress updates during analysis
+  - [ ] Analysis button becomes enabled when complete
+  - [ ] Clicking Analysis opens modal with health score
+  - [ ] If health < 70: Execution Assist visible, Next Step disabled
+  - [ ] If health >= 70: Execution Assist hidden, Next Step enabled
+  - [ ] Copying prompt enables Next Step button
+
+page_5_tests:
+  - [ ] Complete button appears instead of Next Step
+  - [ ] Complete button is disabled until prompt copied
+  - [ ] Clicking Complete advances to Page 6
+  - [ ] Progress line stays at 95%
+
+page_6_tests:
+  - [ ] Status line 1 appears with blinking dots
+  - [ ] Status line 2 fades in after 2 seconds
+  - [ ] Status line 3 fades in after 4 seconds
+  - [ ] Animation complete event fires
+  - [ ] Completion saved to database
+  - [ ] Next circle unlocks
+  - [ ] Card closes after animation
+
+state_persistence_tests:
+  - [ ] Page refresh preserves sprint circle states
+  - [ ] Switching properties loads correct progress
+  - [ ] Completed cards show in archive
+  - [ ] Reopening completed card shows historical data
+```
+
+---
+
+## Future Enhancements
+
+### Dynamic Card Generation by E.V.O.
+
+When E.V.O. generates cards procedurally, it will:
+
+1. **Detect Trigger Conditions** from GSC data
+2. **Select Protocol Type** based on issues found
+3. **Customize Insight Message** with specific site metrics
+4. **Pre-fetch E.V.O. Dimensions** for analysis steps
+5. **Generate Dynamic Prompts** with real URLs and data
+6. **Prioritize Steps** based on severity
+7. **Customize Completion Messages** with actual results
+
+### Template Variables for E.V.O.
+
+```javascript
+// E.V.O. will inject these variables when generating cards
+const dynamicVariables = {
+    // Site-specific
+    propertyName: "oregonexteriorexperts.com",
+    companyName: "Oregon Exterior Experts",
+    siteUrl: "https://oregonexteriorexperts.com",
+    
+    // Detected issues (from GSC analysis)
+    errorPageCount: 23,
+    exclusionRate: 15,
+    orphanedPages: 47,
+    lowCTRQueries: 156,
+    
+    // Calculated opportunities
+    potentialMonthlyClicks: 847,
+    quickWinCount: 12,
+    contentGaps: 34
+};
+
+// Example dynamic insight
+insight = `Your site has ${errorPageCount} pages with 404 errors and ${orphanedPages} orphaned pages that Google can't find. Meanwhile, you're getting ${potentialMonthlyClicks} monthly impressions on keywords where users never click through. Let's fix the foundation first, then capture that waiting traffic.`;
+```
+
+---
+
+## Summary
+
+This universal template provides:
+
+✅ **Consistent 6-page structure** across all protocols
+✅ **Linear progression flow** with disabled-until-complete buttons
+✅ **Copy detection mechanism** to ensure users take action
+✅ **E.V.O. integration patterns** for data-driven analysis
+✅ **State management** for tracking progress
+✅ **Database persistence** for completion tracking
+✅ **Sprint circle unlock** progression system
+✅ **Modular protocol definitions** for easy extension
+✅ **Technology-agnostic prompts** that work with any stack
+
+**Key Principle**: The template is content-agnostic. Protocol definitions provide the "what" (mission, steps, insights), while the template provides the "how" (structure, buttons, progression, state).

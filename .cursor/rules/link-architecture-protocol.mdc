@@ -1,0 +1,443 @@
+# Link Architecture Protocol - Sprint Plan Action Card Definition
+
+## Protocol Identity
+- **Protocol Key**: `internal_link_expansion_protocol`
+- **Mission Title**: Link Architecture Protocol
+- **Display Name**: Link Architecture Protocol
+- **Protocol Type**: link-expansion (hybrid: analysis + implementation)
+- **Entity Label**: Link Distribution Strength
+- **Total Steps**: 4
+- **Sprint Circle Index**: 2
+
+## Description
+Strategic internal linking system to distribute authority and enhance user experience. Identifies orphaned pages, analyzes link distribution patterns, optimizes anchor text, and creates non-disruptive implementation pathways for contextual link additions.
+
+## Page 1: Strategist Insight
+
+### Insight Message
+"Internal links are the pathways that distribute authority and guide users through your site. Right now, you might have orphaned pages, weak topical signals, and missed opportunities to connect high-value content. Let's architect a strategic linking system that amplifies authority and enhances user experience."
+
+### Dynamic Placeholders
+- `{{COMPANY_NAME}}`: Replaced with property name or domain
+- `{{PROPERTY_NAME}}`: Same as COMPANY_NAME
+
+## Step 1: Link Inventory Audit
+
+### Step Definition
+```yaml
+title: "Link Inventory Audit"
+description: "Map your current internal linking structure to understand how authority flows through your site. We'll identify orphan pages with no incoming links, analyze link distribution patterns, and reveal which pages are hoarding authority versus which are starved for it."
+```
+
+### Execution Instructions
+```yaml
+concept: "comprehensive link graph analysis"
+action: "Crawl and analyze all internal links across the entire site structure"
+implementation: "Scan all pages to map existing internal links, calculate incoming/outgoing link counts per page, identify orphaned pages, measure link depth from homepage, and create a visual representation of the current link architecture"
+deliverable: "link-inventory-audit.md"
+```
+
+### Analysis Focus
+- **Orphaned Pages**: Pages with 0 incoming internal links
+- **Link Depth**: Distance from homepage (clicks required to reach page)
+- **Link Equity Distribution**: Which pages have most incoming links
+- **Hub Pages**: Pages with high outgoing link counts
+- **Authority Sinks**: High-value pages with few incoming links
+
+### Key Metrics to Calculate
+```yaml
+metrics:
+  - total_pages: "Count of all pages discovered"
+  - orphaned_pages: "Pages with no incoming internal links"
+  - avg_internal_links_per_page: "Average number of internal links"
+  - max_link_depth: "Deepest page distance from homepage"
+  - top_linked_pages: "Pages with most incoming links (top 10)"
+  - underlinked_pages: "High-value pages with <3 incoming links"
+```
+
+### Crawl Tools Recommendation
+- **Screaming Frog SEO Spider**: Desktop crawl tool
+- **Sitebulb**: Visual site architecture
+- **Custom script**: Node.js crawler for dynamic sites
+- **CMS plugins**: WordPress SEO plugins with link analysis
+
+## Step 2: Strategic Link Opportunities
+
+### Step Definition
+```yaml
+title: "Strategic Link Opportunities"
+description: "Identify high-value pages that need authority boosts via internal links. We'll find contextual opportunities to strengthen topical clusters, connect related content, and prioritize pages based on conversion potential and search visibility goals."
+```
+
+### Execution Instructions
+```yaml
+concept: "strategic link placement for authority distribution"
+action: "Identify pages that need more internal links and determine optimal source pages"
+implementation: "Analyze page importance (conversion value, search traffic, business goals), identify topical clusters that need stronger connections, find contextually relevant pages that could link to target pages, and prioritize link opportunities by impact potential"
+deliverable: "strategic-link-opportunities.md"
+```
+
+### Page Prioritization Framework
+
+#### 1. Identify Target Pages (Pages Needing Links)
+```yaml
+criteria:
+  high_priority:
+    - "Money pages: product/service pages with conversion goals"
+    - "High search volume pages ranking positions 11-20"
+    - "Orphaned pages with valuable content"
+    - "Topical pillar pages that need authority"
+  medium_priority:
+    - "Blog posts with high engagement but low visibility"
+    - "Service pages in secondary markets"
+    - "Resource pages with link-worthy content"
+  low_priority:
+    - "Informational content without conversion goals"
+    - "Archive pages and category indexes"
+```
+
+#### 2. Identify Source Pages (Pages That Should Link)
+```yaml
+criteria:
+  ideal_sources:
+    - "High-authority pages (many incoming links)"
+    - "High-traffic pages (lots of visitors)"
+    - "Contextually relevant pages (same topic/cluster)"
+    - "Hub pages (resource centers, guides)"
+```
+
+#### 3. Opportunity Scoring
+```javascript
+opportunityScore = (
+  targetPageValue * 0.4 +        // Conversion/traffic value
+  contextualRelevance * 0.3 +     // Topic alignment
+  sourcePageAuthority * 0.2 +     // Source page link equity
+  implementationEase * 0.1        // Difficulty to add link
+) * 100
+
+// Prioritize opportunities with score > 70
+```
+
+### Topical Cluster Mapping
+```yaml
+clusters:
+  - cluster_name: "Roofing Services"
+    pillar_page: "/roofing-services"
+    supporting_pages:
+      - "/shingle-roofing"
+      - "/metal-roofing"
+      - "/roof-repair"
+    missing_connections: 
+      - link_from: "/roof-repair" 
+        link_to: "/shingle-roofing"
+        reason: "Users repairing shingles should see shingle replacement options"
+```
+
+## Step 3: Anchor Text Optimization
+
+### Step Definition
+```yaml
+title: "Anchor Text Optimization"
+description: "Audit your existing anchor text patterns to ensure diversity and relevance. We'll design descriptive, keyword-rich anchors that signal topical relationships to search engines while maintaining natural language flow for users."
+```
+
+### Execution Instructions
+```yaml
+concept: "anchor text diversity and relevance optimization"
+action: "Analyze current anchor text patterns and plan optimized anchor text strategy"
+implementation: "Extract all existing anchor text, identify over-optimization or generic text (like 'click here'), analyze keyword distribution in anchors, plan diverse, descriptive anchor text that signals content relationships, and ensure natural language while incorporating target keywords"
+deliverable: "anchor-text-optimization-plan.md"
+```
+
+### Anchor Text Best Practices
+
+#### 1. Anchor Text Types Distribution
+```yaml
+recommended_distribution:
+  exact_match: "10-15%"  # "roofing services"
+  partial_match: "30-40%"  # "quality roofing services in Portland"
+  branded: "15-20%"  # "Oregon Exterior Experts"
+  generic: "10-15%"  # "learn more", "click here"
+  naked_url: "5-10%"  # "https://site.com/page"
+  descriptive: "20-30%"  # "guide to choosing roof materials"
+```
+
+#### 2. Avoid Over-Optimization
+```yaml
+red_flags:
+  - exact_match_ratio > 40%: "Too many exact match anchors (spam signal)"
+  - generic_ratio > 30%: "Too many 'click here' links (missed opportunity)"
+  - single_keyword_dominance > 50%: "One keyword used in 50%+ of all anchors"
+```
+
+#### 3. Contextual Anchor Design
+```yaml
+principles:
+  - "Anchor should describe destination page content"
+  - "Include target keyword naturally in sentence"
+  - "Use variations and synonyms, not repetition"
+  - "Make anchor clickable phrase length (2-5 words ideal)"
+  - "Avoid anchor text in ALL CAPS or excessive punctuation!!!"
+```
+
+### Example Anchor Text Matrix
+```yaml
+target_page: "/metal-roofing-installation"
+anchor_variations:
+  - "metal roofing installation services"
+  - "install a metal roof"
+  - "professional metal roofing"
+  - "our metal roof installation process"
+  - "metal roofing solutions"
+  - "guide to metal roof installation"
+```
+
+## Step 4: Implementation Path
+
+### Step Definition
+```yaml
+title: "Implementation Path"
+description: "Design new link paths that enhance UX without disrupting your site's architecture. We'll create a non-invasive implementation roadmap that adds contextual links within existing content, respects user flows, and scales across content types—no footer spam, just strategic connections."
+```
+
+### Execution Instructions
+```yaml
+concept: "non-disruptive link implementation strategy"
+action: "Create an implementation plan that adds strategic links while preserving UX and site architecture"
+implementation: "Identify exact placement locations for new links (within content body, related content sections, contextual sidebars), specify which files need modification, ensure links enhance rather than disrupt user journey, maintain existing navigation patterns, plan for scalable linking patterns across content types, and provide technology-specific implementation guidance"
+deliverable: "link-implementation-path.md"
+```
+
+### Implementation Principles
+
+#### 1. Contextual Placement Zones
+```yaml
+placement_priorities:
+  high_value:
+    - "Within main content body (first 2 paragraphs)"
+    - "Contextual mentions of related topics"
+    - "After problem statement, before solution"
+  medium_value:
+    - "Related resources sidebar"
+    - "End-of-content 'Read Next' sections"
+    - "Author bio with topic expertise links"
+  low_value:
+    - "Footer navigation (generic links)"
+    - "Breadcrumb navigation"
+    - "Header menu (already exists)"
+```
+
+#### 2. Non-Disruptive Integration Rules
+```yaml
+rules:
+  - "Never add more than 3-5 new internal links per page"
+  - "Links must fit naturally in sentence structure"
+  - "Don't interrupt critical conversion content with links"
+  - "Don't add links to navigation elements (header/footer/sidebar nav)"
+  - "Avoid link density >5% (5 links per 100 words)"
+  - "Test on mobile: ensure links are tappable (48px min touch target)"
+```
+
+#### 3. Technology-Specific Implementation
+
+##### Static HTML Sites
+```html
+<!-- Before -->
+<p>Metal roofing is durable and long-lasting.</p>
+
+<!-- After -->
+<p><a href="/metal-roofing-installation">Metal roofing</a> is durable and long-lasting, making it ideal for <a href="/oregon-weather-roofing">Oregon's climate</a>.</p>
+```
+
+##### React/Component-Based
+```jsx
+// Create reusable InternalLink component
+<InternalLink href="/metal-roofing-installation">
+  Metal roofing
+</InternalLink>
+
+// Automatically adds:
+// - rel="noopener" for security
+// - Analytics tracking
+// - Prefetching for performance
+```
+
+##### WordPress/CMS
+```yaml
+options:
+  - "Use Advanced Custom Fields to add 'related_pages' meta field"
+  - "Install Yoast SEO Premium for automatic internal linking suggestions"
+  - "Create custom shortcode: [internal-link url='/page']text[/internal-link]"
+  - "Use Link Whisper plugin for automated linking suggestions"
+```
+
+##### Content-Heavy Sites (Blogs)
+```yaml
+scalable_approach:
+  - "Create 'related posts' taxonomy/tag system"
+  - "Auto-generate contextual links based on shared tags"
+  - "Use NLP to identify topic similarity (TF-IDF, embeddings)"
+  - "Build link recommendation engine: 'Pages about X should link to Y'"
+```
+
+### Implementation Roadmap Template
+
+```yaml
+phase_1_quick_wins:
+  timeline: "Week 1"
+  focus: "Fix orphaned pages and add critical links"
+  tasks:
+    - task: "Add links from homepage to 5 orphaned product pages"
+      files: ["index.html", "pages/products.html"]
+      estimated_time: "2 hours"
+    - task: "Link high-traffic blog post to money page"
+      files: ["blog/roofing-tips.html"]
+      estimated_time: "30 minutes"
+
+phase_2_topical_clusters:
+  timeline: "Week 2-3"
+  focus: "Connect related content within topical clusters"
+  tasks:
+    - task: "Interlink all 'roofing services' cluster pages"
+      files: ["services/*.html"]
+      estimated_time: "4 hours"
+
+phase_3_anchor_optimization:
+  timeline: "Week 4"
+  focus: "Update generic anchors to descriptive variants"
+  tasks:
+    - task: "Replace 'click here' with descriptive anchors"
+      files: ["all pages with generic anchors (audit list)"]
+      estimated_time: "6 hours"
+```
+
+## Page 6: Completion Status
+
+### Status Lines
+```yaml
+scanning: "Status: Analyzing Link Architecture"
+established: "Status: Link Distribution Strategy Complete."
+success: "Success: Your internal link network is now optimized. Strategic pathways established."
+```
+
+## Button State Logic
+
+### Execution Assist Button
+- **Initial State**: Visible on all step pages (2-5)
+- **Purpose**: Generate Cursor prompt for link implementation
+- **No E.V.O. Analysis**: This is a manual analysis protocol
+
+### Next Step Button
+- **Initial State**: Disabled
+- **Enable Trigger**: User copies prompt from Execution Assist
+- **Action**: Advance to next step
+
+### Complete Button (Page 5 only)
+- **Initial State**: Disabled
+- **Enable Trigger**: User copies Step 4 prompt
+- **Action**: Navigate to Page 6, save completion, unlock next circle
+
+## Prompt Generation Logic
+
+### Entry Point
+```javascript
+// executionAssist.js - generatePrompt()
+const isLinkProtocol = protocolKey === 'internal_link_expansion_protocol';
+
+if (isLinkProtocol) {
+  return this.generateLinkExpansionPrompt(context, fileName);
+}
+```
+
+### Link Expansion Prompt Template
+Focus on:
+- Crawling site structure
+- Building link graph
+- Identifying opportunities
+- Providing exact file locations
+- Suggesting anchor text
+- Non-disruptive implementation
+
+## Database Schema
+
+### sprint_action_cards Entry
+```sql
+INSERT INTO sprint_action_cards (card_type, display_name, total_steps, description)
+VALUES (
+  'internal_link_expansion_protocol',
+  'Link Architecture Protocol',
+  4,
+  'Optimize internal linking: audit structure, identify opportunities, optimize anchors, implement strategically'
+);
+```
+
+## Future E.V.O. Auto-Generation
+
+### Trigger Detection
+```yaml
+conditions:
+  - orphaned_pages > 30
+  - avg_internal_links < 5
+  - high_value_pages_underlinked > 10
+  - topical_cluster_fragmentation > 50%
+trigger: "generate_link_architecture_protocol_card"
+priority: "medium"
+```
+
+### Dynamic Insight Generation
+```javascript
+if (orphanedPages > 50) {
+  insight = `Your site has ${orphanedPages} orphaned pages—content that Google and users can barely find. These isolated pages are bleeding potential traffic. Let's build strategic pathways...`;
+}
+
+if (moneyPagesUnderlinked > 5) {
+  insight = `Your ${moneyPagesUnderlinked} highest-value pages have almost no internal links pointing to them. You're hiding your best content. Let's fix the link distribution...`;
+}
+```
+
+### Pre-Analysis Phase
+```javascript
+// Before showing card, run site crawl
+const crawlResults = await crawlSite(siteUrl);
+const linkGraph = buildLinkGraph(crawlResults);
+
+// Identify specific opportunities
+const opportunities = identifyLinkOpportunities(linkGraph, {
+  targetPages: moneyPages,
+  sourcePages: highAuthorityPages,
+  minRelevanceScore: 0.7
+});
+
+// Pre-populate prompt with specific page pairs
+```
+
+### Custom Deliverables
+```javascript
+// Generate link-specific files
+deliverables = [
+  "link-inventory-audit.md",      // Step 1
+  "strategic-link-opportunities.md", // Step 2 (with specific page pairs)
+  "anchor-text-optimization-plan.md", // Step 3 (with anchor variations)
+  "link-implementation-path.md"   // Step 4 (with file paths and code snippets)
+];
+```
+
+## Success Metrics
+
+### Pre-Implementation Baseline
+- Orphaned pages: X
+- Avg internal links per page: X
+- Link depth (max): X
+- Top-linked page concentration: X%
+
+### Post-Implementation Goals
+- Orphaned pages: 0
+- Avg internal links per page: 8-12
+- Link depth (max): ≤4 clicks from homepage
+- Link equity distribution: More balanced (reduce concentration)
+
+### Long-Term Impact
+- Increased organic traffic to previously orphaned pages
+- Improved rankings for topical cluster pages
+- Higher page authority scores (PA/UR)
+- Better user engagement (time on site, pages per session)

@@ -1,0 +1,1288 @@
+# Execution Assist - Prompt Generation Templates Reference
+
+## Overview
+
+The Execution Assist system generates technology-agnostic Cursor prompts for Sprint Plan Action Card steps. Each protocol type has specialized prompt templates that adapt to the step's requirements, site context, and available E.V.O. data.
+
+## Purpose
+
+Execution Assist prompts:
+- Guide Cursor AI to implement specific SEO optimization tasks
+- Adapt to any technology stack (React, WordPress, static HTML, etc.)
+- Include actual site data when available from E.V.O. analysis
+- Provide actionable, step-by-step implementation guidance
+- Output deliverable markdown files for tracking and execution
+
+## File Location
+
+**Primary Module**: `assets/js/executionAssist.js`
+
+## Prompt Generation Flow
+
+```javascript
+// Entry point for all prompt generation
+generatePrompt(context) {
+    const { executionInstructions, protocolKey, stepNumber } = context;
+    
+    // Determine protocol type based on execution instructions
+    const isSchemaProtocol = executionInstructions.schemaType !== undefined;
+    const isAnalysisProtocol = executionInstructions.dataSource !== undefined;
+    const isLinkProtocol = protocolKey === 'internal_link_expansion_protocol';
+    const isContentPlanningProtocol = protocolKey === 'keyword_coverage_gap_protocol' && stepNumber === 4;
+    
+    // Route to appropriate prompt generator
+    if (isSchemaProtocol) {
+        return this.generateSchemaPrompt(context, fileName);
+    } else if (isAnalysisProtocol) {
+        return this.generateAnalysisPrompt(context, fileName);
+    } else if (isLinkProtocol) {
+        return this.generateLinkExpansionPrompt(context, fileName);
+    } else if (isContentPlanningProtocol) {
+        return this.generateContentPlanningPrompt(context, fileName);
+    } else {
+        return this.generateGenericPrompt(context, fileName);
+    }
+}
+```
+
+## Context Extraction
+
+### Context Object Structure
+
+```javascript
+context = {
+    mission: "Meta Surgeon Protocol",
+    stepNumber: 1,
+    stepName: "Global Identity",
+    stepHeader: "Step 1: Global Identity",
+    stepBody: "First, we hard-code your brand's DNA...",
+    protocolKey: "meta_surgeon_protocol",
+    executionInstructions: {
+        concept: "global brand identity elements",
+        action: "Add organization schema markup with logo, contact information, and social media profiles",
+        schemaType: "Organization schema (schema.org/Organization)",
+        implementation: "Inject structured data into all pages to establish brand identity in search engines",
+        deliverable: "global-identity-plan.md"
+    },
+    diagnosedCause: null // Optional: E.V.O. diagnosed issue data
+}
+```
+
+### extractPageContext() Method
+
+**Purpose**: Extract all necessary information from the current sprint card page
+
+**Location**: `executionAssist.js`
+
+```javascript
+extractPageContext(pageElement) {
+    // Get mission title from shared header
+    const missionTitle = document.querySelector('.mission-title')?.textContent.trim();
+    
+    // Get step header (e.g., "Step 1: Global Identity")
+    const stepHeader = pageElement.querySelector('.step-header')?.textContent.trim();
+    
+    // Get step body description
+    const stepBody = pageElement.querySelector('.step-body')?.textContent.trim();
+    
+    // Extract step number from header
+    const stepMatch = stepHeader.match(/Step (\d+)/);
+    const stepNumber = stepMatch ? parseInt(stepMatch[1]) : null;
+    
+    // Extract step name (text after "Step N: ")
+    const stepName = stepHeader.replace(/Step \d+:\s*/, '').trim();
+    
+    // Get active protocol
+    const protocolKey = this.getActiveProtocol();
+    
+    // Load execution instructions from protocol definitions
+    let executionInstructions = null;
+    if (protocolKey && stepNumber) {
+        const protocol = protocolDefinitions[protocolKey];
+        if (protocol?.steps[stepNumber - 1]) {
+            executionInstructions = protocol.steps[stepNumber - 1].executionInstructions;
+        }
+    }
+    
+    return {
+        mission: missionTitle,
+        stepNumber,
+        stepName,
+        stepHeader,
+        stepBody,
+        protocolKey,
+        executionInstructions
+    };
+}
+```
+
+---
+
+## Template 1: Schema Implementation Prompts
+
+### Used For
+- Meta Surgeon Protocol (all 4 steps)
+- Any protocol with `schemaType` in execution instructions
+
+### Method
+`generateSchemaPrompt(context, fileName)`
+
+### Template Structure
+
+```
+You are implementing ${stepName} as part of ${mission}.
+
+OBJECTIVE: ${executionInstructions.action}
+
+IMPLEMENTATION FOCUS:
+${executionInstructions.implementation}
+
+SCHEMA TYPE: ${executionInstructions.schemaType}
+
+INSTRUCTIONS:
+1. Analyze the current website structure in this workspace
+   - Detect the technology stack (HTML, React, Vue, Next.js, static site, etc.)
+   - Identify all pages/components where ${executionInstructions.concept} should be implemented
+   - Determine the best location for schema markup injection
+
+2. Create a comprehensive implementation plan that includes:
+   - Current state analysis: What structure currently exists?
+   - Files that need modification: List specific files and their paths
+   - Code additions required: Outline the schema markup structure
+   - Implementation approach: How to integrate with existing code
+   - Dependencies and order: What needs to be done first?
+   - Testing strategy: How to verify the implementation works
+
+3. Adapt to the detected technology:
+   - For static HTML: Add JSON-LD script tags to <head> or before </body>
+   - For React/Vue/Next: Create reusable schema components or use head management
+   - For template engines: Inject schema through layout templates
+   - For CMSs: Provide plugin recommendations or custom code injection
+
+CONTEXT & REQUIREMENTS:
+- Work with ANY file structure and technology stack
+- Use schema.org vocabulary for maximum compatibility
+- Ensure JSON-LD format for easy implementation
+- Make schema dynamic (pull from site data, not hardcoded)
+- Follow Google's Structured Data guidelines
+- Ensure mobile responsiveness and accessibility
+- Validate schema markup can be tested with Google's Rich Results Test
+
+DELIVERABLE:
+Create a detailed implementation plan saved as: ${fileName}
+
+The plan should be actionable, technology-agnostic, and ready for immediate implementation regardless of the website's industry (e-commerce, local service, SaaS, restaurant, etc.).
+```
+
+### Variables
+- `${mission}`: Protocol mission title
+- `${stepName}`: Current step name
+- `${executionInstructions.action}`: Specific action description
+- `${executionInstructions.implementation}`: Implementation focus
+- `${executionInstructions.schemaType}`: Schema.org type
+- `${executionInstructions.concept}`: High-level concept
+- `${fileName}`: Output deliverable filename
+
+### Example Output
+
+```
+You are implementing Global Identity as part of Meta Surgeon Protocol.
+
+OBJECTIVE: Add organization schema markup with logo, contact information, and social media profiles
+
+IMPLEMENTATION FOCUS:
+Inject structured data into all pages to establish brand identity in search engines
+
+SCHEMA TYPE: Organization schema (schema.org/Organization)
+
+INSTRUCTIONS:
+[...full template...]
+
+DELIVERABLE:
+Create a detailed implementation plan saved as: global-identity-plan.md
+```
+
+---
+
+## Template 2: Analysis & Optimization Prompts
+
+### Used For
+- Index Diagnostic Protocol (Steps 1-4)
+- Content Opportunity Protocol (Steps 1-2, with variations)
+- Any protocol with `dataSource` in execution instructions
+
+### Method
+`generateAnalysisPrompt(context, fileName)`
+
+### Base Template Structure
+
+```
+You are implementing ${stepName} as part of ${mission}.
+
+OBJECTIVE: ${executionInstructions.action}
+
+IMPLEMENTATION FOCUS:
+${executionInstructions.implementation}
+
+DATA SOURCE: ${executionInstructions.dataSource}
+
+[ACTUAL METRICS SECTION - if E.V.O. data available]
+
+INSTRUCTIONS:
+1. Understand the data collection process
+   - Identify how to access or export the required data
+   - Determine what tools or APIs are needed
+   - Plan the data extraction workflow
+
+2. Create a comprehensive analysis plan that includes:
+   - Data collection method: How to obtain the necessary data
+   - Analysis framework: What metrics and patterns to look for
+   - Issue identification: What problems indicate optimization opportunities
+   - Prioritization criteria: Which issues to address first
+   - Action items: Specific fixes and optimizations needed
+
+3. Adapt to the available tools and access:
+   - If API access is available: Provide code for automated data extraction
+   - If manual export is needed: Guide the export and import process
+   - If tools are required: Recommend specific tools (Screaming Frog, etc.)
+   - If scripts are helpful: Create data processing and analysis scripts
+
+4. Generate actionable insights:
+   - Identify specific pages/URLs with issues
+   - Quantify the impact of each issue type
+   - Provide clear, prioritized recommendations
+   - Include before/after success metrics
+
+CONTEXT & REQUIREMENTS:
+- Work with real site data from Google Search Console or site crawls
+- Focus on ${executionInstructions.concept}
+- Provide concrete, measurable recommendations
+- Include data visualization or summary tables where helpful
+- Ensure recommendations are technically feasible
+- Prioritize high-impact, low-effort wins
+- Consider crawl budget, user experience, and SEO impact
+
+DELIVERABLE:
+Create a detailed analysis and optimization plan saved as: ${fileName}
+
+The plan should include:
+- Executive summary of findings
+- Detailed issue breakdown with examples
+- Prioritized action items with implementation steps
+- Expected impact and success metrics
+- Testing and validation approach
+
+Make the analysis actionable and ready for immediate implementation.
+```
+
+### Enhanced with E.V.O. Data
+
+When E.V.O. analysis data is available, the prompt includes actual metrics:
+
+```javascript
+// Build actual metrics section
+function buildActualMetricsSection(evoData, executionInstructions) {
+    const { dimensionData } = evoData;
+    const health = dimensionData.health || {};
+    const metrics = health.metrics || {};
+    
+    let section = '\nCURRENT SITE HEALTH:\n';
+    section += `Score: ${health.score}/100 (Threshold: ${executionInstructions.healthThreshold})\n`;
+    section += `Status: ${health.status}\n\n`;
+    
+    section += 'KEY METRICS:\n';
+    Object.entries(metrics).forEach(([key, value]) => {
+        const label = formatMetricLabel(key);
+        section += `- ${label}: ${formatMetricValue(value)}\n`;
+    });
+    
+    return section;
+}
+```
+
+### Data-Driven Prompt (With Diagnosed Causes)
+
+When E.V.O. provides diagnosed causes with specific URLs:
+
+```
+You are implementing ${stepName} as part of ${mission}.
+
+OBJECTIVE: ${executionInstructions.action}
+
+CURRENT SITE HEALTH:
+Score: ${healthScore}/100 (Below threshold of ${healthThreshold})
+Status: ${healthStatus}
+
+KEY METRICS:
+- Root Density: 450 indexed pages
+- Exclusion Rate: 15% (67 pages excluded)
+- Error Pages: 23 pages with errors
+
+DIAGNOSED ISSUES:
+
+1. ${diagnosedCause.reason} (${diagnosedCause.count} pages) [${diagnosedCause.severity.toUpperCase()} SEVERITY]
+   Problem: ${diagnosedCause.reason}
+   Fix: ${diagnosedCause.fix}
+   
+   Affected URLs:
+   ${diagnosedCause.urls.map(url => `- ${url}`).join('\n')}
+   
+   INDEXATION STRATEGY:
+   ${diagnosedCause.strategies.map(strategy => `
+   ${strategy.category}:
+   ${strategy.items.map(item => `- ${item}`).join('\n')}
+   `).join('\n')}
+
+[Additional diagnosed issues...]
+
+DELIVERABLE: Create ${fileName} with:
+- Executive summary of findings
+- Detailed breakdown of each issue with specific URLs
+- Prioritized action plan with file-specific changes
+- Expected impact (number of pages that will be fixed)
+- Testing and validation steps
+```
+
+---
+
+## Template 3: Content Inventory Prompt
+
+### Used For
+- Content Opportunity Protocol - Step 1
+
+### Method
+`generateContentInventoryPrompt(context, fileName)`
+
+### Template Structure
+
+```
+You are implementing ${stepName} as part of ${mission}.
+
+OBJECTIVE: ${executionInstructions.action}
+
+IMPLEMENTATION FOCUS:
+${executionInstructions.implementation}
+
+DATA SOURCE: ${executionInstructions.dataSource}
+
+[E.V.O. METRICS - if available]
+
+INSTRUCTIONS:
+1. Conduct a comprehensive content inventory
+   - Crawl all pages on the site or identify pages from sitemap
+   - Extract target keywords from title tags, meta descriptions, and H1 tags
+   - Map each page to its primary content focus and intent
+
+2. Pull GSC data to map actual keyword performance
+   - Connect to Google Search Console API or guide manual export
+   - For each page URL, extract all queries it ranks for (with impressions, clicks, position)
+   - Create a mapping: Page URL → Keywords → Current Positions → Traffic Data
+
+3. Analyze content coverage and performance:
+   - Identify pages with strong keyword rankings (positions 1-10)
+   - Find pages with moderate rankings (positions 11-20) that need optimization
+   - Detect pages with weak rankings (positions 21+) or no significant traffic
+   - Calculate average position per page and content quality indicators
+
+4. Identify content inventory insights:
+   - Which pages are capturing the most organic traffic?
+   - Which pages have high impressions but low clicks (poor CTR)?
+   - Which pages rank for many keywords vs single-focus pages?
+   - What content gaps exist (keywords with impressions but no dedicated page)?
+
+CONTENT INVENTORY DELIVERABLES:
+Your analysis should produce:
+- Complete page inventory with URLs and primary topics
+- Keyword mapping for each page (what it ranks for today)
+- Performance tiers: High performers, moderate performers, underperformers
+- Content quality assessment based on ranking patterns
+- Baseline metrics for comparison in future steps
+
+CONTEXT & REQUIREMENTS:
+- Work with Google Search Console API data (3-month window)
+- Focus on ${executionInstructions.concept}
+- Provide data in structured format (tables, CSV, or JSON)
+- Include visualization recommendations (charts showing content distribution)
+- Identify quick wins (pages close to page 1 that need small optimizations)
+
+DELIVERABLE:
+Create a detailed content inventory saved as: ${fileName}
+
+The inventory should be a foundation for gap analysis in Step 3.
+```
+
+---
+
+## Template 4: Keyword Discovery Prompt
+
+### Used For
+- Content Opportunity Protocol - Step 2
+
+### Method
+`generateKeywordDiscoveryPrompt(context, fileName)`
+
+### Template Structure
+
+```
+You are implementing ${stepName} as part of ${mission}.
+
+OBJECTIVE: ${executionInstructions.action}
+
+IMPLEMENTATION FOCUS:
+${executionInstructions.implementation}
+
+DATA SOURCE: ${executionInstructions.dataSource}
+
+[E.V.O. KEYWORD OPPORTUNITY METRICS]
+
+INSTRUCTIONS:
+1. Extract comprehensive keyword data from GSC
+   - Pull all queries from GSC Search Analytics (last 3 months)
+   - Include queries with impressions > 10 (avoid noise)
+   - Export full dataset with: query, impressions, clicks, CTR, position
+
+2. Categorize keyword opportunities:
+   
+   A. LOW CTR OPPORTUNITIES
+   - Filter: impressions > 100 AND ctr < (expected_ctr_by_position * 0.5)
+   - Action: Optimize title tags and meta descriptions
+   - Priority: HIGH (quick wins)
+   
+   B. PAGE 2 QUICK WINS
+   - Filter: position BETWEEN 11 AND 20 AND impressions > 50
+   - Action: Add content depth, improve internal links, on-page SEO
+   - Priority: HIGH (small push to page 1)
+   
+   C. HIGH VOLUME UNDERPERFORMERS
+   - Filter: impressions > 1000 AND position > 20
+   - Action: Create dedicated landing page or major content overhaul
+   - Priority: MEDIUM (significant opportunity)
+   
+   D. ZERO CLICK QUERIES
+   - Filter: impressions > 20 AND clicks = 0
+   - Action: Investigate intent mismatch, consider content creation
+   - Priority: LOW (may indicate poor relevance)
+
+3. Calculate opportunity scores:
+   - Formula: potential_monthly_clicks = impressions * (expected_ctr - current_ctr)
+   - Expected CTR by position:
+     * Position 1: 31%
+     * Position 2: 24%
+     * Position 3: 18%
+     * Position 4-5: 13%
+     * Position 6-10: 8%
+     * Position 11-20: 3%
+   - Prioritize opportunities by potential_monthly_clicks
+
+4. Group by search intent:
+   - Informational (how-to, what is, guide)
+   - Commercial (best, review, comparison)
+   - Transactional (buy, price, near me)
+   - Navigational (brand + product)
+
+KEYWORD DISCOVERY DELIVERABLES:
+Your analysis should produce:
+- Complete keyword opportunity list (all queries with potential)
+- Categorized opportunities (low CTR, page 2, high volume, zero click)
+- Opportunity scores (potential monthly clicks for each)
+- Search intent classification for each keyword cluster
+- Top 50 highest-potential keywords with current performance metrics
+
+DELIVERABLE:
+Create a detailed keyword opportunity report saved as: ${fileName}
+
+This report will feed into the coverage gap analysis in Step 3.
+```
+
+### Keyword Optimization Modal Variant
+
+**Special Case**: When user clicks "Execution Assist" from Analysis modal for Step 2
+
+**Method**: `openModalWithKeywordData(cachedData)` + `generateKeywordOptimizationPrompt(opportunities)`
+
+```
+You are optimizing title tags and meta descriptions to improve CTR for keyword opportunities identified in Google Search Console.
+
+OBJECTIVE: Optimize titles and meta descriptions for ${opportunities.length} pages to increase click-through rates and capture more organic traffic.
+
+KEYWORD-TO-PAGE MAPPING:
+${opportunities.map((kw, index) => `
+${index + 1}. Keyword: "${kw.query}"
+   Page URL: ${kw.page}
+   Current Position: ${kw.position}
+   Current CTR: ${kw.ctr}% (Expected: ${kw.expectedCTR}%)
+   Impressions: ${kw.impressions}
+   Potential Gain: +${kw.potentialGain} clicks/month
+   Category: ${kw.category.replace('_', ' ')}
+`).join('\n')}
+
+INSTRUCTIONS:
+1. For each page URL listed above:
+   - Locate the HTML file or template that generates that page
+   - Identify the current <title> tag and <meta name="description"> content
+   - Read the page content to understand the topic and value proposition
+
+2. Optimize the title tag:
+   - Include the target keyword naturally (preferably near the beginning)
+   - Keep it under 60 characters to avoid truncation in search results
+   - Make it compelling and click-worthy (use power words, numbers, or questions)
+   - Ensure it accurately represents the page content
+   - Stand out from competitors ranking for the same keyword
+
+3. Optimize the meta description:
+   - Include the target keyword and related terms
+   - Keep it under 155 characters to avoid truncation
+   - Write compelling copy that encourages clicks (include benefits, CTAs)
+   - Match the search intent behind the keyword
+   - Use active voice and direct language
+
+4. Best practices:
+   - Research competitor titles/descriptions for the same keywords
+   - Use emotional triggers (save money, solve problems, get results)
+   - Include unique selling propositions (local, fast, guaranteed, etc.)
+   - Add current year if relevant for freshness signals
+   - Use schema markup if applicable (FAQ, HowTo, etc.)
+
+5. Create a markdown file with:
+   - Original vs. optimized title/description for each page
+   - Reasoning for each optimization decision
+   - Expected CTR improvement based on changes
+   - Implementation instructions (which files to edit)
+
+DELIVERABLE: Create title-optimization-plan.md with all optimized titles and meta descriptions ready for implementation.
+
+Focus on the highest-potential opportunities first (those with the most impressions and largest CTR gaps).
+```
+
+---
+
+## Template 5: Coverage Gap Analysis Prompt
+
+### Used For
+- Content Opportunity Protocol - Step 3
+
+### Method
+Part of `generateAnalysisPrompt()` with content-specific routing
+
+### Template Structure
+
+```
+You are implementing ${stepName} as part of ${mission}.
+
+OBJECTIVE: ${executionInstructions.action}
+
+IMPLEMENTATION FOCUS:
+${executionInstructions.implementation}
+
+DATA SOURCE: ${executionInstructions.dataSource}
+
+[E.V.O. GAP METRICS]
+
+INSTRUCTIONS:
+1. Cross-reference content inventory with keyword opportunities
+   - Load content inventory from Step 1 (pages and their target keywords)
+   - Load keyword opportunities from Step 2 (high-potential queries)
+   - Identify mismatches and gaps
+
+2. Identify gap types:
+   
+   A. POSITION GAPS
+   - Definition: Page ranks 11-20, needs optimization to reach page 1
+   - Detection: existing_page_position BETWEEN 11 AND 20
+   - Solution: Optimize existing page (content, links, on-page SEO)
+   - Icon: 📍
+   
+   B. CONTENT GAPS
+   - Definition: Query has impressions but no dedicated page
+   - Detection: query_has_impressions AND no_page_targets_keyword
+   - Solution: Create new page targeting this query cluster
+   - Icon: 📄
+   
+   C. CTR GAPS
+   - Definition: Page ranks well but CTR is below expected for position
+   - Detection: position <= 10 AND ctr < (expected_ctr * 0.7)
+   - Solution: Optimize title tag and meta description
+   - Icon: 👁️
+   
+   D. CANNIBALIZATION
+   - Definition: Multiple pages competing for same query
+   - Detection: multiple_pages_rank_for_query AND all_positions > 10
+   - Solution: Consolidate content or clarify differentiation
+   - Icon: ⚔️
+
+3. Calculate opportunity scores:
+   - Formula: opportunityScore = impressions * (expectedCTR - currentCTR) * 30
+   - Result: Estimated additional clicks per month
+   - Priority levels:
+     * HIGH: opportunityScore > 100 (100+ potential clicks/month)
+     * MEDIUM: opportunityScore > 30 (30-100 potential clicks/month)
+     * LOW: opportunityScore > 10 (10-30 potential clicks/month)
+
+4. Create prioritized gap list:
+   - Sort gaps by traffic potential (opportunity score)
+   - Group by gap type for easier analysis
+   - Include: query, gap type, current position, impressions, CTR, potential gain, ranking URL
+
+COVERAGE GAP DELIVERABLES:
+Your analysis should produce:
+- Complete list of identified gaps (position, content, CTR, cannibalization)
+- Opportunity scores for each gap
+- Total potential monthly clicks across all gaps
+- Breakdown by gap type (counts and potential)
+- Top 30 highest-priority gaps with specific actions
+
+DELIVERABLE:
+Create a comprehensive gap analysis saved as: ${fileName}
+
+This analysis will guide the content planning strategy in Step 4.
+```
+
+---
+
+## Template 6: Content Planning Prompt
+
+### Used For
+- Content Opportunity Protocol - Step 4
+
+### Method
+`generateContentPlanningPrompt(context, fileName)`
+
+### Template Structure
+
+```
+You are implementing ${stepName} as part of ${mission}.
+
+OBJECTIVE: ${executionInstructions.action}
+
+IMPLEMENTATION FOCUS:
+${executionInstructions.implementation}
+
+[OPPORTUNITY SUMMARY FROM STEPS 1-3]
+- Total gaps identified: ${totalGaps}
+- Total potential monthly clicks: ${totalOpportunityClicks}
+- Position gaps: ${positionGaps}
+- Content gaps: ${contentGaps}
+- CTR gaps: ${ctrGaps}
+
+INSTRUCTIONS:
+1. Cluster related keywords by topic and intent
+   - Group keywords that share search intent and topic
+   - Identify primary keyword for each cluster
+   - List related queries within each cluster
+   - Calculate total impressions and opportunity per cluster
+
+2. Design content briefs for each cluster:
+   
+   CONTENT BRIEF TEMPLATE:
+   ```
+   Target URL: /recommended-url-structure
+   Primary Keyword: "main target keyword"
+   Search Intent: commercial/informational/transactional
+   Target Audience: description of who searches this
+   
+   Related Keywords (to include in content):
+   - "related keyword 1"
+   - "related keyword 2"
+   - "related keyword 3"
+   
+   Content Structure:
+   - Section 1: Title (150-200 words)
+     Keywords: ["keyword", "keyword"]
+   - Section 2: Title (300-500 words)
+     Keywords: ["keyword", "keyword"]
+   - Section 3: Title (200-300 words)
+     Keywords: ["keyword", "keyword"]
+   
+   Internal Links:
+   - Link to: /parent-page (context)
+   - Link to: /related-page (supporting content)
+   - Link to: /conversion-page (CTA)
+   
+   Schema Markup:
+   - Service schema with price range
+   - HowTo schema for process
+   - FAQPage schema for common questions
+   
+   Opportunity Metrics:
+   - Total impressions: X
+   - Potential monthly clicks: X
+   - Priority: high/medium/low
+   ```
+
+3. Prioritize implementation:
+   
+   PRIORITY MATRIX:
+   - Quick Wins: Optimize existing pages (low effort, medium-high impact)
+   - High Impact New Pages: Create pages for content gaps (medium effort, high impact)
+   - Long-Term Investments: Major content initiatives (high effort, high impact)
+   
+   For each opportunity, specify:
+   - Action type: optimize existing OR create new page
+   - Effort level: low/medium/high
+   - Potential monthly clicks
+   - Timeframe: Week 1, Week 2-3, Month 2+
+
+4. Plan URL structure and internal linking:
+   - Recommend URL hierarchy for new pages
+   - Identify existing pages that should link to new content
+   - Plan internal link anchor text
+   - Ensure logical site architecture
+
+CONTENT PLANNING DELIVERABLES:
+Your plan should include:
+- Keyword clusters with primary keywords and related queries
+- Detailed content briefs for each cluster (structure, sections, word counts)
+- Priority matrix: Quick wins, high impact new pages, long-term initiatives
+- URL structure recommendations
+- Internal linking strategy
+- Implementation timeline (Week 1, Week 2-3, Month 2+)
+- Expected total traffic gain across all implementations
+
+DELIVERABLE:
+Create a comprehensive content strategy saved as: ${fileName}
+
+This plan should be immediately actionable, with clear priorities and specific content structures.
+```
+
+---
+
+## Template 7: Link Expansion Prompt
+
+### Used For
+- Link Architecture Protocol (all 4 steps)
+
+### Method
+`generateLinkExpansionPrompt(context, fileName)`
+
+### Template Structure
+
+```
+You are implementing ${stepName} as part of ${mission}.
+
+OBJECTIVE: ${executionInstructions.action}
+
+IMPLEMENTATION FOCUS:
+${executionInstructions.implementation}
+
+INSTRUCTIONS:
+1. [Step-specific instructions based on stepNumber]
+
+[For Step 1: Link Inventory Audit]
+- Crawl the site to map all internal links
+- Calculate incoming/outgoing link counts per page
+- Identify orphaned pages (0 incoming links)
+- Measure link depth from homepage
+- Analyze link equity distribution
+
+[For Step 2: Strategic Link Opportunities]
+- Identify high-value pages needing authority boosts
+- Find contextually relevant source pages
+- Score opportunities by impact potential
+- Map topical clusters needing connections
+
+[For Step 3: Anchor Text Optimization]
+- Audit current anchor text patterns
+- Identify over-optimization (exact match > 40%)
+- Design diverse anchor text variations
+- Plan natural language anchors with keywords
+
+[For Step 4: Implementation Path]
+- Identify exact placement locations for new links
+- Specify which files need modification
+- Ensure links enhance (not disrupt) user journey
+- Plan scalable linking patterns
+
+2. Analyze the site structure:
+   - Detect technology stack (HTML, React, WordPress, etc.)
+   - Identify how pages are generated (static, dynamic, templates)
+   - Find where content can be modified safely
+
+3. Create actionable recommendations:
+   - List specific page pairs (source → target)
+   - Provide anchor text suggestions
+   - Specify exact placement locations (paragraph, section)
+   - Include file paths for implementation
+   - Estimate impact (authority flow, user experience)
+
+LINK EXPANSION PRINCIPLES:
+- Never add more than 3-5 new internal links per page
+- Links must fit naturally in sentence structure
+- Don't interrupt critical conversion content
+- Avoid link density >5% (5 links per 100 words)
+- Ensure mobile tappable (48px minimum touch target)
+- No footer spam - only contextual links
+
+TECHNOLOGY-SPECIFIC GUIDANCE:
+- Static HTML: Direct file modification with HTML <a> tags
+- React/Vue: Create InternalLink component with tracking
+- WordPress: Use Advanced Custom Fields or Link Whisper plugin
+- Content-heavy sites: Build link recommendation engine
+
+DELIVERABLE:
+Create a detailed implementation plan saved as: ${fileName}
+
+The plan should include:
+- Current state analysis (link graph, orphaned pages, equity distribution)
+- Specific link opportunities (source page → target page with anchors)
+- Implementation instructions (which files, where to add links)
+- Expected impact (SEO benefit, user experience improvement)
+- Testing approach (verify links work, monitor metrics)
+```
+
+---
+
+## Template 8: Generic Prompt (Fallback)
+
+### Used For
+- Any step without specific template routing
+- Future protocol types
+
+### Method
+`generateGenericPrompt(context, fileName)`
+
+### Template Structure
+
+```
+You are implementing ${stepName} as part of ${mission}.
+
+OBJECTIVE: ${executionInstructions.action}
+
+IMPLEMENTATION FOCUS:
+${executionInstructions.implementation}
+
+CONCEPT: ${executionInstructions.concept}
+
+INSTRUCTIONS:
+1. Analyze the current state of this workspace
+   - Understand the site structure and technology
+   - Identify what currently exists related to this task
+   - Determine what needs to be added or modified
+
+2. Create a comprehensive implementation plan:
+   - Break down the task into specific, actionable steps
+   - Identify all files that need to be created or modified
+   - Provide clear instructions for each step
+   - Include code examples or templates where helpful
+
+3. Ensure the plan is:
+   - Technology-agnostic (works with any stack)
+   - Industry-agnostic (works for any business type)
+   - Actionable (can be implemented immediately)
+   - Testable (includes validation steps)
+
+4. Focus on:
+   - ${executionInstructions.concept}
+   - Best practices for implementation
+   - Common pitfalls to avoid
+   - Testing and validation approach
+
+DELIVERABLE:
+Create a detailed implementation plan saved as: ${fileName}
+
+The plan should guide the implementation from start to finish, with clear steps and examples.
+```
+
+---
+
+## Prompt Enhancement with E.V.O. Data
+
+### When E.V.O. Data is Available
+
+The prompt generation system can enhance prompts with actual site metrics:
+
+```javascript
+// Check if E.V.O. data exists for this step
+const evoData = window.getEVODataForStep(stepNumber);
+
+if (evoData) {
+    // Add actual metrics section
+    const actualMetricsSection = buildActualMetricsSection(evoData, executionInstructions);
+    
+    // Check for diagnosed causes with URLs
+    if (evoData.dimensionData?.health?.insights) {
+        const insights = evoData.dimensionData.health.insights;
+        const diagnosedCauses = insights
+            .filter(i => i.diagnosedCauses)
+            .flatMap(i => i.diagnosedCauses);
+        
+        if (diagnosedCauses.length > 0) {
+            // Use data-driven prompt with specific URLs and fixes
+            return generateDataDrivenAnalysisPrompt(context, fileName, diagnosedCauses);
+        }
+    }
+}
+```
+
+### Building Metrics Section
+
+```javascript
+function buildActualMetricsSection(evoData, executionInstructions) {
+    const { dimensionData, healthScore, healthThreshold } = evoData;
+    const health = dimensionData.health || {};
+    const metrics = health.metrics || {};
+    
+    let section = '\n' + '='.repeat(60) + '\n';
+    section += 'CURRENT SITE HEALTH (FROM E.V.O. ANALYSIS)\n';
+    section += '='.repeat(60) + '\n\n';
+    
+    // Health score
+    section += `Health Score: ${healthScore}/100\n`;
+    section += `Threshold: ${healthThreshold}\n`;
+    section += `Status: ${healthScore >= healthThreshold ? 'HEALTHY ✓' : 'NEEDS ATTENTION ⚠'}\n\n`;
+    
+    // Metrics
+    section += 'KEY METRICS:\n';
+    Object.entries(metrics).forEach(([key, value]) => {
+        const label = formatMetricLabel(key);
+        const formattedValue = formatMetricValue(value);
+        section += `- ${label}: ${formattedValue}\n`;
+    });
+    
+    section += '\n' + '='.repeat(60) + '\n\n';
+    
+    return section;
+}
+```
+
+### Building Diagnosed Causes Section
+
+```javascript
+function buildDiagnosedCausesSection(diagnosedCauses) {
+    let section = '\n' + '='.repeat(60) + '\n';
+    section += 'DIAGNOSED ISSUES (FROM E.V.O. ANALYSIS)\n';
+    section += '='.repeat(60) + '\n\n';
+    
+    diagnosedCauses.forEach((cause, index) => {
+        section += `${index + 1}. ${cause.reason.toUpperCase()}\n`;
+        section += `   Severity: ${cause.severity}\n`;
+        section += `   Affected Pages: ${cause.count}\n`;
+        section += `   Fix: ${cause.fix}\n\n`;
+        
+        // URLs (show first 10, indicate if more)
+        if (cause.urls && cause.urls.length > 0) {
+            section += '   Affected URLs:\n';
+            const urlsToShow = cause.urls.slice(0, 10);
+            urlsToShow.forEach(url => {
+                section += `   - ${url}\n`;
+            });
+            if (cause.urls.length > 10) {
+                section += `   ... and ${cause.urls.length - 10} more\n`;
+            }
+            section += '\n';
+        }
+        
+        // Strategies
+        if (cause.strategies && cause.strategies.length > 0) {
+            section += '   RECOMMENDED STRATEGY:\n';
+            cause.strategies.forEach(strategy => {
+                section += `   \n   ${strategy.category}:\n`;
+                strategy.items.forEach(item => {
+                    section += `   - ${item}\n`;
+                });
+            });
+            section += '\n';
+        }
+        
+        section += '-'.repeat(60) + '\n\n';
+    });
+    
+    return section;
+}
+```
+
+---
+
+## Prompt Filename Generation
+
+### sanitizeFileName() Method
+
+```javascript
+sanitizeFileName(stepName) {
+    return stepName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')  // Replace non-alphanumeric with hyphens
+        .replace(/^-+|-+$/g, '');     // Remove leading/trailing hyphens
+}
+```
+
+### Deliverable Filename Logic
+
+```javascript
+// Priority order for filename:
+// 1. Use deliverable from executionInstructions (if present)
+// 2. Sanitize step name and add "-plan.md"
+
+const fileName = executionInstructions.deliverable || 
+                 this.sanitizeFileName(stepName) + '-plan.md';
+
+// Examples:
+// "Global Identity" → "global-identity-plan.md" (if no deliverable specified)
+// executionInstructions.deliverable = "indexation-audit-report.md" → use as-is
+```
+
+---
+
+## Modal Integration
+
+### Opening the Execution Assist Modal
+
+**File**: `executionAssist.js`
+
+```javascript
+openModal(currentPage, diagnosedCause = null) {
+    if (!this.modal) return;
+    
+    // Extract context from current page
+    const context = this.extractPageContext(currentPage);
+    
+    // Add diagnosed cause if provided (for data-driven prompts)
+    if (diagnosedCause) {
+        context.diagnosedCause = diagnosedCause;
+    }
+    
+    // Generate prompt
+    const prompt = this.generatePrompt(context);
+    
+    // Store for copy function
+    this.currentPrompt = prompt;
+    
+    // Populate modal
+    document.getElementById('assist-mission').textContent = context.mission;
+    document.getElementById('assist-step').textContent = `Step ${context.stepNumber}: ${context.stepName}`;
+    document.getElementById('assist-prompt').textContent = prompt;
+    
+    // Show modal
+    this.modal.classList.add('active');
+    this.modal.style.display = 'flex';
+    
+    console.log('✓ Execution Assist modal opened');
+}
+```
+
+### Copy Prompt Functionality
+
+```javascript
+async copyPrompt() {
+    if (!this.currentPrompt) return;
+    
+    try {
+        // Copy to clipboard
+        await navigator.clipboard.writeText(this.currentPrompt);
+        
+        // Visual feedback
+        const copyBtn = document.getElementById('prompt-copy-icon');
+        copyBtn.style.color = 'var(--color-primary-green)';
+        
+        // Find current page
+        const currentPage = document.querySelector('.sprint-card-page[style*="display: flex"]');
+        if (!currentPage) return;
+        
+        // Enable Next Step or Complete button
+        const pageNumber = parseInt(currentPage.getAttribute('data-page'));
+        const stepNumber = pageNumber - 1;
+        
+        const nextStepBtn = currentPage.querySelector(`.btn-next-step[data-step="${stepNumber}"]`);
+        const completeBtn = currentPage.querySelector('.btn-complete');
+        
+        if (nextStepBtn) {
+            nextStepBtn.disabled = false;
+            console.log(`✓ Next Step button enabled for step ${stepNumber}`);
+        } else if (completeBtn) {
+            completeBtn.disabled = false;
+            console.log('✓ Complete button enabled');
+        }
+        
+        // Update instruction label to show completion
+        const instructionLabel = currentPage.querySelector(`.instruction-label[data-step="${stepNumber}"]`);
+        if (instructionLabel) {
+            instructionLabel.classList.add('completed');
+            console.log(`✓ Instruction label marked as completed`);
+        }
+        
+        // Close modal
+        setTimeout(() => {
+            this.closeModal();
+            copyBtn.style.color = ''; // Reset color
+        }, 300);
+        
+        console.log('✓ Prompt copied to clipboard');
+        
+    } catch (error) {
+        console.error('❌ Failed to copy prompt:', error);
+        alert('Failed to copy prompt. Please try again.');
+    }
+}
+```
+
+---
+
+## Formatting Utilities
+
+### formatMetricLabel()
+
+```javascript
+function formatMetricLabel(key) {
+    // Custom labels for specific metrics
+    const customLabels = {
+        'underperformingPages': 'Low Perf. Pages',
+        'rootDensity': 'Indexed Pages',
+        'exclusionRate': 'Exclusion Rate',
+        'mycelialExpansion': 'Index Growth',
+        'soilQuality': 'Content Health',
+        'crawlRequests': 'Daily Crawl Requests',
+        'responseTime': 'Avg Response Time',
+        'serverErrors': 'Server Errors',
+        'sitemapIndexation': 'Sitemap Coverage',
+        'submittedVsIndexed': 'Submit/Index Ratio',
+        'errorPages': '404 Errors',
+        'redirectChains': 'Redirect Chains',
+        'totalQueries': 'Total Keywords',
+        'lowCTROpportunities': 'Low CTR Keywords',
+        'page2QuickWins': 'Page 2 Keywords',
+        'potentialTrafficGain': 'Potential Clicks/Mo',
+        'totalGaps': 'Total Opportunities',
+        'positionGaps': 'Position Improvements',
+        'contentGaps': 'Missing Pages',
+        'ctrGaps': 'CTR Improvements'
+    };
+    
+    if (customLabels[key]) {
+        return customLabels[key];
+    }
+    
+    // Convert camelCase to Title Case
+    const label = key
+        .replace(/([a-z\d])([A-Z])/g, '$1 $2')  // Insert space before capitals
+        .replace(/([A-Z]+)([A-Z][a-z]{2,})/g, '$1 $2')  // Split acronyms
+        .trim();
+    
+    return label.charAt(0).toUpperCase() + label.slice(1);
+}
+```
+
+### formatMetricValue()
+
+```javascript
+function formatMetricValue(value) {
+    if (typeof value === 'number') {
+        // Large numbers get comma formatting
+        if (value > 100) {
+            return value.toLocaleString();
+        }
+        // Percentages get % sign
+        if (value < 1 && value > 0) {
+            return (value * 100).toFixed(1) + '%';
+        }
+        return value;
+    }
+    return value;
+}
+```
+
+---
+
+## Testing Prompts
+
+### Manual Testing Checklist
+
+```yaml
+schema_prompts:
+  - [ ] Includes schema type and implementation focus
+  - [ ] Provides technology-agnostic guidance
+  - [ ] Lists specific files to modify
+  - [ ] Includes validation steps
+  - [ ] Specifies deliverable filename
+
+analysis_prompts:
+  - [ ] Includes data source information
+  - [ ] Provides data extraction guidance
+  - [ ] Lists analysis framework
+  - [ ] Identifies specific issues to look for
+  - [ ] Includes prioritization criteria
+
+evo_enhanced_prompts:
+  - [ ] Shows actual health score
+  - [ ] Lists real metrics from analysis
+  - [ ] Includes diagnosed causes
+  - [ ] Provides specific URLs with issues
+  - [ ] Offers actionable fix strategies
+
+link_prompts:
+  - [ ] Identifies link opportunities
+  - [ ] Suggests anchor text variations
+  - [ ] Specifies placement locations
+  - [ ] Includes implementation guidance
+  - [ ] Respects UX principles
+
+content_prompts:
+  - [ ] Clusters related keywords
+  - [ ] Provides content briefs
+  - [ ] Includes URL structure recommendations
+  - [ ] Prioritizes by impact
+  - [ ] Plans internal linking strategy
+```
+
+---
+
+## Extension Guide
+
+### Adding a New Prompt Type
+
+1. **Create New Method** in `executionAssist.js`:
+
+```javascript
+generateNewProtocolPrompt(context, fileName) {
+    const { mission, stepName, executionInstructions } = context;
+    
+    return `You are implementing ${stepName} as part of ${mission}.
+
+OBJECTIVE: ${executionInstructions.action}
+
+[Custom sections for this protocol type]
+
+DELIVERABLE: Create ${fileName}`;
+}
+```
+
+2. **Add Detection Logic** in `generatePrompt()`:
+
+```javascript
+const isNewProtocol = protocolKey === 'new_protocol_key' || 
+                      executionInstructions.customField !== undefined;
+
+if (isNewProtocol) {
+    return this.generateNewProtocolPrompt(context, fileName);
+}
+```
+
+3. **Update Protocol Definition** in `protocolDefinitions.js`:
+
+```javascript
+new_protocol_key: {
+    steps: [
+        {
+            executionInstructions: {
+                customField: "value",  // Detection trigger
+                // ... other fields
+            }
+        }
+    ]
+}
+```
+
+---
+
+## Summary
+
+The Execution Assist prompt system provides:
+
+✅ **8 specialized prompt templates** for different protocol types
+✅ **Dynamic context extraction** from current sprint card state
+✅ **E.V.O. data integration** for data-driven prompts
+✅ **Technology-agnostic guidance** that works with any stack
+✅ **Actionable deliverables** with specific filenames
+✅ **Copy detection** that enables button progression
+✅ **Formatting utilities** for consistent metric display
+✅ **Extensible architecture** for new protocol types
+
+**Key Principle**: Prompts adapt to available data (E.V.O. analysis, GSC metrics, diagnosed causes) to provide the most specific, actionable guidance possible while remaining technology-agnostic.
