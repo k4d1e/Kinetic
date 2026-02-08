@@ -1,0 +1,33 @@
+{
+  "description": "Topic cluster schema for Oregon Exterior Experts content strategy. Defines the 7 pillar topics that organize all blog content.",
+  "clusters": [
+    {
+      "cluster": 1,
+      "name": "Moss & Algae Prevention Lab"
+    },
+    {
+      "cluster": 2,
+      "name": "Gutter Drainage & Foundation Defense"
+    },
+    {
+      "cluster": 3,
+      "name": "PNW Siding Durability Guide"
+    },
+    {
+      "cluster": 4,
+      "name": "Localized Exterior Cost & ROI Reports"
+    },
+    {
+      "cluster": 5,
+      "name": "The \"Rain Ready\" Roofing Resource"
+    },
+    {
+      "cluster": 6,
+      "name": "Gutter Guard Skeptic's Corner"
+    },
+    {
+      "cluster": 7,
+      "name": "Home Exterior Health & Inspection"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+---
+alwaysApply: false
+---
+# KINETIC ENGINE CONFIGURATION: LOCAL-FIRST HUB & SPOKE GENERATOR
+# Target: Oregon Exterior Experts CMS (Supabase)
+# Inherits: blog-template.mdc (Founder voice, Topic Clusters, Oregon Reality filters, Linking Logic, Technical Constraints, Execution Order)
+
+## [PROCEDURAL TASK]
+Generate 7 Pillar Posts (Hubs) and their corresponding 21 Spoke Posts (Children) for the Topic Clusters defined in blog-template.mdc.
+Each Hub must act as the ultimate authority on the topic, while Spokes target specific local/transactional intent.
+
+## [MANIFEST EXTENSIONS]
+In addition to the universal Content Manifest fields defined in blog-template.mdc, this batch adds the following fields per post object:
+
+| JSON Key | Type | Description |
+|---|---|---|
+| `target_neighborhood` | string | Primary neighborhood for this post (e.g., `"Woodhaven"`, `"Felida"`, `"Hidden Springs"`) |
+| `target_landmark` | string | Primary landmark for this post (e.g., `"Mary S. Young Park"`, `"Stella Olsen Park"`) |
+
+## [BATCH 0: CONTENT MANIFEST — PHASE 1 OVERRIDE]
+The Phase 1 Content Manifest is pre-filled at `blog/data/manifest.json`. Skip manifest generation.
+
+Read the JSON file. The following fields are pre-filled and locked — do NOT modify them:
+`cluster`, `post_type`, `primary_keyword`, `h1_title`, `intent`, `parent_post`, `sibling_posts`
+
+Complete ONLY fields set to `null`:
+- `slug` — derive from `primary_keyword` + `target_city`
+- `one_sentence_summary` — write using the `primary_keyword` in the Founder voice, shaped by the `intent` classification
+- `target_neighborhood` — read `blog/data/neighborhood-matrix.json`, select a neighborhood from the array matching the post's `target_city`. Distribute neighborhoods across posts so no two posts in the same cluster share the same neighborhood.
+- `target_landmark` — read `blog/data/landmark-matrix.json`, select a landmark from the array matching the post's `target_city`. Choose a landmark geographically near the chosen `target_neighborhood`. Distribute landmarks across posts so no two posts in the same cluster share the same landmark.
+
+Do NOT modify any pre-filled fields. Write the completed manifest to `blog/data/completed/phase1.json` before proceeding to Batch 1.
+
+## [BATCH 1: PILLAR POSTS]
+Generate the 7 Parent Pillar Posts using the completed Content Manifest as a reference for all inline spoke links.
+Format:
+- H1: Use `h1_title` from the manifest
+- Intent: Split `intent` on ` / `. Read `blog/data/intent-matrix.json`. Apply `primary_intents[primary]` as the base, then merge any `*_override` fields from `modifiers[modifier]`. Use the resolved `tone`, `cta_placement`, `content_depth`, and `structure` to shape the post.
+- Body: Intro (Straight-talk) -> The Physics of the Problem -> The 2026 Code Solution -> The "Neighborhood" Spotlight. Spoke links are woven inline throughout — no dedicated link section. Use each Spoke's `one_sentence_summary` from the manifest as the teaser text.
+
+## [BATCH 2: SPOKE POSTS]
+Generate the 21 Spoke Posts using the completed Content Manifest as a reference for all parent and sibling links.
+Format:
+- H1: Use `h1_title` from the manifest
+- Intent: Split `intent` on ` / `. Read `blog/data/intent-matrix.json`. Apply `primary_intents[primary]` as the base, then merge any `*_override` fields from `modifiers[modifier]`. Use the resolved `tone`, `cta_placement`, `content_depth`, and `structure` to shape the post.
+- Body: Intro (Local problem framing) -> The Physics/Evidence -> The Code/Standard -> The Fix. Close with "The Bigger Picture" paragraph using `parent_post` and `sibling_posts` from the manifest.

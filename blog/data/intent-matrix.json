@@ -1,0 +1,87 @@
+{
+  "description": "Intent matrix for Oregon Exterior Experts content generation. Split each post's intent string on ' / ' to resolve: primary_intents[primary] + modifiers[modifier]. Modifier fields ending in '_override' replace the corresponding primary field.",
+  "primary_intents": {
+    "Informational": {
+      "tone": "Educational, physics-first. Lead with the problem, not the sell.",
+      "cta_placement": "End of post only. Soft CTA — 'Want us to inspect yours?' or 'See what we found on your neighbor's roof.'",
+      "content_depth": "Long-form. 1500-2500 words. Include technical evidence, code references, and building science.",
+      "structure": "Problem → Evidence → Solution narrative."
+    },
+    "Commercial": {
+      "tone": "Evaluative. Present options honestly, let data do the selling. No hype.",
+      "cta_placement": "Mid-article after comparison data + end of post. Direct CTA — 'Get a quote' or 'Schedule an assessment.'",
+      "content_depth": "Medium-form. 1200-1800 words. Side-by-side data, cost breakdowns, ROI framing.",
+      "structure": "Options → Data → Recommendation."
+    },
+    "Transactional": {
+      "tone": "Direct, price-forward. No preamble. Get to the numbers fast.",
+      "cta_placement": "Above the fold + end of post. Urgent CTA — 'Book now,' 'Call today,' 'Get your free estimate.'",
+      "content_depth": "Concise. 800-1200 words. Pricing tables, service area scope, seasonal availability.",
+      "structure": "Price table → Service scope → Booking."
+    }
+  },
+  "modifiers": {
+    "Commercial Hub": {
+      "tone_override": "Authoritative but evaluative. Position as the definitive resource for making a buying decision.",
+      "structure_override": "Comprehensive overview. Link to all child spokes inline using one_sentence_summary teasers."
+    },
+    "Structural Hub": {
+      "structure_override": "Authoritative overview of the structural system. Link to all child spokes inline using one_sentence_summary teasers."
+    },
+    "Financial Hub": {
+      "tone_override": "Numbers-driven authority. Lead with cost data, not opinions.",
+      "structure_override": "Cost/value overview. Link to all child spokes inline using one_sentence_summary teasers."
+    },
+    "Research Hub": {
+      "tone_override": "Skeptical but fair. Present the field test, not the sales pitch.",
+      "structure_override": "Research-first overview. Link to all child spokes inline using one_sentence_summary teasers."
+    },
+    "Safety Hub": {
+      "tone_override": "Safety-first framing. Lead with risk, not fear. Candid but never alarmist.",
+      "structure_override": "Checklist-driven overview. Link to all child spokes inline using one_sentence_summary teasers."
+    },
+    "Comparison": {
+      "structure_override": "Side-by-side analysis. Use tables or pros/cons format. Name specific products, materials, or methods."
+    },
+    "Local": {
+      "cta_override": "Include city name in CTA. Reference city-specific pricing and regulation from geo-reference-matrix.json.",
+      "structure_override": "City-specific pricing breakdown. Lead with the local cost range, then justify with code and material data."
+    },
+    "Fear-Based": {
+      "tone_override": "Candid but never alarmist. Use real insurance cancellation data, claim denial rates, and cost-of-inaction numbers as evidence."
+    },
+    "Problem-Aware": {
+      "structure_override": "Symptom-first narrative. Open with what the homeowner sees (stains, cracks, pooling water), then explain the physics behind the symptom."
+    },
+    "ROI": {
+      "tone_override": "Investment-framing. Speak to the homeowner as a capital allocator, not a shopper.",
+      "structure_override": "ROI calculation → Payback timeline → Comparison to alternatives."
+    },
+    "Investment": {
+      "tone_override": "Long-term value framing. Position exterior work as equity protection, not an expense.",
+      "structure_override": "Equity impact → Market data → Cost-of-inaction comparison."
+    },
+    "Urgent": {
+      "cta_override": "Emergency-weighted CTA. 'Call now,' 'Same-day response available,' include phone number.",
+      "structure_override": "Response time → Cost range → What to do right now (immediate triage steps)."
+    },
+    "Tactical": {
+      "structure_override": "Step-by-step actionable checklist. Numbered steps, clear pass/fail criteria."
+    },
+    "Safety": {
+      "tone_override": "Safety-first but grounded. Use failure data and material specs, not scare tactics."
+    },
+    "Low Friction": {
+      "tone_override": "Approachable, non-technical entry point. Assume the reader has zero expertise.",
+      "content_depth_override": "Short-form. 800-1200 words. Simple language, visual-first.",
+      "structure_override": "Quick-check format. Can the homeowner do this in 5 minutes from the ground?"
+    },
+    "Financial": {
+      "tone_override": "Numbers-driven. Lead with the price/ROI data, not the product pitch.",
+      "structure_override": "Price breakdown → ROI analysis → When it pays for itself."
+    },
+    "Decision-Making": {
+      "structure_override": "Decision tree format. When to DIY → When to call a pro → What to expect from a pro."
+    }
+  }
+}

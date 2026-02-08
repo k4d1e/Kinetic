@@ -1,0 +1,60 @@
+{
+  "description": "Geographic reference matrix for Oregon Exterior Experts content localization. Soil/geology, tree/biological load, and regulation data for each service city. Pull directly from this matrix — do not fabricate geological, biological, or regulatory details.",
+  "cities": {
+    "Portland": {
+      "soil_geology": "Portland Hills Silt over Missoula Flood deposits; Boring Lava basalt in east hills",
+      "tree_biological_load": "Heavy urban canopy — Douglas fir, big leaf maple, western red cedar. High moss/algae pressure year-round.",
+      "regulation": "2026 ORSC; Portland Title 24 stormwater overlay; Tree Code Title 11.50 (canopy preservation)"
+    },
+    "Beaverton": {
+      "soil_geology": "Tualatin Valley silty clay loam; poor subsurface drainage in low-lying areas",
+      "tree_biological_load": "Mixed deciduous/conifer; moderate canopy. Leaf litter clogs gutters Oct–Jan.",
+      "regulation": "2026 ORSC; Beaverton Development Code Ch. 60 (Clean Water Services stormwater standards)"
+    },
+    "Lake Oswego": {
+      "soil_geology": "Iron-rich basalt (historic Oswego Iron Furnace); dense clay over basalt bedrock",
+      "tree_biological_load": "Mature canopy — Douglas fir, western red cedar. Heavy shade drives aggressive moss colonization.",
+      "regulation": "2026 ORSC; Lake Oswego Municipal Code Ch. 55 (tree protection); Sensitive Lands overlay"
+    },
+    "Tigard": {
+      "soil_geology": "Tualatin Valley clay; Fanno Creek alluvial deposits with seasonal high water table",
+      "tree_biological_load": "Mixed forest along Fanno Creek corridor; moderate biological load. Seasonal alder leaf drop.",
+      "regulation": "2026 ORSC; Tigard Municipal Code Ch. 18.510 (Clean Water Services drainage); Fanno Creek setback rules"
+    },
+    "Hillsboro": {
+      "soil_geology": "Deep Willamette Silt; agricultural valley floor with compacted subsoils from farm use",
+      "tree_biological_load": "Lower canopy density (former agricultural land); reduced moss pressure but high orchard/pollen debris.",
+      "regulation": "2026 ORSC; Hillsboro Municipal Code Ch. 12.40 (stormwater); Clean Water Services standards"
+    },
+    "Gresham": {
+      "soil_geology": "Boring Lava Field basalt; volcanic ash soils; Sandy River alluvium in north sections",
+      "tree_biological_load": "Heavy Douglas fir and western hemlock. Powell Butte proximity drives high spore/moss load.",
+      "regulation": "2026 ORSC; Gresham Development Code Sec. 9.0500 (stormwater/erosion); Pleasant Valley overlay"
+    },
+    "Salem": {
+      "soil_geology": "Willamette Silt; Woodburn clay series with seasonal shrink-swell behavior",
+      "tree_biological_load": "Valley oaks, Oregon ash, moderate canopy. Agricultural buffer reduces moss but increases pollen/silt.",
+      "regulation": "2026 ORSC; Salem Revised Code Ch. 75 (stormwater); Willamette Greenway overlay"
+    },
+    "West Linn": {
+      "soil_geology": "Basalt hardpan; perched water tables with limited vertical drainage",
+      "tree_biological_load": "Dense canopy — Douglas fir, bigleaf maple. Canemah Bluffs microclimate drives heavy moss/lichen.",
+      "regulation": "2026 ORSC; West Linn Municipal Code Ch. 32 (tree ordinance); Bolton neighborhood stormwater overlay"
+    },
+    "Sherwood": {
+      "soil_geology": "Jory clay (red volcanic); orchard silt accumulation from Tualatin Valley agriculture",
+      "tree_biological_load": "Mixed orchard remnants/conifer; moderate biological load. Seasonal fruit drop and silt film on surfaces.",
+      "regulation": "2026 ORSC; Sherwood Municipal Code Ch. 16.116 (stormwater); Clean Water Services standards"
+    },
+    "Newberg": {
+      "soil_geology": "Jory clay; Chehalem Mountain volcanic soils; Willamette silt in valley floor",
+      "tree_biological_load": "Vineyard/orchard dominant; lower canopy density. Less moss pressure but high mineral dust and pollen.",
+      "regulation": "2026 ORSC; Newberg Municipal Code Ch. 15.235 (stormwater); Yamhill County ag-buffer setbacks"
+    },
+    "Vancouver": {
+      "soil_geology": "Columbia River flood deposits; glacial outwash gravel over basalt; seasonal high water table",
+      "tree_biological_load": "Mixed conifer/deciduous — Douglas fir, red alder, Oregon white oak. Moderate to heavy moss load.",
+      "regulation": "Washington State Building Code (WSBC) / 2021 IRC adoption; Vancouver Municipal Code Ch. 14.25 (stormwater); Clark County Critical Areas ordinance"
+    }
+  }
+}
