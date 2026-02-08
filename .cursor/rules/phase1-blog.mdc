@@ -6,8 +6,18 @@ alwaysApply: false
 # Inherits: blog-template.mdc (Founder voice, Topic Clusters, Oregon Reality filters, Linking Logic, Technical Constraints, Execution Order)
 
 ## [PROCEDURAL TASK]
-Generate 7 Pillar Posts (Hubs) and their corresponding 21 Spoke Posts (Children) for the Topic Clusters defined in blog-template.mdc.
+Generate 7 Pillar Posts (Hubs) and their corresponding 21 Spoke Posts (Children) for the Topic Clusters defined in @.cursor/rules/blog-template.mdc
+
 Each Hub must act as the ultimate authority on the topic, while Spokes target specific local/transactional intent.
+
+## [FILE OUTPUT PROTOCOL]
+Before generating any posts, read and follow: @.cursor/rules/blog-output-protocol.mdc
+
+All generated posts MUST:
+- Be routed to the correct cluster folder (cluster-1-moss-algae-prevention through cluster-7-home-exterior-health)
+- Be placed in the phase1/ subfolder within each cluster
+- Follow naming conventions: `pillar-{slug}.md` or `spoke-{slug}.md`
+- Use the cluster mapping and file routing rules defined in the output protocol
 
 ## [MANIFEST EXTENSIONS]
 In addition to the universal Content Manifest fields defined in blog-template.mdc, this batch adds the following fields per post object:

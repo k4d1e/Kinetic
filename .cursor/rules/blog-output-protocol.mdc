@@ -1,0 +1,233 @@
+# BLOG POST OUTPUT PROTOCOL
+# Applies to: All blog post generation tasks across all phases
+# Glob: blog/**
+
+## [FILE ORGANIZATION STANDARD]
+
+All generated blog posts MUST follow this directory structure and naming convention.
+
+### [DIRECTORY STRUCTURE]
+Base Path: `blog/drafts/oregonexterior-blog/`
+
+```
+blog/drafts/oregonexterior-blog/
+├── cluster-1-moss-algae-prevention/
+│   ├── phase1/
+│   ├── phase2/
+│   └── phase{N}/
+├── cluster-2-gutter-drainage-foundation/
+│   ├── phase1/
+│   ├── phase2/
+│   └── phase{N}/
+├── cluster-3-pnw-siding-durability/
+├── cluster-4-localized-cost-roi/
+├── cluster-5-rain-ready-roofing/
+├── cluster-6-gutter-guard-skeptic/
+└── cluster-7-home-exterior-health/
+```
+
+### [CLUSTER MAPPING]
+Use this exact mapping for cluster folder names:
+
+| Cluster Number | Folder Name |
+|---|---|
+| 1 | `cluster-1-moss-algae-prevention` |
+| 2 | `cluster-2-gutter-drainage-foundation` |
+| 3 | `cluster-3-pnw-siding-durability` |
+| 4 | `cluster-4-localized-cost-roi` |
+| 5 | `cluster-5-rain-ready-roofing` |
+| 6 | `cluster-6-gutter-guard-skeptic` |
+| 7 | `cluster-7-home-exterior-health` |
+
+## [PHASE SUBFOLDER CREATION]
+
+**Phase 1:** Subfolders already exist. Do NOT recreate them.
+
+**Phase 2+:** Before generating any posts for a new phase:
+1. Check if the phase subfolder exists in the target cluster folder
+2. If it does NOT exist, create: `blog/drafts/oregonexterior-blog/cluster-{N}-{slug}/phase{N}/`
+3. Only create the phase subfolder for clusters that will receive new posts in this generation batch
+
+**Example:**
+- Generating Phase 2 posts for Clusters 1, 3, 5
+- Create: `cluster-1-moss-algae-prevention/phase2/`
+- Create: `cluster-3-pnw-siding-durability/phase2/`
+- Create: `cluster-5-rain-ready-roofing/phase2/`
+- Do NOT create phase2 folders for Clusters 2, 4, 6, 7 (they receive no posts this phase)
+
+## [FILE NAMING STANDARD]
+
+### [PILLAR POSTS]
+Format: `pillar-{primary-keyword-slug}.md`
+
+Rules:
+- Always prefix with `pillar-`
+- Use the `primary_keyword` field from the manifest, converted to lowercase kebab-case
+- Remove special characters, spaces become hyphens
+- One pillar post per cluster (generated in Phase 1 only)
+
+**Examples:**
+- `primary_keyword: "Roof Cleaning Services"` → `pillar-roof-cleaning-services.md`
+- `primary_keyword: "Home Exterior Services"` → `pillar-home-exterior-services.md`
+- `primary_keyword: "Gutter Guards Salem"` → `pillar-gutter-guards-salem.md`
+
+### [SPOKE POSTS]
+Format: `spoke-{primary-keyword-slug}.md`
+
+Rules:
+- Always prefix with `spoke-`
+- Use the `primary_keyword` field from the manifest, converted to lowercase kebab-case
+- Remove special characters, spaces become hyphens
+- If multiple spokes in the same cluster share the same keyword, append `-{city}` or `-{modifier}`
+
+**Examples:**
+- `primary_keyword: "Roof Cleaning"` → `spoke-roof-cleaning.md`
+- `primary_keyword: "Roof Cleaning Salem OR"` → `spoke-roof-cleaning-salem-or.md`
+- `primary_keyword: "Gutter Guards Portland Oregon"` → `spoke-gutter-guards-portland-oregon.md`
+- `primary_keyword: "Roof Moss Removal"` → `spoke-roof-moss-removal.md`
+
+### [HANDLING DUPLICATES]
+If two posts in the SAME cluster/phase have identical slugs (rare but possible):
+- First occurrence: `spoke-{slug}.md`
+- Second occurrence: `spoke-{slug}-2.md`
+- Third occurrence: `spoke-{slug}-3.md`
+
+## [FILE OUTPUT ROUTING]
+
+For each generated blog post:
+
+1. **Read the post's metadata** (from manifest or frontmatter):
+   - `cluster` (number 1-7)
+   - `post_type` ("pillar" or "spoke")
+   - `primary_keyword` (string)
+   - `phase` (if available; default to current generation phase)
+
+2. **Determine the cluster folder:**
+   - Use the cluster mapping table above
+   - Example: `cluster: 3` → `cluster-3-pnw-siding-durability`
+
+3. **Determine the phase subfolder:**
+   - Use the current generation phase (Phase 1, Phase 2, etc.)
+   - Example: Phase 2 → `phase2/`
+
+4. **Construct the filename:**
+   - If `post_type: "pillar"` → `pillar-{slug}.md`
+   - If `post_type: "spoke"` → `spoke-{slug}.md`
+
+5. **Construct the full output path:**
+   ```
+   blog/drafts/oregonexterior-blog/cluster-{N}-{slug}/phase{N}/{filename}.md
+   ```
+
+6. **Write the file to that exact path.**
+
+### [OUTPUT PATH FORMULA]
+```
+blog/drafts/oregonexterior-blog/
+  └── {cluster_folder_from_mapping}/
+      └── phase{current_phase}/
+          └── {post_type}-{primary_keyword_slug}.md
+```
+
+## [EXAMPLES]
+
+### Example 1: Phase 1 Pillar Post
+**Input:**
+```json
+{
+  "cluster": 1,
+  "post_type": "pillar",
+  "primary_keyword": "Roof Cleaning Services"
+}
+```
+
+**Output Path:**
+```
+blog/drafts/oregonexterior-blog/cluster-1-moss-algae-prevention/phase1/pillar-roof-cleaning-services.md
+```
+
+### Example 2: Phase 2 Spoke Post
+**Input:**
+```json
+{
+  "cluster": 5,
+  "post_type": "spoke",
+  "primary_keyword": "Emergency Roof Repair Portland"
+}
+```
+
+**Output Path:**
+```
+blog/drafts/oregonexterior-blog/cluster-5-rain-ready-roofing/phase2/spoke-emergency-roof-repair-portland.md
+```
+
+### Example 3: Phase 3 Spoke Post
+**Input:**
+```json
+{
+  "cluster": 2,
+  "post_type": "spoke",
+  "primary_keyword": "Gutter Cleaning Service"
+}
+```
+
+**Output Path:**
+```
+blog/drafts/oregonexterior-blog/cluster-2-gutter-drainage-foundation/phase3/spoke-gutter-cleaning-service.md
+```
+
+## [PRE-GENERATION CHECKLIST]
+
+Before generating ANY blog posts, the agent MUST:
+
+1. ✅ Confirm which phase is being generated (Phase 1, 2, 3, etc.)
+2. ✅ Identify which clusters will receive posts in this phase
+3. ✅ Create phase subfolders ONLY for affected clusters (if they don't exist)
+4. ✅ Verify the cluster mapping table is used correctly
+5. ✅ Confirm file naming follows the pillar-/spoke- prefix standard
+6. ✅ Test output path construction with at least one example before bulk generation
+
+## [FILE FORMAT STANDARD]
+
+Every generated `.md` file MUST include YAML frontmatter with these fields:
+
+```yaml
+---
+cluster: 1
+post_type: "pillar"
+phase: 1
+primary_keyword: "Roof Cleaning Services"
+h1_title: "The Ultimate Oregon Roof Maintenance Guide: Defeating Moss in the PNW"
+slug: "roof-cleaning-services"
+intent: "Informational / Commercial Hub"
+parent_post: null
+sibling_posts: ["Roof Cleaning", "Roof Cleaning Salem OR", "Roof Moss Removal"]
+one_sentence_summary: "Your roof's worst enemy in Oregon isn't rain—it's the biology that rain breeds."
+target_city: ""
+target_neighborhood: ""
+target_landmark: ""
+generated_date: "2026-02-07"
+status: "draft"
+---
+
+# Post content starts here...
+```
+
+## [ERROR HANDLING]
+
+If the agent encounters any of these issues:
+
+- **Cluster number not in range 1-7:** STOP and alert the user
+- **Invalid post_type:** STOP and alert the user (must be "pillar" or "spoke")
+- **Missing primary_keyword:** STOP and alert the user
+- **Cannot create phase subfolder:** STOP and alert the user with error details
+- **Duplicate filename collision:** Append `-2`, `-3`, etc. and log a warning
+
+## [VERIFICATION]
+
+After generation, the agent MUST:
+
+1. List all created files with their full paths
+2. Confirm folder structure matches the standard
+3. Confirm all filenames follow pillar-/spoke- convention
+4. Report any warnings or deviations from this protocol
