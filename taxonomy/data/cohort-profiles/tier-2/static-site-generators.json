@@ -1,0 +1,194 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "profile_version": "1.0",
+  "id": "static_site_generators",
+  "label": "Static Site Generators",
+  "tier": 2,
+  "tier_label": "Strategic Intelligence",
+
+  "description": "Properties built with static site generators — Hugo, Jekyll, 11ty, Astro (static mode) — where all pages are pre-rendered at build time with no server-side runtime. These properties represent the purest form of content-driven SEO: no JavaScript rendering concerns, no server-side logic, no dynamic content complications. E.V.O. learns the baseline of what organic performance looks like when stripped of all technical confounders — making this cohort's intelligence invaluable as a control group for diagnosing technical issues in other cohorts.",
+
+  "common_tech_stacks": ["Hugo", "Jekyll", "11ty", "Astro (static mode)"],
+
+  "defining_seo_characteristics": {
+    "primary_content_type": "Documentation, blog posts, landing pages, portfolio pages, knowledge base articles",
+    "primary_intent_distribution": "65% informational, 20% navigational, 15% commercial investigation",
+    "typical_conversion_path": "Blog post / doc page → product landing page → external signup or contact",
+    "key_seo_challenges": [
+      "Build time scaling — large content corpora can create slow build pipelines that delay publishing",
+      "No dynamic content — personalization, A/B testing, and dynamic features require client-side JavaScript that may affect CWV",
+      "Limited interactivity without JavaScript islands — search, filtering, and forms require additional architecture",
+      "Content freshness perception — static sites may signal lower crawl priority to Google if rebuild frequency is low",
+      "No server-side redirects without hosting platform support — redirect management depends on deployment platform (Netlify, Vercel, Cloudflare Pages)"
+    ],
+    "key_seo_opportunities": [
+      "Perfect Core Web Vitals scores — pre-rendered HTML with minimal JavaScript delivers the fastest possible page loads",
+      "Zero JavaScript rendering risk — Googlebot receives the same HTML as users, eliminating all rendering-based indexation issues",
+      "Simple, flat URL structures that are inherently crawl-efficient",
+      "Markdown-based content workflows that integrate naturally with developer tooling and version control",
+      "CDN-first hosting (Netlify, Vercel, Cloudflare Pages) providing global edge delivery with zero server management"
+    ]
+  },
+
+  "typical_taxonomy_fingerprint": {
+    "business_model": ["knowledge_base_documentation", "publisher_media", "blog_driven_saas"],
+    "scale_tier": ["micro", "small"],
+    "tech_architecture": ["headless_cms_ssr_ssg", "static_html_traditional_cms"],
+    "seo_maturity": ["foundation_built", "technically_sound"],
+    "geographic_profile": "single_market_single_language",
+    "content_velocity": ["static", "low"]
+  },
+
+  "fleet_intelligence_notes": {
+    "cross_industry_transfer": "Very high. Static site SEO patterns are almost entirely content-driven — the architecture contributes virtually zero technical variance. This makes the cohort's intelligence transferable as a content-quality baseline across all other cohorts. When E.V.O. sees a technically complex site underperforming, comparing it against the static site baseline reveals how much of the underperformance is architectural vs. content-driven.",
+    "protocol_sequencing_pattern": "Typically: Content Opportunity → Link Architecture → Meta Surgeon → Index Diagnostic. Static sites rarely have indexation issues. The bottleneck is almost always content strategy and authority building. Index Diagnostic comes last as a validation step, not a primary intervention.",
+    "n_min_target": 15,
+    "current_fleet_count": 0
+  },
+
+  "industries": [
+    {
+      "id": "developer_documentation",
+      "label": "Developer Documentation",
+      "description": "Technical documentation sites for software tools, libraries, and frameworks. The static site generator is the canonical platform for developer docs — fast, version-controllable, and markdown-native.",
+      "signals": ["versioned documentation", "API reference pages", "code snippet blocks", "getting started guides", "changelog pages"],
+      "seo_patterns": {
+        "dominant_intent": "Informational and navigational — developers looking up specific API methods, configurations, and implementation patterns",
+        "high_value_content_types": ["API reference documentation", "quickstart/tutorial content", "migration guides", "troubleshooting/FAQ pages"],
+        "competitive_density": "Low — documentation sites compete primarily with their own project's GitHub README and Stack Overflow answers"
+      }
+    },
+    {
+      "id": "personal_brands_thought_leadership",
+      "label": "Personal Brands / Thought Leadership",
+      "description": "Individual expert and thought leader websites. Blog content establishes authority in a domain. The personal brand IS the content strategy — every post builds the individual's organic reputation.",
+      "signals": ["personal blog content", "about/bio page", "speaking/media pages", "newsletter signup", "social proof content"],
+      "seo_patterns": {
+        "dominant_intent": "Informational — readers seeking expert perspectives on specific topics",
+        "high_value_content_types": ["deep-dive technical or industry blog posts", "opinion/analysis content", "tutorial/how-to content", "conference talk summaries"],
+        "competitive_density": "Low — personal brand queries are uncontested. Topical authority queries face competition from larger publications"
+      }
+    },
+    {
+      "id": "small_agency_studio_sites",
+      "label": "Small Agency / Studio Sites",
+      "description": "Boutique agency and design studio websites. Portfolio-focused with minimal content velocity. SEO value comes from niche expertise content and local/service-area targeting.",
+      "signals": ["portfolio/work pages", "small team page", "service descriptions", "client list/logos", "contact page"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation — potential clients evaluating small agencies for specific projects",
+        "high_value_content_types": ["case study pages", "service-specific landing pages", "niche expertise blog content", "local/regional targeting pages"],
+        "competitive_density": "Low-moderate — small agencies compete locally and within niche specializations"
+      }
+    },
+    {
+      "id": "technical_blogging_content",
+      "label": "Technical Blogging / Content",
+      "description": "Technical blog sites focused on programming, engineering, or technology topics. Content depth and originality are the primary ranking signals — static generators are the preferred platform for technical writers.",
+      "signals": ["code-heavy blog posts", "technical tutorial content", "series/multi-part content", "RSS feed", "developer-oriented design"],
+      "seo_patterns": {
+        "dominant_intent": "Informational — developers and engineers seeking solutions to specific technical problems",
+        "high_value_content_types": ["in-depth technical tutorials", "technology comparison posts", "debugging/troubleshooting guides", "architecture pattern analysis"],
+        "competitive_density": "Moderate — competing against Stack Overflow, Medium, and dev.to for technical query visibility"
+      }
+    },
+    {
+      "id": "indie_saas_solo_founders",
+      "label": "Indie SaaS / Solo Founders",
+      "description": "Marketing sites for indie SaaS products built by solo founders or small teams. Static generators are the pragmatic choice — fast to build, zero server costs, low maintenance.",
+      "signals": ["single product landing page", "pricing page", "changelog/updates", "blog with SEO content", "founder story content"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation — potential users evaluating the product against alternatives",
+        "high_value_content_types": ["comparison/alternative-to pages", "use-case landing pages", "transparent pricing content", "building-in-public blog posts"],
+        "competitive_density": "Varies by niche — indie SaaS competes against funded competitors with larger content teams. Long-tail niche targeting is the primary strategy"
+      }
+    },
+    {
+      "id": "podcast_newsletter_brands",
+      "label": "Podcast / Newsletter Brands",
+      "description": "Companion websites for podcasts and newsletters. Static sites serve as the SEO surface for audio/email content that Google can't directly index — show notes and archives create the organic footprint.",
+      "signals": ["episode/issue archive pages", "show notes content", "guest bio pages", "topic/category taxonomy", "subscribe/signup CTAs"],
+      "seo_patterns": {
+        "dominant_intent": "Informational and navigational — listeners/readers finding specific episodes or discovering the show through topic searches",
+        "high_value_content_types": ["detailed show notes with timestamps", "guest expert pages", "topic-based episode collections", "transcript content"],
+        "competitive_density": "Low — podcast companion sites face minimal organic competition for episode-specific and guest-specific queries"
+      }
+    },
+    {
+      "id": "event_conference_sites",
+      "label": "Event / Conference Sites",
+      "description": "Websites for conferences, meetups, and events. Static generators handle the annual rebuild cycle well — new content for each event iteration built on top of the previous year's archival content.",
+      "signals": ["speaker/schedule pages", "event archive content", "venue/travel information", "registration CTAs", "sponsor pages"],
+      "seo_patterns": {
+        "dominant_intent": "Navigational and informational — attendees seeking event details and potential attendees evaluating the event",
+        "high_value_content_types": ["speaker bio pages", "talk description pages", "event recap/summary content", "historical archive pages"],
+        "competitive_density": "Very low — event-specific queries are uncontested. Broader conference category queries face moderate competition"
+      }
+    },
+    {
+      "id": "research_academic_projects",
+      "label": "Research / Academic Projects",
+      "description": "Research project websites, academic paper companion sites, and scholarly content hubs. Static sites preserve research outputs as permanent, citable web resources.",
+      "signals": ["research paper/publication pages", "dataset pages", "methodology documentation", "author/researcher profiles", "citation/reference content"],
+      "seo_patterns": {
+        "dominant_intent": "Informational — researchers and students seeking specific studies, datasets, and methodologies",
+        "high_value_content_types": ["research paper summary pages", "dataset documentation", "methodology explainers", "literature review content"],
+        "competitive_density": "Low — academic content competes primarily with Google Scholar, ResearchGate, and institutional .edu sites"
+      }
+    },
+    {
+      "id": "small_nonprofit_community",
+      "label": "Small Nonprofit / Community",
+      "description": "Small nonprofits and community organizations using static sites for low-maintenance, low-cost web presence. SEO is often the primary discovery channel given zero advertising budget.",
+      "signals": ["mission/about content", "program/service pages", "event/calendar content", "volunteer/donate CTAs", "community resource pages"],
+      "seo_patterns": {
+        "dominant_intent": "Informational and navigational — community members seeking services and information",
+        "high_value_content_types": ["community resource pages", "program description content", "event pages", "impact/story content"],
+        "competitive_density": "Very low — small nonprofits compete locally for cause-specific queries with minimal competition"
+      }
+    },
+    {
+      "id": "photography_visual_portfolio",
+      "label": "Photography / Visual Portfolio",
+      "description": "Photographer and visual artist portfolio sites. Unique SEO challenge — image-heavy sites with minimal text content. Image SEO (alt text, file naming, schema) is the primary optimization surface.",
+      "signals": ["image gallery pages", "project/series pages", "minimal text content", "image-first design", "client/commercial work categories"],
+      "seo_patterns": {
+        "dominant_intent": "Navigational and commercial — potential clients seeking photographers in a specific style or location",
+        "high_value_content_types": ["location-specific portfolio pages", "style/genre category pages", "behind-the-scenes blog content", "client testimonial pages"],
+        "competitive_density": "Low — photographer portfolio sites compete locally and within style niches"
+      }
+    },
+    {
+      "id": "local_tech_business",
+      "label": "Local Tech Business",
+      "description": "Small local technology businesses (IT services, web development, tech repair) using static sites. Local SEO with a modern technical foundation — demonstrating capability through the site itself.",
+      "signals": ["service area pages", "local business schema", "GBP integration", "service description pages", "local client testimonials"],
+      "seo_patterns": {
+        "dominant_intent": "Local and commercial — businesses and individuals seeking nearby tech services",
+        "high_value_content_types": ["service-specific landing pages", "location/service-area pages", "tech tip/guide blog content", "local client case studies"],
+        "competitive_density": "Moderate locally — IT services and web development queries are competitive in metro areas, less so in smaller markets"
+      }
+    },
+    {
+      "id": "product_landing_pages",
+      "label": "Product Landing Pages",
+      "description": "Standalone product launch and marketing landing pages. Static generators provide fast, reliable single-page or few-page sites optimized for a specific product launch or campaign.",
+      "signals": ["single-page or few-page site", "product-focused content", "signup/waitlist CTA", "social proof sections", "feature comparison content"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation and navigational — users evaluating a specific product",
+        "high_value_content_types": ["product feature pages", "comparison content", "use-case landing pages", "pricing/plan pages"],
+        "competitive_density": "Varies — depends entirely on the product category. The site itself has minimal organic footprint to build authority"
+      }
+    },
+    {
+      "id": "internal_company_knowledge_bases",
+      "label": "Internal / Company Knowledge Bases",
+      "description": "Public-facing company knowledge bases and help centers built on static generators. FAQ content, troubleshooting guides, and product documentation that serves both customers and search engines.",
+      "signals": ["FAQ/help content", "troubleshooting guides", "product documentation", "category/tag taxonomy", "search functionality"],
+      "seo_patterns": {
+        "dominant_intent": "Informational — customers seeking answers to specific product questions and troubleshooting steps",
+        "high_value_content_types": ["troubleshooting guide content", "FAQ pages with schema", "product documentation", "how-to tutorial content"],
+        "competitive_density": "Low — knowledge base queries are typically brand-specific with minimal external competition"
+      }
+    }
+  ]
+}

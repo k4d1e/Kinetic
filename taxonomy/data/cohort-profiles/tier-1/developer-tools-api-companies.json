@@ -1,0 +1,205 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "profile_version": "1.0",
+  "id": "developer_tools_api_companies",
+  "label": "Developer Tools / API Companies",
+  "tier": 1,
+  "tier_label": "Core Revenue + Core Intelligence",
+
+  "description": "Companies building tools, platforms, and APIs for software developers. Their websites serve dual purposes — marketing site for lead generation and documentation hub for developer adoption. SEO success requires mastering both editorial content marketing and technical documentation discoverability.",
+
+  "common_tech_stacks": ["custom frameworks", "Next.js", "Astro", "Hugo"],
+
+  "defining_seo_characteristics": {
+    "primary_content_type": "API documentation, developer guides, technical blog posts, changelog, SDK/library references, use-case landing pages",
+    "primary_intent_distribution": "50% informational (tutorials, docs), 30% navigational (API reference lookups), 20% commercial investigation",
+    "typical_conversion_path": "Technical blog post → documentation → free tier signup → API key generation",
+    "key_seo_challenges": [
+      "Documentation versioning creating duplicate or near-duplicate content across versions",
+      "Code-heavy pages with low text-to-code ratios that may appear thin to Google",
+      "Changelog and release notes pages competing for the same branded queries",
+      "Authentication-gated content (docs behind login) invisible to crawlers",
+      "Balancing developer-focused technical content with business-focused marketing content on the same domain"
+    ],
+    "key_seo_opportunities": [
+      "Technical tutorials targeting developer how-to queries with massive long-tail volume",
+      "Integration pages creating a combinatorial explosion of 'X + Y' keyword opportunities",
+      "Open source project pages attracting natural backlinks from the developer community",
+      "API reference pages ranking for highly specific technical queries with minimal competition",
+      "Developer community content (forums, discussions) as user-generated SEO asset"
+    ]
+  },
+
+  "typical_taxonomy_fingerprint": {
+    "business_model": ["developer_tools_api_first", "saas_growth", "saas_enterprise"],
+    "scale_tier": ["medium", "large"],
+    "tech_architecture": ["headless_cms_ssr_ssg", "custom_framework"],
+    "seo_maturity": ["technically_sound", "growth_phase", "mature_defending"],
+    "geographic_profile": ["single_market_single_language", "global_multi_language"],
+    "content_velocity": ["moderate", "high"]
+  },
+
+  "fleet_intelligence_notes": {
+    "cross_industry_transfer": "Moderate. Documentation SEO patterns transfer across all developer tool verticals. Marketing site patterns overlap with SaaS Marketing Sites cohort. However, the docs-as-product paradigm is unique to this cohort.",
+    "protocol_sequencing_pattern": "Typically: Index Diagnostic → Link Architecture → Content Opportunity → Meta Surgeon. Developer tool sites often have large doc sites with poor internal linking and crawl inefficiency that must be resolved first.",
+    "n_min_target": 20,
+    "current_fleet_count": 0
+  },
+
+  "industries": [
+    {
+      "id": "api_platforms_api_first",
+      "label": "API Platforms / API-First Services",
+      "description": "Companies whose primary product is an API (payments, communications, data enrichment). The API reference is simultaneously the product documentation and a core SEO asset.",
+      "signals": ["API reference documentation", "endpoint/method pages", "SDK pages per language", "API status page"],
+      "seo_patterns": {
+        "dominant_intent": "Navigational and informational — developers looking up specific API methods and integration guides",
+        "high_value_content_types": ["API endpoint documentation", "integration quickstart guides", "use-case tutorials", "API comparison content (vs. competitors)"],
+        "competitive_density": "Moderate — niche API categories are often duopolies or oligopolies with clear leaders"
+      }
+    },
+    {
+      "id": "infrastructure_cloud_services",
+      "label": "Infrastructure / Cloud Services",
+      "description": "Cloud hosting, serverless computing, CDN, and infrastructure services. Dominated by hyperscalers (AWS, GCP, Azure) but niche infrastructure providers compete effectively on focused content.",
+      "signals": ["cloud service product pages", "pricing calculator tools", "status/uptime pages", "region/datacenter content"],
+      "seo_patterns": {
+        "dominant_intent": "Informational and commercial — developers and CTOs evaluating infrastructure options",
+        "high_value_content_types": ["performance benchmark content", "migration guides", "cost comparison tools", "architecture pattern guides"],
+        "competitive_density": "Very high for broad terms, low-moderate for specialized infrastructure niches"
+      }
+    },
+    {
+      "id": "devops_ci_cd",
+      "label": "DevOps / CI/CD",
+      "description": "Continuous integration, continuous deployment, and DevOps workflow tools. Tutorial-heavy content strategy targeting DevOps practitioners implementing specific pipelines.",
+      "signals": ["pipeline configuration content", "CI/CD integration pages", "deployment automation docs", "build/test workflow content"],
+      "seo_patterns": {
+        "dominant_intent": "Informational — DevOps engineers searching for implementation patterns and tool integrations",
+        "high_value_content_types": ["CI/CD pipeline tutorials", "tool integration guides", "DevOps best practice content", "workflow automation templates"],
+        "competitive_density": "Moderate — GitHub Actions, GitLab CI, and CircleCI dominate but tool-specific pipelines have long-tail opportunity"
+      }
+    },
+    {
+      "id": "developer_productivity",
+      "label": "Developer Productivity",
+      "description": "Code editors, IDE extensions, project management for devs, and workflow optimization tools. Content strategy targets the 'developer experience' narrative.",
+      "signals": ["IDE/editor integration pages", "workflow optimization content", "developer survey/benchmark content", "extension/plugin marketplace"],
+      "seo_patterns": {
+        "dominant_intent": "Informational and navigational — developers optimizing their workflow",
+        "high_value_content_types": ["developer workflow guides", "tool comparison content", "productivity tip articles", "IDE configuration tutorials"],
+        "competitive_density": "Moderate — fragmented across many niche tools with loyal user bases"
+      }
+    },
+    {
+      "id": "open_source_companies",
+      "label": "Open Source Companies",
+      "description": "Companies commercializing open-source projects. Unique SEO dynamic — the open-source project generates organic authority (GitHub stars, community links) that transfers to the commercial offering.",
+      "signals": ["GitHub repository with significant stars", "open-source documentation site", "community forum/Discord", "enterprise/cloud offering pages"],
+      "seo_patterns": {
+        "dominant_intent": "Informational — developers evaluating and learning to use the open-source project",
+        "high_value_content_types": ["project documentation", "getting started tutorials", "migration guides from competing tools", "community showcase content"],
+        "competitive_density": "Low-moderate — open-source projects naturally accumulate backlinks and authority, creating organic moats"
+      }
+    },
+    {
+      "id": "data_database_tools",
+      "label": "Data / Database Tools",
+      "description": "Database platforms, data pipeline tools, ETL/ELT services, and data management tools. Technical documentation is the primary SEO surface area.",
+      "signals": ["database/query documentation", "data pipeline content", "schema/migration guides", "performance tuning content"],
+      "seo_patterns": {
+        "dominant_intent": "Informational — data engineers seeking implementation and optimization guides",
+        "high_value_content_types": ["database comparison content", "query optimization guides", "migration tutorials", "data modeling best practices"],
+        "competitive_density": "Moderate — established databases have deep docs but newer tools compete on modern patterns (serverless, edge, vector)"
+      }
+    },
+    {
+      "id": "security_identity",
+      "label": "Security / Identity",
+      "description": "Authentication, authorization, identity management, and security tools for developers. Compliance content (SOC2, GDPR, OAuth) is both a trust signal and high-value keyword target.",
+      "signals": ["authentication/OAuth documentation", "compliance/certification pages", "security best practice content", "identity management guides"],
+      "seo_patterns": {
+        "dominant_intent": "Informational — developers implementing authentication and security teams evaluating compliance",
+        "high_value_content_types": ["OAuth/OIDC implementation guides", "compliance framework explainers", "security best practice content", "identity architecture patterns"],
+        "competitive_density": "Moderate — Auth0/Okta dominate broad terms but implementation-specific queries are accessible"
+      }
+    },
+    {
+      "id": "observability_monitoring",
+      "label": "Observability / Monitoring",
+      "description": "Application monitoring, logging, tracing, and observability platforms. Content strategy targets both the technical implementation audience and the 'why observability matters' decision-maker audience.",
+      "signals": ["monitoring/alerting documentation", "dashboard/visualization pages", "integration pages per service", "incident management content"],
+      "seo_patterns": {
+        "dominant_intent": "Informational and commercial investigation — teams evaluating observability stack components",
+        "high_value_content_types": ["observability guide content", "tool comparison matrices", "integration-specific setup guides", "incident postmortem templates"],
+        "competitive_density": "Moderate — Datadog, New Relic, Grafana have large footprints but niche monitoring domains remain accessible"
+      }
+    },
+    {
+      "id": "ai_ml_developer_tools",
+      "label": "AI/ML Developer Tools",
+      "description": "ML frameworks, model serving, training infrastructure, and AI development platforms. The most rapidly evolving developer tools vertical — content freshness is a primary ranking factor.",
+      "signals": ["ML model documentation", "training/inference content", "model comparison pages", "GPU/compute content"],
+      "seo_patterns": {
+        "dominant_intent": "Informational — ML engineers seeking tutorials, benchmarks, and implementation patterns",
+        "high_value_content_types": ["model fine-tuning tutorials", "benchmark/evaluation content", "framework comparison guides", "deployment architecture patterns"],
+        "competitive_density": "Rapidly increasing but still nascent — the field moves faster than content can be produced, creating freshness-based opportunity"
+      }
+    },
+    {
+      "id": "design_to_code_frontend_tooling",
+      "label": "Design-to-Code / Frontend Tooling",
+      "description": "Design systems, component libraries, CSS frameworks, and design-to-code tools. Visual content (demos, examples) is critical for organic engagement alongside traditional text-based SEO.",
+      "signals": ["component library documentation", "design system pages", "visual demo/playground content", "CSS/styling guides"],
+      "seo_patterns": {
+        "dominant_intent": "Informational — frontend developers searching for component examples and implementation patterns",
+        "high_value_content_types": ["component documentation with live examples", "design pattern guides", "CSS technique tutorials", "framework migration guides"],
+        "competitive_density": "Low-moderate — fragmented across many libraries and frameworks with loyal communities"
+      }
+    },
+    {
+      "id": "testing_qa_tools",
+      "label": "Testing / QA Tools",
+      "description": "Testing frameworks, QA automation, and quality assurance platforms. Tutorial content targeting specific testing patterns and tool integrations drives organic acquisition.",
+      "signals": ["test framework documentation", "automation setup guides", "CI integration content", "testing best practice pages"],
+      "seo_patterns": {
+        "dominant_intent": "Informational — QA engineers and developers seeking testing implementation guides",
+        "high_value_content_types": ["test automation tutorials", "framework comparison content", "testing strategy guides", "CI/CD testing integration guides"],
+        "competitive_density": "Low-moderate — Cypress, Playwright, Selenium dominate but testing-specific long-tail is expansive"
+      }
+    },
+    {
+      "id": "headless_cms_content_infrastructure",
+      "label": "Headless CMS / Content Infrastructure",
+      "description": "Headless CMS platforms, content APIs, and content management infrastructure. Unique meta-position — selling content management to companies that produce content, creating recursive content marketing opportunities.",
+      "signals": ["CMS feature documentation", "content modeling guides", "framework integration pages", "content API reference"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation — development teams evaluating CMS platforms for projects",
+        "high_value_content_types": ["CMS comparison content", "framework integration tutorials (Next.js + CMS)", "content modeling guides", "migration guides from WordPress/legacy CMS"],
+        "competitive_density": "Moderate — Contentful, Sanity, Strapi, and others compete aggressively on developer-focused content"
+      }
+    },
+    {
+      "id": "communication_infrastructure",
+      "label": "Communication Infrastructure",
+      "description": "Messaging APIs, video APIs, email infrastructure, and communication platform services (Twilio, SendGrid, Stream). API documentation and integration tutorials drive the organic funnel.",
+      "signals": ["communication API documentation", "SDK/library pages per language", "use-case landing pages (SMS, video, chat)", "pricing/usage calculator"],
+      "seo_patterns": {
+        "dominant_intent": "Informational and commercial — developers evaluating and implementing communication features",
+        "high_value_content_types": ["API quickstart tutorials", "use-case implementation guides", "provider comparison content", "deliverability/reliability guides"],
+        "competitive_density": "Moderate — Twilio dominates broadly but specific communication channels (WebRTC, push, in-app) have niche competitors"
+      }
+    },
+    {
+      "id": "low_code_no_code_developers",
+      "label": "Low-Code / No-Code for Developers",
+      "description": "Platforms enabling rapid application development through visual builders, abstractions, and code generation. SEO bridges two audiences — developers seeking productivity gains and non-developers seeking capability.",
+      "signals": ["visual builder documentation", "template/starter pages", "tutorial content for non-technical users", "integration marketplace"],
+      "seo_patterns": {
+        "dominant_intent": "Informational and commercial — users evaluating whether low-code can solve their specific problem",
+        "high_value_content_types": ["use-case specific build tutorials", "platform comparison content", "template gallery pages", "traditional-code vs. low-code content"],
+        "competitive_density": "Moderate — growing rapidly as the category matures. Early content investment creates defensible positions"
+      }
+    }
+  ]
+}

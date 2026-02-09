@@ -1,0 +1,250 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "profile_version": "1.0",
+  "id": "custom_enterprise_platforms",
+  "label": "Custom Enterprise Platforms",
+  "tier": 2,
+  "tier_label": "Strategic Intelligence",
+
+  "description": "Enterprise-scale properties built on bespoke full-stack architectures — custom Java/Spring, .NET, Python/Django, Ruby/Rails, or proprietary enterprise stacks. These are the largest, most complex properties in the Kinetic fleet. SEO at this scale is fundamentally a systems engineering problem: crawl budget management, index efficiency at 100K+ pages, organizational SEO governance, and infrastructure-level performance. E.V.O.'s intelligence from this cohort is rare and exceptionally high-value because few diagnostic engines have fleet-level exposure to enterprise-scale patterns.",
+
+  "common_tech_stacks": ["bespoke full-stack applications", "custom Java/Spring", "custom .NET", "custom Python/Django", "custom Ruby/Rails", "proprietary enterprise stacks"],
+
+  "defining_seo_characteristics": {
+    "primary_content_type": "Product catalogs, listing databases, editorial content, user-generated content, transactional pages, programmatic landing pages",
+    "primary_intent_distribution": "Varies dramatically by industry — transactional-dominant for commerce, informational-dominant for media, local-dominant for service platforms",
+    "typical_conversion_path": "Discovery (search/browse) → detail page → conversion action (purchase, booking, application, inquiry)",
+    "key_seo_challenges": [
+      "Crawl budget engineering — ensuring Google allocates crawl resources to the highest-value pages across 100K+ URL corpus",
+      "Index bloat from faceted navigation, URL parameters, pagination, and session-based URLs creating millions of crawlable permutations",
+      "Organizational SEO governance — aligning engineering, product, content, and marketing teams on SEO priorities at enterprise scale",
+      "Legacy technical debt — years of accumulated URL patterns, redirect chains, and deprecated page templates creating crawl traps",
+      "Rendering complexity — custom server-side rendering pipelines with caching layers that may serve different content to Googlebot vs. users",
+      "Multi-team content ownership creating inconsistent SEO implementation across site sections"
+    ],
+    "key_seo_opportunities": [
+      "Programmatic content at scale — leveraging proprietary data to create thousands of unique, high-value pages",
+      "Domain authority moats — enterprise sites typically have high DR from years of brand recognition and inbound links",
+      "Internal linking architecture optimization — even small efficiency gains have outsized impact at enterprise page counts",
+      "Log file analysis revealing Googlebot crawl patterns that inform architectural decisions",
+      "Structured data implementation across templated pages — one schema template applied to thousands of pages simultaneously"
+    ]
+  },
+
+  "typical_taxonomy_fingerprint": {
+    "business_model": ["ecommerce_enterprise", "marketplace_aggregator", "publisher_media", "directory_listing_site"],
+    "scale_tier": ["large", "massive"],
+    "tech_architecture": "custom_framework",
+    "seo_maturity": ["growth_phase", "mature_defending"],
+    "geographic_profile": ["multi_market_single_language", "global_multi_language"],
+    "content_velocity": ["high", "programmatic"]
+  },
+
+  "fleet_intelligence_notes": {
+    "cross_industry_transfer": "Moderate. Enterprise-scale architectural patterns (crawl budget management, index efficiency, redirect engineering) transfer across industries. However, industry-specific content patterns diverge significantly at this scale. The architectural intelligence is high-value; the content intelligence is industry-specific.",
+    "protocol_sequencing_pattern": "Typically: Index Diagnostic → Link Architecture → Meta Surgeon → Content Opportunity. Enterprise sites almost always have architectural debt that creates indexation inefficiency. Resolving crawl budget waste and index bloat must come before any content expansion, because adding content to a broken architecture makes the problem worse.",
+    "n_min_target": 15,
+    "current_fleet_count": 0
+  },
+
+  "industries": [
+    {
+      "id": "financial_services_banking",
+      "label": "Financial Services / Banking",
+      "description": "Banks, financial institutions, and financial services platforms. YMYL at maximum stakes — Google applies the highest quality standards to financial content. Regulatory compliance content, branch locator architecture, and product comparison pages define the organic landscape.",
+      "signals": ["financial product pages", "branch/ATM locator", "regulatory compliance content", "rate comparison tools", "investor relations pages"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation and informational — consumers researching financial products and rates",
+        "high_value_content_types": ["financial product comparison pages", "rate/fee transparency content", "financial education resources", "branch/location pages with local SEO"],
+        "competitive_density": "Very high — major banks and financial aggregators (NerdWallet, Bankrate) dominate the landscape"
+      }
+    },
+    {
+      "id": "telecommunications",
+      "label": "Telecommunications",
+      "description": "Telecom carriers, ISPs, and communication infrastructure companies. Plan comparison, coverage mapping, and device catalog pages drive organic traffic at massive scale.",
+      "signals": ["plan/pricing pages", "coverage map tools", "device catalog", "support/help center", "store locator"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation and transactional — consumers comparing plans and checking coverage",
+        "high_value_content_types": ["plan comparison pages", "coverage/availability checker tools", "device comparison content", "help center/troubleshooting content"],
+        "competitive_density": "High — oligopolistic markets with a few major carriers investing heavily in organic"
+      }
+    },
+    {
+      "id": "automotive_oem",
+      "label": "Automotive OEM",
+      "description": "Automobile manufacturers and OEM brand websites. Model configuration, dealer locator, and vehicle comparison pages at the top of the automotive purchase funnel.",
+      "signals": ["vehicle model pages", "configuration/build tools", "dealer locator", "inventory search", "financing/incentive pages"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation — car shoppers researching models, features, and pricing before dealership visits",
+        "high_value_content_types": ["model detail/comparison pages", "configuration tool content", "dealer locator pages", "ownership/maintenance content"],
+        "competitive_density": "High — OEMs compete against each other and third-party auto sites (Edmunds, KBB, Cars.com)"
+      }
+    },
+    {
+      "id": "airlines_travel",
+      "label": "Airlines / Travel",
+      "description": "Airlines and major travel platforms. Route-based programmatic pages, destination content, and booking flow SEO at massive scale with intense seasonal and price-driven keyword variation.",
+      "signals": ["route/flight pages", "destination content", "booking flow", "loyalty program pages", "travel policy/info content"],
+      "seo_patterns": {
+        "dominant_intent": "Transactional — travelers searching for flights, routes, and prices",
+        "high_value_content_types": ["route pages (programmatic: city-to-city)", "destination guide content", "fare class/booking guide content", "travel advisory/policy pages"],
+        "competitive_density": "Very high — Google Flights, Kayak, Skyscanner, and OTAs compete with airlines for every route query"
+      }
+    },
+    {
+      "id": "enterprise_software",
+      "label": "Enterprise Software",
+      "description": "Large enterprise software companies (Oracle, SAP, IBM scale). Massive product portfolios, solution pages by industry, and resource libraries that dwarf most SaaS marketing sites.",
+      "signals": ["multi-product portfolio pages", "industry/solution pages", "resource library", "partner directory", "certification/training pages"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation — enterprise buyers researching solutions for specific business problems",
+        "high_value_content_types": ["industry-specific solution pages", "product comparison content", "analyst report/recognition pages", "customer success stories at scale"],
+        "competitive_density": "High — enterprise software vendors compete for high-CPC category terms with massive content investments"
+      }
+    },
+    {
+      "id": "media_entertainment_conglomerates",
+      "label": "Media / Entertainment Conglomerates",
+      "description": "Large media companies, streaming platforms, and entertainment conglomerates. Content catalogs with millions of pages, episodic/seasonal content patterns, and real-time trending keyword dynamics.",
+      "signals": ["content catalog pages", "show/movie detail pages", "editorial/news content", "talent/celebrity pages", "event/premiere content"],
+      "seo_patterns": {
+        "dominant_intent": "Navigational and informational — users seeking specific shows, movies, or entertainment content",
+        "high_value_content_types": ["show/movie detail pages with schema", "editorial coverage content", "streaming availability content", "seasonal/trending content"],
+        "competitive_density": "Very high — IMDb, Wikipedia, and streaming platforms compete for every entertainment entity query"
+      }
+    },
+    {
+      "id": "healthcare_enterprise",
+      "label": "Healthcare Enterprise",
+      "description": "Large healthcare systems, hospital networks, and health insurance platforms. YMYL at organizational scale with provider directories, condition pages, and location networks requiring E-E-A-T at every level.",
+      "signals": ["provider directory", "condition/treatment pages", "facility/location pages", "insurance plan pages", "patient portal integration"],
+      "seo_patterns": {
+        "dominant_intent": "Informational and local — patients seeking providers, conditions, and facilities",
+        "high_value_content_types": ["condition/treatment pages (medically reviewed)", "provider profile pages with schema", "facility location pages", "health library content"],
+        "competitive_density": "High — WebMD, Healthline, Mayo Clinic, and Cleveland Clinic dominate national health queries. Regional competition among hospital systems"
+      }
+    },
+    {
+      "id": "energy_utilities",
+      "label": "Energy / Utilities",
+      "description": "Energy companies, utility providers, and energy marketplace platforms. Service area pages, rate comparison, and sustainability content drive organic presence.",
+      "signals": ["service area/coverage pages", "rate/plan pages", "outage/status tools", "sustainability/renewable content", "energy efficiency resources"],
+      "seo_patterns": {
+        "dominant_intent": "Navigational and informational — customers managing service and researching energy options",
+        "high_value_content_types": ["service area pages", "energy efficiency guide content", "rate comparison tools", "sustainability/renewable energy content"],
+        "competitive_density": "Low-moderate — utilities face limited direct organic competition but compete against aggregators and government resources"
+      }
+    },
+    {
+      "id": "logistics_supply_chain",
+      "label": "Logistics / Supply Chain",
+      "description": "Large logistics companies, shipping carriers, and supply chain platforms. Tracking pages, service coverage, and rate estimation tools create the organic footprint.",
+      "signals": ["tracking/shipment pages", "service coverage maps", "rate estimation tools", "logistics solution pages", "shipping guide content"],
+      "seo_patterns": {
+        "dominant_intent": "Navigational and transactional — businesses seeking shipping services and tracking shipments",
+        "high_value_content_types": ["service/route coverage pages", "shipping guide content", "logistics solution pages by industry", "rate comparison tools"],
+        "competitive_density": "Moderate — FedEx, UPS, DHL dominate carrier queries. 3PL and logistics platform queries are less contested"
+      }
+    },
+    {
+      "id": "government_defense_contractors",
+      "label": "Government / Defense Contractors",
+      "description": "Large defense contractors and government services companies. Capability pages, contract vehicles, and compliance content target a specialized procurement audience.",
+      "signals": ["capability/solution pages", "contract vehicle pages", "compliance/certification content", "career/recruitment pages", "past performance content"],
+      "seo_patterns": {
+        "dominant_intent": "Informational and navigational — government procurement officers and job seekers",
+        "high_value_content_types": ["capability statement pages", "contract vehicle content", "technology solution pages", "career/recruitment content"],
+        "competitive_density": "Low — defense contractor queries are niche with limited organic competition outside direct competitors"
+      }
+    },
+    {
+      "id": "higher_education_large_universities",
+      "label": "Higher Education (Large Universities)",
+      "description": "Major research universities and large higher education institutions. Thousands of department, program, faculty, and research pages requiring SEO governance at organizational scale.",
+      "signals": ["department/program pages", "faculty directory", "research publication pages", "admissions content", "campus life/housing pages"],
+      "seo_patterns": {
+        "dominant_intent": "Informational and navigational — prospective students, researchers, and community members",
+        "high_value_content_types": ["program detail pages", "faculty research profiles", "admissions/financial aid content", "campus resource pages"],
+        "competitive_density": "Moderate — .edu authority is strong but universities compete against each other and against aggregators (US News, Niche, College Board)"
+      }
+    },
+    {
+      "id": "marketplace_platforms_scaled",
+      "label": "Marketplace Platforms (Scaled)",
+      "description": "Large-scale marketplace platforms at hundreds of thousands of listings. The organic moat IS the listing density — more listings create more indexable pages, which drive more traffic, which attract more listings.",
+      "signals": ["massive listing inventory", "category/filter taxonomy", "user-generated listing content", "location-based search", "review/rating systems"],
+      "seo_patterns": {
+        "dominant_intent": "Transactional — users searching for specific products, services, or providers",
+        "high_value_content_types": ["programmatic category + location pages", "listing detail pages", "comparison/ranking content", "market report/data content"],
+        "competitive_density": "Very high — scaled marketplaces compete head-to-head with other marketplaces and Google's own vertical search"
+      }
+    },
+    {
+      "id": "classified_directory_platforms",
+      "label": "Classified / Directory Platforms",
+      "description": "Large classified listing and business directory platforms. Programmatic geo + category page generation at massive scale creates the organic footprint.",
+      "signals": ["classified listing pages", "business/entity directory", "category + location URL patterns", "user-submitted content", "review/rating aggregation"],
+      "seo_patterns": {
+        "dominant_intent": "Transactional and local — users searching for businesses, services, or listings in a specific area",
+        "high_value_content_types": ["programmatic category + city pages", "entity detail pages", "review aggregation pages", "category guide content"],
+        "competitive_density": "High — Yelp, Yellow Pages, and Google's local results dominate. Niche directories compete on vertical depth"
+      }
+    },
+    {
+      "id": "publishing_media_platforms_custom",
+      "label": "Publishing / Media Platforms (Custom)",
+      "description": "Custom-built publishing platforms for large media organizations. Custom CMS, editorial workflow, and content delivery architecture at scale requiring bespoke SEO solutions.",
+      "signals": ["custom CMS architecture", "high-frequency publishing", "multi-author/section architecture", "paywall/subscription integration", "real-time content updates"],
+      "seo_patterns": {
+        "dominant_intent": "Informational — readers seeking news, analysis, and editorial content",
+        "high_value_content_types": ["news articles with structured data", "topic/section hub pages", "author authority pages", "investigative/long-form content"],
+        "competitive_density": "Very high — large publishers compete with each other and with Google's News and Discover surfaces"
+      }
+    },
+    {
+      "id": "sports_entertainment_venues",
+      "label": "Sports / Entertainment Venues",
+      "description": "Sports leagues, entertainment venue networks, and event platforms. Event-driven content with intense seasonal patterns and real-time game/event data creating organic opportunities.",
+      "signals": ["event/game schedule pages", "venue/stadium pages", "team/performer pages", "ticket purchase integration", "stats/results content"],
+      "seo_patterns": {
+        "dominant_intent": "Navigational and transactional — fans seeking event information and purchasing tickets",
+        "high_value_content_types": ["event detail pages with schema", "venue information pages", "schedule/calendar content", "team/performer profile pages"],
+        "competitive_density": "High — Ticketmaster, StubHub, and league-specific sites compete for every event query"
+      }
+    },
+    {
+      "id": "retail_enterprise_custom_commerce",
+      "label": "Retail Enterprise (Custom Commerce)",
+      "description": "Large retailers with custom-built commerce platforms. Product catalogs at massive scale with complex category hierarchies, store locators, and omnichannel content requirements.",
+      "signals": ["massive product catalog", "store locator", "multi-level category hierarchy", "weekly ad/promotion content", "loyalty program pages"],
+      "seo_patterns": {
+        "dominant_intent": "Transactional and commercial — shoppers searching for products and nearby stores",
+        "high_value_content_types": ["product category pages", "store location pages with local SEO", "buying guide content", "deal/promotion landing pages"],
+        "competitive_density": "Very high — Amazon dominates product queries. Large retailers compete for category and brand + product queries"
+      }
+    },
+    {
+      "id": "real_estate_platforms_enterprise",
+      "label": "Real Estate Platforms (Enterprise)",
+      "description": "Large real estate platforms with millions of property listings. Programmatic listing, neighborhood, and market data pages at massive scale. SEO IS the business model.",
+      "signals": ["property listing database", "neighborhood/community pages", "market data/analytics content", "agent/broker profiles", "mortgage/finance tools"],
+      "seo_patterns": {
+        "dominant_intent": "Transactional and informational — home buyers, renters, and investors searching for properties and market data",
+        "high_value_content_types": ["programmatic property listing pages", "neighborhood/community guide pages", "market report content", "mortgage calculator tools"],
+        "competitive_density": "Extremely high — Zillow, Redfin, Realtor.com, and Homes.com dominate every real estate query category"
+      }
+    },
+    {
+      "id": "recruitment_job_platforms_enterprise",
+      "label": "Recruitment / Job Platforms (Enterprise)",
+      "description": "Large-scale job boards and recruitment platforms. Job listing pages at massive scale with location, role, and company dimensions creating millions of indexable URL permutations.",
+      "signals": ["job listing database", "company profile pages", "salary/compensation data", "location-based job search", "career advice content"],
+      "seo_patterns": {
+        "dominant_intent": "Transactional — job seekers searching for specific roles in specific locations",
+        "high_value_content_types": ["programmatic job + location pages", "company profile pages", "salary data content", "career guide content by role"],
+        "competitive_density": "Very high — Indeed, LinkedIn, Glassdoor, and ZipRecruiter dominate job search queries at every level"
+      }
+    }
+  ]
+}

@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "profile_version": "1.0",
+  "id": "agencies_modern_stacks",
+  "label": "Agencies Building on Modern Stacks",
+  "tier": 1,
+  "tier_label": "Core Revenue + Core Intelligence",
+
+  "description": "Digital agencies, design studios, and consultancies that build client projects on modern headless/JAMstack architectures and need to market their own services through organic search. Unique dual-SEO challenge: optimizing their own agency site while accumulating expertise that transfers to client engagements.",
+
+  "common_tech_stacks": ["Next.js", "Nuxt", "Astro"],
+
+  "defining_seo_characteristics": {
+    "primary_content_type": "Case studies, service pages, industry vertical landing pages, thought leadership blog, portfolio showcases",
+    "primary_intent_distribution": "40% informational (thought leadership), 35% commercial investigation (agency evaluation), 25% navigational (specific agency/service lookup)",
+    "typical_conversion_path": "Blog/thought leadership → service page → case study → contact/RFP",
+    "key_seo_challenges": [
+      "Service pages competing for generic high-volume terms ('web design agency') against massive aggregators",
+      "Case study content often locked behind client NDAs, limiting the primary trust-building content type",
+      "Portfolio-heavy sites with image-dominant pages that have thin text content for indexation",
+      "Local SEO competition in agency-dense markets (NYC, SF, London)",
+      "Content strategy competing with the agency's own client work for team bandwidth"
+    ],
+    "key_seo_opportunities": [
+      "Industry vertical landing pages targeting '[industry] + [service] + agency' long-tail queries",
+      "Technical thought leadership content establishing expertise in specific frameworks (Next.js, Shopify Hydrogen)",
+      "Case study content optimized for '[industry] + website redesign' and '[platform] + migration' queries",
+      "Technology-specific comparison content ('WordPress vs. headless CMS') that attracts development-stage prospects",
+      "Local SEO optimization for multi-city agencies targeting regional agency searches"
+    ]
+  },
+
+  "typical_taxonomy_fingerprint": {
+    "business_model": ["agency_consultancy", "professional_services_b2b"],
+    "scale_tier": ["small", "medium"],
+    "tech_architecture": "headless_cms_ssr_ssg",
+    "seo_maturity": ["foundation_built", "technically_sound", "growth_phase"],
+    "geographic_profile": ["single_market_single_language", "single_market_multi_language"],
+    "content_velocity": ["moderate", "high"]
+  },
+
+  "fleet_intelligence_notes": {
+    "cross_industry_transfer": "Moderate. Agency SEO patterns (case study optimization, service page architecture, vertical landing pages) transfer across all agency specializations. The agency-specific patterns don't transfer well to non-agency cohorts, but the content marketing patterns overlap with SaaS Marketing Sites.",
+    "protocol_sequencing_pattern": "Typically: Content Opportunity → Meta Surgeon → Link Architecture → Index Diagnostic. Agencies usually have technically sound sites (they build websites for a living) but underinvest in their own content strategy. Content gaps are the highest-leverage first move.",
+    "n_min_target": 15,
+    "current_fleet_count": 0
+  },
+
+  "industries": [
+    {
+      "id": "ecommerce_dtc_agencies",
+      "label": "E-commerce / DTC Agencies",
+      "description": "Agencies specializing in e-commerce and direct-to-consumer brand websites. SEO content strategy revolves around showcasing commerce expertise and attracting DTC brands seeking agency partners.",
+      "signals": ["e-commerce case study pages", "Shopify/commerce platform content", "DTC brand portfolio", "conversion optimization content"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation — DTC brands evaluating agency partners for store builds and redesigns",
+        "high_value_content_types": ["e-commerce case studies with metrics", "platform comparison content (Shopify vs. custom)", "DTC growth strategy guides", "conversion rate optimization content"],
+        "competitive_density": "High in broad agency terms, moderate for platform-specific and vertical-specific agency searches"
+      }
+    },
+    {
+      "id": "saas_b2b_agencies",
+      "label": "SaaS / B2B Agencies",
+      "description": "Agencies focused on SaaS and B2B technology company websites. Content strategy targets the SaaS growth playbook — landing page optimization, PLG design, and conversion architecture.",
+      "signals": ["SaaS case study pages", "B2B marketing content", "product-led growth content", "SaaS metrics/benchmark content"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation — SaaS companies seeking specialized agency partners",
+        "high_value_content_types": ["SaaS website case studies", "B2B landing page optimization guides", "SaaS design system content", "PLG web architecture guides"],
+        "competitive_density": "Moderate — SaaS-specialized agencies are a growing but still differentiated niche"
+      }
+    },
+    {
+      "id": "healthcare_regulated_industries",
+      "label": "Healthcare / Regulated Industries",
+      "description": "Agencies specializing in healthcare, pharma, and other regulated industry websites. Compliance expertise is the primary differentiator and SEO keyword target.",
+      "signals": ["HIPAA/compliance content", "healthcare case studies", "regulated industry portfolio", "accessibility/ADA content"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation — healthcare organizations seeking compliant web partners",
+        "high_value_content_types": ["HIPAA compliance web guide content", "healthcare website case studies", "accessibility audit content", "regulated industry design patterns"],
+        "competitive_density": "Low — regulatory specialization creates a natural moat against generalist agencies"
+      }
+    },
+    {
+      "id": "financial_services_agencies",
+      "label": "Financial Services Agencies",
+      "description": "Agencies building websites for banks, fintech, insurance, and financial services companies. Trust, compliance, and security are central themes in content strategy.",
+      "signals": ["financial services case studies", "compliance/security content", "fintech portfolio", "financial UX content"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation — financial institutions seeking specialized digital partners",
+        "high_value_content_types": ["financial services case studies", "compliance-focused web design guides", "fintech UX pattern content", "security best practice content"],
+        "competitive_density": "Low — financial services specialization is a strong differentiator"
+      }
+    },
+    {
+      "id": "higher_education_edtech",
+      "label": "Higher Education / EdTech",
+      "description": "Agencies serving universities, colleges, and educational institutions. Long procurement cycles but high-value contracts with recurring redesign needs.",
+      "signals": ["university case studies", "higher ed portfolio", "student experience content", "LMS integration content"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation — university marketing teams evaluating agency partners",
+        "high_value_content_types": ["university website case studies", "higher ed digital strategy guides", "student recruitment content", "accessibility compliance content"],
+        "competitive_density": "Low — niche specialization with a well-defined buyer persona"
+      }
+    },
+    {
+      "id": "hospitality_travel",
+      "label": "Hospitality / Travel",
+      "description": "Agencies building websites for hotels, resorts, restaurants, and travel brands. Visual storytelling and booking conversion optimization drive content strategy.",
+      "signals": ["hospitality case studies", "booking/reservation content", "travel brand portfolio", "visual design showcase content"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation — hospitality brands seeking digital partners for booking-focused websites",
+        "high_value_content_types": ["hospitality website case studies", "booking conversion optimization guides", "visual storytelling design content", "restaurant/hotel digital strategy guides"],
+        "competitive_density": "Low-moderate — specialized hospitality agencies are a recognizable niche"
+      }
+    },
+    {
+      "id": "real_estate_property",
+      "label": "Real Estate / Property",
+      "description": "Agencies building websites for real estate companies, property developers, and proptech firms. IDX integration, property search, and geo-specific content are key themes.",
+      "signals": ["real estate case studies", "IDX/property search content", "developer/builder portfolio", "real estate marketing content"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation — real estate companies seeking digital partners for listing-based websites",
+        "high_value_content_types": ["real estate website case studies", "IDX integration guides", "property search UX content", "real estate SEO strategy guides"],
+        "competitive_density": "Low — real estate web specialization is a well-defined niche with limited agency competition"
+      }
+    },
+    {
+      "id": "nonprofit_mission_driven",
+      "label": "Nonprofit / Mission-Driven",
+      "description": "Agencies serving nonprofits, foundations, and mission-driven organizations. Storytelling and donation conversion optimization are central to both the agency's work and its own marketing.",
+      "signals": ["nonprofit case studies", "donation/fundraising content", "impact storytelling portfolio", "accessibility/inclusivity content"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation — nonprofits seeking agency partners who understand mission-driven organizations",
+        "high_value_content_types": ["nonprofit website case studies", "donation page optimization guides", "impact storytelling content", "nonprofit digital strategy guides"],
+        "competitive_density": "Low — nonprofit-focused agencies are a small, distinct community"
+      }
+    },
+    {
+      "id": "media_publishing",
+      "label": "Media / Publishing",
+      "description": "Agencies building websites for media companies, publishers, and content platforms. Performance, content management scalability, and ad integration are key themes.",
+      "signals": ["media/publishing case studies", "CMS architecture content", "performance optimization content", "ad integration/monetization content"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation — publishers seeking agency partners for high-traffic, content-heavy sites",
+        "high_value_content_types": ["publishing platform case studies", "CMS migration guides", "web performance optimization content", "content architecture strategy guides"],
+        "competitive_density": "Low-moderate — media/publishing web specialization is a recognized expertise area"
+      }
+    },
+    {
+      "id": "enterprise_corporate",
+      "label": "Enterprise / Corporate",
+      "description": "Agencies serving large enterprises with corporate website redesigns, intranets, and digital experience platforms. Long sales cycles, complex stakeholder management, and platform expertise define the content strategy.",
+      "signals": ["enterprise case studies", "DXP/platform content (Sitecore, Adobe)", "digital transformation content", "enterprise UX methodology content"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation — enterprise teams evaluating agency partners for large-scale digital projects",
+        "high_value_content_types": ["enterprise case studies with business impact metrics", "platform comparison content (AEM vs. Sitecore vs. headless)", "digital transformation guides", "enterprise design system content"],
+        "competitive_density": "Moderate — large agencies (Accenture, Deloitte Digital) dominate broad terms but specialized modern-stack agencies differentiate on technology focus"
+      }
+    },
+    {
+      "id": "luxury_premium_brands",
+      "label": "Luxury / Premium Brands",
+      "description": "Agencies specializing in luxury and premium brand digital experiences. Design craft, brand storytelling, and experiential web design are the primary differentiators.",
+      "signals": ["luxury brand case studies", "experiential web design content", "brand storytelling portfolio", "premium design award content"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation — luxury brands seeking agency partners who understand premium brand positioning",
+        "high_value_content_types": ["luxury brand case studies", "premium web design showcase content", "brand experience strategy guides", "design award content"],
+        "competitive_density": "Low — luxury-focused digital agencies are a small, exclusive niche"
+      }
+    },
+    {
+      "id": "multi_location_franchise",
+      "label": "Multi-Location / Franchise",
+      "description": "Agencies specializing in multi-location businesses and franchise systems. Location page architecture, brand consistency at scale, and local SEO are central expertise areas.",
+      "signals": ["multi-location case studies", "franchise web content", "local SEO strategy content", "location page architecture content"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation — franchise systems and multi-location businesses seeking specialized digital partners",
+        "high_value_content_types": ["multi-location website case studies", "franchise web architecture guides", "local SEO strategy content", "location page optimization guides"],
+        "competitive_density": "Low — multi-location web specialization is a high-demand, low-competition niche"
+      }
+    }
+  ]
+}

@@ -1,0 +1,216 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "profile_version": "1.0",
+  "id": "tech_startups_general",
+  "label": "Tech Startups (General)",
+  "tier": 1,
+  "tier_label": "Core Revenue + Core Intelligence",
+
+  "description": "Early-to-growth stage technology startups across non-SaaS verticals — marketplaces, fintech, healthtech, proptech, and other venture-backed tech companies. These properties are typically pre-content-maturity, built on modern frameworks, and navigating the zero-to-one SEO journey where foundational decisions have outsized long-term impact.",
+
+  "common_tech_stacks": ["Next.js", "Nuxt", "SvelteKit", "Astro", "Remix"],
+
+  "defining_seo_characteristics": {
+    "primary_content_type": "Landing pages, blog content, marketplace listings, product pages, industry thought leadership",
+    "primary_intent_distribution": "45% informational, 30% commercial investigation, 15% transactional, 10% navigational",
+    "typical_conversion_path": "Blog/thought leadership → product landing page → signup/waitlist → activation",
+    "key_seo_challenges": [
+      "Category creation — targeting keywords for a product category that may not exist yet",
+      "Low domain authority competing against established incumbents for head terms",
+      "Resource constraints forcing brutal prioritization of content investment",
+      "Rapidly pivoting product direction invalidating existing content strategy",
+      "Marketplace cold-start problem — no listings means no organic content means no traffic means no listings"
+    ],
+    "key_seo_opportunities": [
+      "First-mover advantage on emerging category keywords before competition saturates",
+      "Thought leadership content establishing the founder/team as category authorities",
+      "Programmatic content from marketplace or platform data (if available)",
+      "PR and launch content generating high-authority backlinks early",
+      "Community-driven content seeding organic growth before paid channels scale"
+    ]
+  },
+
+  "typical_taxonomy_fingerprint": {
+    "business_model": ["saas_early_stage", "saas_growth", "marketplace_aggregator"],
+    "scale_tier": ["micro", "small", "medium"],
+    "tech_architecture": "headless_cms_ssr_ssg",
+    "seo_maturity": ["unoptimized", "foundation_built", "technically_sound"],
+    "geographic_profile": ["single_market_single_language", "single_market_multi_language"],
+    "content_velocity": ["low", "moderate"]
+  },
+
+  "fleet_intelligence_notes": {
+    "cross_industry_transfer": "Moderate. The zero-to-one SEO trajectory shares common patterns across all startup verticals — foundation building, initial authority acquisition, first content clusters. Industry-specific patterns diverge as startups mature into their vertical.",
+    "protocol_sequencing_pattern": "Typically: Index Diagnostic → Content Opportunity → Meta Surgeon → Link Architecture. Startups often have technical foundations in place (modern frameworks with good defaults) but minimal content and authority. Content strategy comes before link architecture because there must be something worth linking to.",
+    "n_min_target": 20,
+    "current_fleet_count": 0
+  },
+
+  "industries": [
+    {
+      "id": "marketplace_startups",
+      "label": "Marketplace Startups",
+      "description": "Two-sided or multi-sided marketplace platforms. The defining SEO challenge is the chicken-and-egg problem — listings create organic content, but organic traffic is needed to attract listings.",
+      "signals": ["listing/search pages", "category taxonomy", "user-generated listing content", "location-based filtering"],
+      "seo_patterns": {
+        "dominant_intent": "Transactional and local — users searching for specific services, products, or providers in a location",
+        "high_value_content_types": ["programmatic city/category landing pages", "provider/vendor profile pages", "category guide content", "market report content"],
+        "competitive_density": "Varies by vertical — established marketplaces (Airbnb, Upwork) have massive moats, but niche verticals are accessible"
+      }
+    },
+    {
+      "id": "fintech_non_saas",
+      "label": "Fintech (Non-SaaS)",
+      "description": "Consumer and business financial technology — neobanks, payment apps, lending platforms, and wealth management. YMYL territory requiring heightened E-E-A-T signals.",
+      "signals": ["financial product pages", "rate comparison content", "financial education/literacy pages", "regulatory compliance content"],
+      "seo_patterns": {
+        "dominant_intent": "Informational and commercial — consumers researching financial products and comparing rates",
+        "high_value_content_types": ["financial education content", "product comparison pages", "rate/fee calculators", "regulatory explainer content"],
+        "competitive_density": "High — NerdWallet, Bankrate, and traditional banks dominate broad terms. Niche fintech categories offer opportunity"
+      }
+    },
+    {
+      "id": "healthtech_non_saas",
+      "label": "Healthtech (Non-SaaS)",
+      "description": "Consumer and provider-facing health technology — telehealth platforms, health apps, wellness tech. YMYL with strict quality requirements for health-related content.",
+      "signals": ["health service pages", "provider directory content", "symptom/condition pages", "telehealth booking flows"],
+      "seo_patterns": {
+        "dominant_intent": "Informational and transactional — patients seeking health information and booking care",
+        "high_value_content_types": ["condition/symptom explainer content (medically reviewed)", "provider comparison content", "treatment guide pages", "health cost transparency content"],
+        "competitive_density": "High for broad health terms (WebMD, Healthline), moderate for specific healthtech services"
+      }
+    },
+    {
+      "id": "proptech",
+      "label": "Proptech",
+      "description": "Property technology startups — tenant platforms, property management, real estate analytics, and construction tech. Geo-heavy SEO with strong programmatic content opportunities.",
+      "signals": ["property listing/search pages", "market data content", "location-specific landing pages", "real estate analytics tools"],
+      "seo_patterns": {
+        "dominant_intent": "Transactional and informational — property searches combined with market research",
+        "high_value_content_types": ["programmatic city/neighborhood pages", "market report content", "property type guides", "investment analysis tools"],
+        "competitive_density": "High for consumer real estate (Zillow, Redfin), lower for B2B proptech and construction tech niches"
+      }
+    },
+    {
+      "id": "climate_cleantech",
+      "label": "Climate / Cleantech",
+      "description": "Climate technology, renewable energy, carbon accounting, and sustainability startups. Emerging category where content authority is being established in real-time.",
+      "signals": ["sustainability/carbon content", "renewable energy product pages", "environmental impact tools", "regulatory/compliance content"],
+      "seo_patterns": {
+        "dominant_intent": "Informational — businesses and consumers researching climate solutions and regulations",
+        "high_value_content_types": ["regulatory guide content", "technology comparison pages", "ROI/payback calculators", "industry-specific sustainability guides"],
+        "competitive_density": "Low — category is nascent. Early content investment creates outsized long-term positions"
+      }
+    },
+    {
+      "id": "mobility_transportation",
+      "label": "Mobility / Transportation",
+      "description": "Transportation technology — EV charging, fleet management, micro-mobility, and logistics platforms. Geo-specific content patterns combined with technology education.",
+      "signals": ["location/map-based content", "vehicle/fleet management pages", "charging station content", "route optimization tools"],
+      "seo_patterns": {
+        "dominant_intent": "Transactional and local — location-specific service discovery",
+        "high_value_content_types": ["programmatic location pages", "vehicle/technology comparison content", "route/charging guides", "fleet management best practices"],
+        "competitive_density": "Moderate — fragmented across many sub-verticals with few dominant organic players per niche"
+      }
+    },
+    {
+      "id": "media_content_startups",
+      "label": "Media / Content Startups",
+      "description": "Digital media platforms, creator tools, and content distribution startups. SEO is existential — organic traffic is often the primary business model driver, not a support channel.",
+      "signals": ["high-frequency content publishing", "creator/author pages", "category/tag taxonomy", "newsletter/subscription content"],
+      "seo_patterns": {
+        "dominant_intent": "Informational — readers seeking content on specific topics",
+        "high_value_content_types": ["topical authority cluster content", "data-driven/original research content", "expert interview/opinion content", "trending topic coverage"],
+        "competitive_density": "Very high — media is the most content-competitive vertical. Differentiation requires either niche focus or original data"
+      }
+    },
+    {
+      "id": "social_community_platforms",
+      "label": "Social / Community Platforms",
+      "description": "Community platforms, social networks, and forum-based products. SEO driven by user-generated content (UGC) indexation — the community IS the content.",
+      "signals": ["user-generated content pages", "profile/member pages", "discussion/thread pages", "community guidelines content"],
+      "seo_patterns": {
+        "dominant_intent": "Informational and navigational — users searching for specific discussions, communities, or topics",
+        "high_value_content_types": ["UGC thread pages (curated for quality)", "topic/category hub pages", "community guide content", "expert AMA/interview content"],
+        "competitive_density": "Moderate — Reddit dominates broad community queries but niche communities compete effectively on specialized topics"
+      }
+    },
+    {
+      "id": "insurance_tech",
+      "label": "Insurance Tech",
+      "description": "Digital insurance platforms, comparison engines, and insurtech startups. YMYL territory with strong programmatic content opportunities around coverage types and geography.",
+      "signals": ["insurance product pages", "quote/comparison tools", "coverage explainer content", "state-specific regulatory pages"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation — consumers comparing insurance options and seeking coverage information",
+        "high_value_content_types": ["coverage type explainer pages", "state-specific rate content (programmatic)", "insurance comparison tools", "claims process guides"],
+        "competitive_density": "High — Policygenius, The Zebra, and traditional carriers invest heavily in organic content"
+      }
+    },
+    {
+      "id": "travel_hospitality_tech",
+      "label": "Travel / Hospitality Tech",
+      "description": "Travel booking platforms, hospitality management, and travel experience startups. Intensely geo-specific with massive programmatic content potential around destinations and properties.",
+      "signals": ["destination/property listing pages", "booking flow content", "travel guide pages", "review/rating content"],
+      "seo_patterns": {
+        "dominant_intent": "Transactional and informational — travelers researching destinations and booking accommodations",
+        "high_value_content_types": ["programmatic destination pages", "travel guide content", "property/experience comparison", "seasonal/event-based travel content"],
+        "competitive_density": "Very high — Booking.com, TripAdvisor, Airbnb have enormous organic moats. Niche travel verticals offer opportunity"
+      }
+    },
+    {
+      "id": "recruiting_talent",
+      "label": "Recruiting / Talent",
+      "description": "Recruiting platforms, talent marketplaces, and HR tech startups. Two-sided marketplace dynamics with job listing pages as the primary organic content layer.",
+      "signals": ["job listing pages", "company profile pages", "salary/compensation content", "career advice pages"],
+      "seo_patterns": {
+        "dominant_intent": "Transactional and informational — job seekers searching for roles and researching companies",
+        "high_value_content_types": ["programmatic job listing pages", "salary benchmark content", "company review/culture content", "career guide content by role"],
+        "competitive_density": "Very high — Indeed, LinkedIn, Glassdoor dominate. Vertical-specific recruiting niches offer opportunity"
+      }
+    },
+    {
+      "id": "govtech_civic_tech",
+      "label": "Govtech / Civic Tech",
+      "description": "Government technology, civic engagement platforms, and public sector tech startups. Unique SEO landscape — low commercial competition but complex stakeholder content needs.",
+      "signals": ["government/civic service pages", "public data content", "policy explainer pages", "community engagement tools"],
+      "seo_patterns": {
+        "dominant_intent": "Informational — citizens seeking government services and policy information",
+        "high_value_content_types": ["public service guide content", "policy/regulation explainers", "government data visualization", "civic process guides"],
+        "competitive_density": "Low — government .gov sites rank well by default but rarely optimize, creating opportunity for well-optimized civic tech content"
+      }
+    },
+    {
+      "id": "web3_blockchain",
+      "label": "Web3 / Blockchain",
+      "description": "Blockchain infrastructure, DeFi, NFT platforms, and Web3 startups. Rapidly evolving terminology creates constant keyword opportunity as new concepts enter public awareness.",
+      "signals": ["blockchain/crypto product pages", "protocol documentation", "DeFi/NFT content", "wallet/transaction tools"],
+      "seo_patterns": {
+        "dominant_intent": "Informational — users seeking to understand emerging Web3 concepts and evaluate platforms",
+        "high_value_content_types": ["concept explainer content (DeFi, NFT, DAO)", "protocol comparison pages", "security/safety guides", "getting started tutorials"],
+        "competitive_density": "Moderate — CoinDesk, CoinGecko dominate informational queries but platform-specific and emerging concept queries are accessible"
+      }
+    },
+    {
+      "id": "personal_finance_consumer_fintech",
+      "label": "Personal Finance / Consumer Fintech",
+      "description": "Consumer financial apps — budgeting, investing, saving, and financial wellness tools. YMYL territory with massive informational content demand around financial literacy.",
+      "signals": ["financial tool features", "budgeting/saving content", "investment education pages", "financial calculator tools"],
+      "seo_patterns": {
+        "dominant_intent": "Informational — consumers seeking financial education and tool comparisons",
+        "high_value_content_types": ["financial literacy guides", "budgeting/saving strategy content", "investment explainer content", "financial tool comparisons"],
+        "competitive_density": "High — NerdWallet, Investopedia have massive authority. Niche personal finance topics (FIRE, student debt, freelancer taxes) offer opportunity"
+      }
+    },
+    {
+      "id": "legaltech_startups",
+      "label": "Legaltech Startups",
+      "description": "Legal technology startups disrupting traditional legal services — contract automation, legal marketplaces, compliance platforms. YMYL with opportunity in demystifying legal processes.",
+      "signals": ["legal service pages", "contract/document automation content", "legal guide pages", "compliance tool content"],
+      "seo_patterns": {
+        "dominant_intent": "Informational — individuals and businesses seeking legal guidance and comparing services",
+        "high_value_content_types": ["legal process guide content", "contract template libraries", "compliance checklist content", "legal cost transparency content"],
+        "competitive_density": "Moderate — LegalZoom and Rocket Lawyer dominate broad terms but specific legal domains have accessible long-tail"
+      }
+    }
+  ]
+}

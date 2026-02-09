@@ -1,0 +1,238 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "profile_version": "1.0",
+  "id": "headless_ecommerce",
+  "label": "Headless E-commerce",
+  "tier": 1,
+  "tier_label": "Core Revenue + Core Intelligence",
+
+  "description": "E-commerce properties using decoupled architectures — a modern JavaScript frontend consuming product data from a commerce API (Shopify Storefront API, Medusa, Saleor, Commerce.js, or custom). These properties share unique SEO challenges around product indexation, faceted navigation, and the tension between dynamic filtering and crawl efficiency.",
+
+  "common_tech_stacks": ["Shopify Hydrogen", "Medusa", "Saleor", "Commerce.js", "custom frontend + commerce API"],
+
+  "defining_seo_characteristics": {
+    "primary_content_type": "Product pages, collection/category pages, editorial blog, buying guides, lookbooks",
+    "primary_intent_distribution": "40% transactional, 35% commercial investigation, 25% informational",
+    "typical_conversion_path": "Category/collection page → product page → cart → checkout",
+    "key_seo_challenges": [
+      "Faceted navigation generating crawlable URL permutations that waste crawl budget",
+      "Thin product descriptions across large catalogs",
+      "Duplicate content from product variants (size, color) creating separate URLs",
+      "JavaScript rendering of product data affecting indexation speed",
+      "Out-of-stock product pages requiring strategic handling (200 vs. 404 vs. redirect)"
+    ],
+    "key_seo_opportunities": [
+      "Programmatic category and subcategory pages targeting long-tail product queries",
+      "Editorial content (buying guides, style guides) bridging informational intent to product pages",
+      "Product schema markup for rich results in shopping SERPs",
+      "User-generated content (reviews) as unique page-level content",
+      "Seasonal and trend-based content for temporal keyword capture"
+    ]
+  },
+
+  "typical_taxonomy_fingerprint": {
+    "business_model": ["ecommerce_small", "ecommerce_enterprise", "d2c_brand"],
+    "scale_tier": ["small", "medium", "large"],
+    "tech_architecture": "headless_cms_ssr_ssg",
+    "seo_maturity": ["foundation_built", "technically_sound", "growth_phase"],
+    "geographic_profile": ["single_market_single_language", "global_multi_language"],
+    "content_velocity": ["moderate", "high", "programmatic"]
+  },
+
+  "fleet_intelligence_notes": {
+    "cross_industry_transfer": "High within e-commerce cohort. Product page optimization, category architecture, and faceted navigation patterns transfer across all retail verticals. Lower transfer to non-commerce cohorts.",
+    "protocol_sequencing_pattern": "Typically: Index Diagnostic → Meta Surgeon → Content Opportunity → Link Architecture. Commerce sites often have indexation issues from faceted navigation that must be resolved before content expansion makes sense.",
+    "n_min_target": 25,
+    "current_fleet_count": 0
+  },
+
+  "industries": [
+    {
+      "id": "fashion_apparel",
+      "label": "Fashion / Apparel",
+      "description": "Clothing, footwear, and accessories e-commerce. Highly visual, seasonal, and trend-driven. SEO must balance editorial brand content with transactional product discovery.",
+      "signals": ["clothing/footwear product categories", "size guide pages", "lookbook/editorial content", "seasonal collection pages"],
+      "seo_patterns": {
+        "dominant_intent": "Transactional and commercial investigation — shoppers browsing and comparing",
+        "high_value_content_types": ["style guide editorials", "outfit inspiration pages", "size/fit guide content", "trend report pages", "sustainable fashion content"],
+        "competitive_density": "Very high — fast fashion giants and DTC brands both invest heavily in organic"
+      }
+    },
+    {
+      "id": "beauty_cosmetics",
+      "label": "Beauty / Cosmetics",
+      "description": "Skincare, makeup, haircare, and beauty product e-commerce. Ingredient-focused content drives informational traffic; product pages capture transactional intent.",
+      "signals": ["skincare/makeup product categories", "ingredient pages", "routine/regimen content", "shade finder tools"],
+      "seo_patterns": {
+        "dominant_intent": "Informational leading to transactional — ingredient research precedes purchase",
+        "high_value_content_types": ["ingredient explainers", "skincare routine guides", "product comparison content", "skin type/concern guides"],
+        "competitive_density": "High — established beauty brands and DTC challengers both compete aggressively on content"
+      }
+    },
+    {
+      "id": "health_wellness",
+      "label": "Health / Wellness",
+      "description": "Supplements, fitness equipment, wellness products. YMYL territory — Google applies heightened E-E-A-T standards to health-related content and product claims.",
+      "signals": ["supplement/wellness product categories", "health benefit content", "fitness equipment pages", "certification/lab testing pages"],
+      "seo_patterns": {
+        "dominant_intent": "Informational with high commercial tail — consumers research health claims thoroughly",
+        "high_value_content_types": ["ingredient research content", "clinical study summaries", "wellness routine guides", "practitioner-reviewed content"],
+        "competitive_density": "Moderate — YMYL filtering creates a natural moat for sites with genuine E-E-A-T signals"
+      }
+    },
+    {
+      "id": "food_beverage",
+      "label": "Food / Beverage",
+      "description": "Specialty food, beverages, snacks, and meal kits. Unique SEO patterns around recipe content, dietary restriction targeting, and subscription-driven conversion.",
+      "signals": ["food/beverage product categories", "recipe content", "dietary restriction pages", "subscription meal content"],
+      "seo_patterns": {
+        "dominant_intent": "Informational (recipes, dietary guides) funneling to transactional (product purchase)",
+        "high_value_content_types": ["recipe content with product integration", "dietary guide pages (keto, vegan, gluten-free)", "ingredient sourcing stories", "meal plan content"],
+        "competitive_density": "Moderate — recipe sites dominate informational but product-specific queries are less contested"
+      }
+    },
+    {
+      "id": "home_furniture",
+      "label": "Home / Furniture",
+      "description": "Furniture, decor, home goods e-commerce. High-consideration purchases with long research cycles. Room-based and style-based content architecture drives organic discovery.",
+      "signals": ["furniture/decor product categories", "room inspiration content", "interior design guides", "material/quality explainers"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation — extensive browsing and comparison before high-AOV purchases",
+        "high_value_content_types": ["room design guides", "material comparison content", "dimension/sizing guides", "style trend content"],
+        "competitive_density": "Moderate — Wayfair and IKEA dominate broad terms but niche styles and materials are accessible"
+      }
+    },
+    {
+      "id": "consumer_electronics",
+      "label": "Consumer Electronics",
+      "description": "Tech gadgets, audio, smart home, and consumer electronics. Review-driven purchase decisions with strong comparison and specification keyword demand.",
+      "signals": ["electronics product categories", "specification pages", "comparison/review content", "compatibility guides"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation — specification comparison dominates pre-purchase research",
+        "high_value_content_types": ["product comparison matrices", "buying guides by use case", "compatibility/setup guides", "best-of roundup content"],
+        "competitive_density": "High — Amazon, Best Buy, and review sites (Wirecutter, RTINGS) control the landscape"
+      }
+    },
+    {
+      "id": "outdoor_sports",
+      "label": "Outdoor / Sports",
+      "description": "Outdoor gear, sporting goods, athletic equipment. Activity-based content architecture aligns with how users search — by activity, not by product category.",
+      "signals": ["outdoor/sports product categories", "activity guide content", "gear review pages", "trail/destination content"],
+      "seo_patterns": {
+        "dominant_intent": "Informational and commercial — activity research leads to gear purchase",
+        "high_value_content_types": ["activity-specific gear guides", "destination/trail content", "seasonal preparation guides", "gear comparison by activity level"],
+        "competitive_density": "Moderate — REI's content moat is formidable but niche activities have accessible long-tail"
+      }
+    },
+    {
+      "id": "pet_products",
+      "label": "Pet Products",
+      "description": "Pet food, supplies, and accessories e-commerce. Emotionally-driven purchase behavior with strong breed-specific and condition-specific content opportunity.",
+      "signals": ["pet food/supply product categories", "breed-specific content", "pet health/nutrition pages", "pet care guides"],
+      "seo_patterns": {
+        "dominant_intent": "Informational leading to transactional — pet owners research breed-specific needs",
+        "high_value_content_types": ["breed-specific care guides", "pet nutrition explainers", "product safety content", "life-stage feeding guides"],
+        "competitive_density": "Moderate — Chewy dominates broadly but breed-specific and condition-specific queries are less contested"
+      }
+    },
+    {
+      "id": "baby_children",
+      "label": "Baby / Children",
+      "description": "Baby gear, children's clothing, toys, and parenting products. Safety-conscious audience where E-E-A-T signals and trust indicators directly affect conversion.",
+      "signals": ["baby/children product categories", "safety certification pages", "age-appropriate guides", "parenting content"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation with strong safety-informational component",
+        "high_value_content_types": ["age-appropriate product guides", "safety standard explainers", "milestone-based shopping guides", "registry/checklist content"],
+        "competitive_density": "Moderate — fragmented across many DTC brands with few dominant organic players"
+      }
+    },
+    {
+      "id": "jewelry_watches",
+      "label": "Jewelry / Watches",
+      "description": "Fine jewelry, fashion jewelry, watches, and accessories. High-AOV, high-consideration purchases where brand authority and product education drive organic conversion.",
+      "signals": ["jewelry/watch product categories", "gemstone/material education pages", "gift guide content", "care/maintenance guides"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation — extensive research for high-value purchases",
+        "high_value_content_types": ["gemstone education content", "buying guides (engagement rings, watches)", "care/maintenance guides", "style/occasion guides"],
+        "competitive_density": "Moderate — Blue Nile and established brands dominate broad terms, niche materials and styles offer opportunity"
+      }
+    },
+    {
+      "id": "automotive_aftermarket",
+      "label": "Automotive Aftermarket",
+      "description": "Auto parts, accessories, and aftermarket upgrades. Vehicle fitment is the defining SEO challenge — content and product architecture must resolve year/make/model specificity.",
+      "signals": ["auto parts product categories", "vehicle fitment/compatibility tools", "installation guide content", "year-make-model URL patterns"],
+      "seo_patterns": {
+        "dominant_intent": "Transactional with fitment-specific informational demand",
+        "high_value_content_types": ["vehicle-specific fitment pages (programmatic)", "installation guides", "part comparison content", "maintenance schedule guides"],
+        "competitive_density": "High for broad terms (AutoZone, RockAuto) but long-tail year/make/model queries are accessible"
+      }
+    },
+    {
+      "id": "art_crafts_stationery",
+      "label": "Art / Crafts / Stationery",
+      "description": "Art supplies, craft materials, stationery, and creative tools. Tutorial-driven content strategy where how-to content is the primary organic acquisition channel.",
+      "signals": ["art/craft supply categories", "tutorial/how-to content", "project idea pages", "material guide content"],
+      "seo_patterns": {
+        "dominant_intent": "Informational — crafters and artists searching for techniques and project ideas",
+        "high_value_content_types": ["step-by-step tutorials", "material comparison guides", "project idea galleries", "technique-specific content"],
+        "competitive_density": "Low-moderate — fragmented market with strong community engagement signals"
+      }
+    },
+    {
+      "id": "sustainability_eco_brands",
+      "label": "Sustainability / Eco-Brands",
+      "description": "Eco-friendly, sustainable, and ethical product brands. Values-driven audience where transparency content (sourcing, certifications, impact reports) doubles as SEO asset and trust builder.",
+      "signals": ["sustainability certification pages", "impact/transparency reports", "eco-material content", "ethical sourcing pages"],
+      "seo_patterns": {
+        "dominant_intent": "Informational and commercial — values-aligned research precedes purchase",
+        "high_value_content_types": ["material sourcing stories", "certification explainers", "environmental impact content", "sustainable alternative guides"],
+        "competitive_density": "Low — growing but still nascent. Early content moat builders have outsized opportunity"
+      }
+    },
+    {
+      "id": "b2b_ecommerce",
+      "label": "B2B E-commerce",
+      "description": "Business-to-business product sales online. Unique SEO patterns around bulk pricing, specification sheets, and procurement-oriented search intent.",
+      "signals": ["bulk/wholesale pricing", "specification sheet pages", "RFQ/quote request flows", "industry-specific product catalogs"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation and transactional — procurement teams researching suppliers",
+        "high_value_content_types": ["product specification pages", "industry application guides", "compliance/certification content", "bulk buying guides"],
+        "competitive_density": "Low — B2B e-commerce is significantly under-optimized compared to B2C, creating opportunity"
+      }
+    },
+    {
+      "id": "subscription_commerce",
+      "label": "Subscription Commerce",
+      "description": "Subscription box and recurring product delivery brands. SEO patterns unique around unboxing content, comparison content, and cancel/churn-related queries that can be recaptured.",
+      "signals": ["subscription/recurring product model", "unboxing content", "subscription comparison pages", "gift subscription landing pages"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation — consumers comparing subscription options before committing",
+        "high_value_content_types": ["subscription box comparison content", "unboxing/review content", "gift guide pages", "subscription value analysis"],
+        "competitive_density": "Moderate — niche-specific. Broad 'best subscription box' queries are competitive but vertical-specific are accessible"
+      }
+    },
+    {
+      "id": "luxury_premium_dtc",
+      "label": "Luxury / Premium DTC",
+      "description": "Premium and luxury direct-to-consumer brands. SEO strategy is brand-protective — controlling branded SERPs, building editorial authority, and defending against reseller/affiliate encroachment.",
+      "signals": ["premium price positioning", "brand storytelling content", "craftsmanship/provenance pages", "editorial lookbook content"],
+      "seo_patterns": {
+        "dominant_intent": "Navigational and brand-investigation — consumers researching brand credibility",
+        "high_value_content_types": ["brand story content", "craftsmanship/origin pages", "editorial/lookbook content", "press/media mention pages"],
+        "competitive_density": "Low for branded terms (if owned), high for category terms dominated by aggregators and review sites"
+      }
+    },
+    {
+      "id": "multi_brand_house_of_brands",
+      "label": "Multi-Brand / House of Brands",
+      "description": "Parent companies operating multiple product brands under one commerce platform. SEO challenge is inter-brand architecture — preventing cannibalization while maximizing aggregate authority.",
+      "signals": ["multiple brand landing pages", "brand portfolio architecture", "cross-brand content strategy", "shared commerce platform"],
+      "seo_patterns": {
+        "dominant_intent": "Mixed — varies by brand and product category",
+        "high_value_content_types": ["brand-specific landing pages", "cross-brand comparison content", "category-level buying guides", "portfolio-level authority content"],
+        "competitive_density": "Varies by brand — the architectural challenge of managing inter-brand SEO is the primary diagnostic focus"
+      }
+    }
+  ]
+}

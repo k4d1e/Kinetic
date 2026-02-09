@@ -1,0 +1,206 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "profile_version": "1.0",
+  "id": "headless_wordpress_properties",
+  "label": "Headless WordPress Properties",
+  "tier": 2,
+  "tier_label": "Strategic Intelligence",
+
+  "description": "Properties using WordPress as a headless CMS with a modern JavaScript frontend (Next.js, Nuxt, Astro) consuming content via the WordPress REST API or WPGraphQL. These properties occupy a unique architectural position — leveraging WordPress's mature content management ecosystem while gaining the performance and flexibility of a decoupled frontend. E.V.O. learns migration-specific, API-specific, and hybrid-architecture diagnostic patterns from this cohort that no other cohort produces.",
+
+  "common_tech_stacks": ["WordPress REST API + Next.js", "WordPress REST API + Nuxt", "WordPress REST API + Astro", "WPGraphQL + Next.js", "WPGraphQL + Nuxt", "WPGraphQL + Astro"],
+
+  "defining_seo_characteristics": {
+    "primary_content_type": "Articles, pages, custom post types, archive pages, taxonomy pages — all WordPress-native content types rendered through a JavaScript frontend",
+    "primary_intent_distribution": "Varies by industry — inherits the content strategy of the WordPress backend while gaining technical advantages of the frontend",
+    "typical_conversion_path": "Content page → category/topic hub → conversion page (contact, signup, donation)",
+    "key_seo_challenges": [
+      "Preview/draft routing — ensuring WordPress preview functionality works through the decoupled frontend",
+      "REST API pagination causing incomplete content indexation when Google can't follow paginated API responses",
+      "Legacy URL preservation during migration from traditional WordPress to headless — redirect mapping at scale",
+      "Sitemap generation — WordPress sitemaps may reference backend URLs while the frontend serves different URL patterns",
+      "Plugin SEO features (Yoast, Rank Math) partially broken when output is rendered by a separate frontend",
+      "Incremental Static Regeneration (ISR) cache invalidation when content is updated in WordPress"
+    ],
+    "key_seo_opportunities": [
+      "Massive performance improvement over traditional WordPress — Core Web Vitals gains from static/SSR rendering",
+      "Preserving WordPress's mature plugin ecosystem for content management while gaining frontend flexibility",
+      "Custom rendering logic for specific content types — programmatic pages that WordPress alone couldn't generate",
+      "Selective server-side rendering for SEO-critical pages while client-rendering interactive components",
+      "Leveraging WordPress's existing content corpus and authority during migration to headless"
+    ]
+  },
+
+  "typical_taxonomy_fingerprint": {
+    "business_model": ["publisher_media", "professional_services_b2b", "knowledge_base_documentation"],
+    "scale_tier": ["medium", "large"],
+    "tech_architecture": "headless_cms_ssr_ssg",
+    "seo_maturity": ["technically_sound", "growth_phase", "mature_defending"],
+    "geographic_profile": ["single_market_single_language", "single_market_multi_language"],
+    "content_velocity": ["moderate", "high"]
+  },
+
+  "fleet_intelligence_notes": {
+    "cross_industry_transfer": "High within this cohort. The WordPress-specific headless patterns (REST API pagination, preview routing, ISR invalidation, legacy URL migration) are identical regardless of industry. The industry dimension determines content strategy, but the architectural diagnostics transfer completely.",
+    "protocol_sequencing_pattern": "Typically: Index Diagnostic → Meta Surgeon → Link Architecture → Content Opportunity. WordPress-to-headless migrations almost always introduce indexation issues first (broken sitemaps, redirect gaps, preview URL leakage). These must be resolved before any content expansion.",
+    "n_min_target": 20,
+    "current_fleet_count": 0
+  },
+
+  "industries": [
+    {
+      "id": "media_digital_publishing",
+      "label": "Media / Digital Publishing",
+      "description": "News outlets, magazines, and digital publishers using headless WordPress for performance-critical, high-traffic content delivery. WordPress's editorial workflow combined with a fast frontend.",
+      "signals": ["high publish frequency", "author/byline pages", "category/tag heavy taxonomy", "Google News sitemap", "ad integration"],
+      "seo_patterns": {
+        "dominant_intent": "Informational — readers seeking news and editorial content",
+        "high_value_content_types": ["news articles with structured data", "topic hub pages", "author authority pages", "evergreen resource content"],
+        "competitive_density": "Very high — digital publishing is the most content-competitive vertical"
+      }
+    },
+    {
+      "id": "higher_education",
+      "label": "Higher Education",
+      "description": "Universities and colleges using headless WordPress for institutional websites. Complex information architecture with multiple audiences (students, faculty, alumni, donors).",
+      "signals": ["program/department pages", "admissions content", "campus event pages", "faculty directory", "multi-audience navigation"],
+      "seo_patterns": {
+        "dominant_intent": "Informational and navigational — prospective students researching programs and current users finding resources",
+        "high_value_content_types": ["program detail pages", "admissions guide content", "campus life content", "research publication pages"],
+        "competitive_density": "Moderate — .edu domains have inherent authority advantage but compete against each other for program-specific queries"
+      }
+    },
+    {
+      "id": "healthcare_hospital_systems",
+      "label": "Healthcare / Hospital Systems",
+      "description": "Healthcare organizations and hospital systems using headless WordPress. YMYL content requirements combined with complex provider directory and service line architecture.",
+      "signals": ["provider directory pages", "service line/condition pages", "patient portal links", "location/facility pages", "HIPAA compliance content"],
+      "seo_patterns": {
+        "dominant_intent": "Informational and local — patients seeking health information and nearby providers",
+        "high_value_content_types": ["condition/treatment pages (medically reviewed)", "provider profile pages", "location pages with schema", "patient education content"],
+        "competitive_density": "Moderate — hospital systems compete regionally. Healthline/WebMD dominate national informational queries"
+      }
+    },
+    {
+      "id": "nonprofit_foundations",
+      "label": "Nonprofit / Foundations",
+      "description": "Nonprofits and foundations using headless WordPress for storytelling-driven websites. Donation conversion and impact communication are primary organic goals.",
+      "signals": ["impact/program pages", "donation flow", "volunteer/event content", "annual report pages", "story/testimonial content"],
+      "seo_patterns": {
+        "dominant_intent": "Informational and navigational — supporters seeking information about the organization's mission and impact",
+        "high_value_content_types": ["impact story content", "program detail pages", "resource/advocacy content", "event pages"],
+        "competitive_density": "Low — nonprofits compete for cause-specific queries with limited organic competition"
+      }
+    },
+    {
+      "id": "government_public_sector",
+      "label": "Government / Public Sector",
+      "description": "Government agencies and public sector organizations using headless WordPress for citizen-facing websites. Accessibility compliance and information findability are critical.",
+      "signals": ["service/form pages", "policy/regulation content", "accessibility statement", "multilingual content", "public meeting/agenda pages"],
+      "seo_patterns": {
+        "dominant_intent": "Navigational and informational — citizens seeking specific government services and information",
+        "high_value_content_types": ["service guide pages", "policy explainer content", "public notice pages", "FAQ/knowledge base content"],
+        "competitive_density": "Very low — .gov domains face minimal organic competition for government service queries"
+      }
+    },
+    {
+      "id": "religious_faith_organizations",
+      "label": "Religious / Faith Organizations",
+      "description": "Churches, religious organizations, and faith-based institutions using headless WordPress. Community engagement and event promotion drive content strategy.",
+      "signals": ["sermon/message content", "event/calendar pages", "ministry/group pages", "location/campus pages", "giving/donation flow"],
+      "seo_patterns": {
+        "dominant_intent": "Navigational and local — community members finding services and events",
+        "high_value_content_types": ["sermon/message archive content", "event pages with schema", "location pages with local SEO", "community resource content"],
+        "competitive_density": "Very low — faith organization queries are hyperlocal with minimal competition"
+      }
+    },
+    {
+      "id": "professional_services_law_firms",
+      "label": "Professional Services / Law Firms",
+      "description": "Law firms, accounting firms, and professional services organizations using headless WordPress. Practice area content and attorney profiles are primary organic assets.",
+      "signals": ["practice area pages", "attorney/professional bio pages", "case result content", "industry-specific landing pages", "resource/guide content"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation and local — potential clients seeking professional services in a specific area",
+        "high_value_content_types": ["practice area guide content", "professional bio pages with schema", "case study/result pages", "location-specific landing pages"],
+        "competitive_density": "High for broad legal terms, moderate for specialized practice areas and smaller markets"
+      }
+    },
+    {
+      "id": "real_estate_property_development",
+      "label": "Real Estate / Property Development",
+      "description": "Real estate firms and property developers using headless WordPress. Property listings, market content, and neighborhood guides drive organic traffic.",
+      "signals": ["property listing pages", "neighborhood/community content", "market report pages", "agent/team profiles", "virtual tour content"],
+      "seo_patterns": {
+        "dominant_intent": "Transactional and informational — buyers/renters searching for properties and researching markets",
+        "high_value_content_types": ["neighborhood guide content", "market report pages", "property type landing pages", "community spotlight content"],
+        "competitive_density": "High — Zillow, Redfin dominate national queries. Local/neighborhood content is more accessible"
+      }
+    },
+    {
+      "id": "membership_association_organizations",
+      "label": "Membership / Association Organizations",
+      "description": "Professional associations, membership organizations, and industry bodies using headless WordPress. Member resources, event content, and industry publications drive organic discovery.",
+      "signals": ["member directory", "event/conference pages", "publication/journal content", "certification/credential pages", "advocacy/policy content"],
+      "seo_patterns": {
+        "dominant_intent": "Informational and navigational — professionals seeking industry resources and membership information",
+        "high_value_content_types": ["industry resource content", "event/conference pages", "certification guide content", "industry report publications"],
+        "competitive_density": "Low — association sites often have high domain authority and face limited competition for industry-specific queries"
+      }
+    },
+    {
+      "id": "multi_location_service_brands",
+      "label": "Multi-Location Service Brands",
+      "description": "Service brands with multiple locations using headless WordPress. Location page architecture and local SEO at scale are the primary technical challenges.",
+      "signals": ["location pages with schema", "service area content", "multi-GBP management", "location-specific content variations", "booking/scheduling integration"],
+      "seo_patterns": {
+        "dominant_intent": "Local and transactional — customers finding nearby service locations",
+        "high_value_content_types": ["location pages with local schema", "service-specific landing pages per location", "local review/testimonial content", "service area guide content"],
+        "competitive_density": "Moderate — location-based queries are competitive in dense markets but accessible in underserved areas"
+      }
+    },
+    {
+      "id": "food_restaurant_groups",
+      "label": "Food / Restaurant Groups",
+      "description": "Restaurant groups, food service brands, and hospitality companies using headless WordPress. Menu content, location pages, and ordering integration drive organic presence.",
+      "signals": ["menu pages", "location/restaurant pages", "online ordering integration", "event/catering content", "food photography content"],
+      "seo_patterns": {
+        "dominant_intent": "Local and transactional — diners finding nearby restaurants and viewing menus",
+        "high_value_content_types": ["menu pages with schema", "location pages with local SEO", "cuisine/specialty content", "event/catering landing pages"],
+        "competitive_density": "High locally (Yelp, Google Maps) but restaurant group websites compete effectively for branded and menu-specific queries"
+      }
+    },
+    {
+      "id": "automotive_dealership_groups",
+      "label": "Automotive Dealership Groups",
+      "description": "Auto dealer groups using headless WordPress for multi-location dealership websites. Inventory integration, vehicle search, and location SEO are primary challenges.",
+      "signals": ["vehicle inventory pages", "dealership location pages", "finance/trade-in tools", "service department content", "make/model landing pages"],
+      "seo_patterns": {
+        "dominant_intent": "Transactional and commercial — car shoppers researching vehicles and finding nearby dealerships",
+        "high_value_content_types": ["make/model landing pages", "inventory search pages", "vehicle comparison content", "dealership location pages with local SEO"],
+        "competitive_density": "High — AutoTrader, Cars.com dominate national inventory queries. Local dealership queries are more accessible"
+      }
+    },
+    {
+      "id": "travel_tourism",
+      "label": "Travel / Tourism",
+      "description": "Tourism boards, travel companies, and destination organizations using headless WordPress. Destination content, itinerary guides, and seasonal content drive organic traffic.",
+      "signals": ["destination pages", "itinerary/guide content", "accommodation/activity listings", "seasonal event content", "travel planning tools"],
+      "seo_patterns": {
+        "dominant_intent": "Informational and transactional — travelers researching destinations and planning trips",
+        "high_value_content_types": ["destination guide content", "itinerary pages", "seasonal/event-based content", "accommodation comparison content"],
+        "competitive_density": "Very high nationally (TripAdvisor, Lonely Planet). Destination-specific and regional content is more accessible"
+      }
+    },
+    {
+      "id": "b2b_manufacturing_industrial",
+      "label": "B2B Manufacturing / Industrial",
+      "description": "Manufacturing companies and industrial businesses using headless WordPress. Product catalog, specification content, and industry application pages drive organic traffic from procurement professionals.",
+      "signals": ["product catalog/spec pages", "industry application content", "technical documentation", "distributor/dealer locator", "certification/compliance pages"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation — procurement teams researching industrial products and suppliers",
+        "high_value_content_types": ["product specification pages", "industry application guides", "technical white papers", "case study content", "compliance/certification pages"],
+        "competitive_density": "Low — B2B manufacturing is significantly under-optimized for organic search, creating opportunity for early movers"
+      }
+    }
+  ]
+}

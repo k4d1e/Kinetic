@@ -1,0 +1,249 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "profile_version": "1.0",
+  "id": "saas_marketing_sites",
+  "label": "SaaS Marketing Sites",
+  "tier": 1,
+  "tier_label": "Core Revenue + Core Intelligence",
+
+  "description": "Marketing websites for SaaS products built on modern JavaScript frameworks. These properties share a common architectural DNA — server-rendered or statically generated pages, headless CMS content pipelines, and a content-led organic acquisition strategy where blog/resource content funnels visitors toward product signups.",
+
+  "common_tech_stacks": ["Next.js", "Nuxt", "Astro", "Remix", "Gatsby"],
+
+  "defining_seo_characteristics": {
+    "primary_content_type": "Blog posts, comparison pages, feature landing pages, integration directories, resource hubs",
+    "primary_intent_distribution": "60% informational, 25% commercial investigation, 15% transactional",
+    "typical_conversion_path": "Blog post → resource page → pricing page → signup",
+    "key_seo_challenges": [
+      "Content cannibalization across overlapping feature/use-case pages",
+      "Blog content decay as SaaS landscape evolves rapidly",
+      "Competitor comparison pages requiring constant freshness",
+      "Integration/marketplace pages with thin or duplicate content",
+      "Branded vs. non-branded search balance as the product matures"
+    ],
+    "key_seo_opportunities": [
+      "Programmatic comparison and alternative-to pages",
+      "Integration ecosystem pages as long-tail keyword magnets",
+      "Template/resource libraries for top-of-funnel capture",
+      "Product-led content that ranks for use-case queries",
+      "Community and user-generated content for SERP diversity"
+    ]
+  },
+
+  "typical_taxonomy_fingerprint": {
+    "business_model": ["saas_early_stage", "saas_growth", "saas_enterprise", "blog_driven_saas"],
+    "scale_tier": ["small", "medium"],
+    "tech_architecture": "headless_cms_ssr_ssg",
+    "seo_maturity": ["foundation_built", "technically_sound", "growth_phase"],
+    "geographic_profile": ["single_market_single_language", "multi_market_single_language"],
+    "content_velocity": ["moderate", "high"]
+  },
+
+  "fleet_intelligence_notes": {
+    "cross_industry_transfer": "High. SaaS marketing sites share structural patterns regardless of vertical — blog architecture, comparison page templates, pricing page optimization, and integration directory SEO all transfer across industries.",
+    "protocol_sequencing_pattern": "Typically: Content Opportunity → Link Architecture → Meta Surgeon → Index Diagnostic. Content gaps are usually the highest-leverage first move because SaaS sites have strong technical foundations but underbuilt content topologies.",
+    "n_min_target": 25,
+    "current_fleet_count": 0
+  },
+
+  "industries": [
+    {
+      "id": "project_management_productivity",
+      "label": "Project Management / Productivity",
+      "description": "SaaS tools for task management, workflow automation, and team productivity. Highly competitive organic landscape dominated by established players with massive content moats.",
+      "signals": ["project/task management features", "workflow automation content", "team collaboration keywords", "Gantt/Kanban/timeline page types"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation — users comparing tools before committing",
+        "high_value_content_types": ["comparison posts (X vs Y)", "best-of listicles", "use-case landing pages", "template galleries"],
+        "competitive_density": "Very high — Asana, Monday, ClickUp, Notion all have 6-figure keyword portfolios"
+      }
+    },
+    {
+      "id": "crm_sales_enablement",
+      "label": "CRM / Sales Enablement",
+      "description": "Customer relationship management and sales tools. SEO landscape bifurcated between enterprise-grade platforms with authority moats and challenger brands competing on long-tail use-case content.",
+      "signals": ["CRM/pipeline features", "sales enablement content", "lead management keywords", "integration-heavy marketing"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation with strong transactional tail",
+        "high_value_content_types": ["CRM comparison pages", "sales playbook content", "industry-specific CRM guides", "ROI calculators"],
+        "competitive_density": "High — Salesforce, HubSpot define the category with enormous organic footprints"
+      }
+    },
+    {
+      "id": "marketing_technology",
+      "label": "Marketing Technology",
+      "description": "Email marketing, analytics, automation, and martech stack tools. The most meta SEO vertical — marketing tools marketing to marketers who understand marketing.",
+      "signals": ["marketing automation features", "email/campaign management", "analytics dashboard content", "martech integration focus"],
+      "seo_patterns": {
+        "dominant_intent": "Informational and commercial investigation — marketers research extensively",
+        "high_value_content_types": ["how-to marketing guides", "benchmark/statistics pages", "tool comparison matrices", "marketing strategy templates"],
+        "competitive_density": "Very high — audience is SEO-savvy, creating an arms race in content quality"
+      }
+    },
+    {
+      "id": "hr_people_operations",
+      "label": "HR / People Operations",
+      "description": "HR management, payroll, recruiting, and people operations platforms. SEO driven by compliance content, HR best practices, and tool comparisons.",
+      "signals": ["HR/payroll features", "employee management content", "compliance/labor law pages", "benefits administration keywords"],
+      "seo_patterns": {
+        "dominant_intent": "Informational — HR professionals seeking compliance guidance and best practices",
+        "high_value_content_types": ["compliance guides by state/country", "HR policy templates", "salary benchmarking content", "employee handbook generators"],
+        "competitive_density": "Moderate — fewer mega-players, more fragmented by geography and company size"
+      }
+    },
+    {
+      "id": "finance_fintech_saas",
+      "label": "Finance / Fintech SaaS",
+      "description": "Financial management, accounting, invoicing, and fintech platforms. YMYL territory — Google applies heightened quality standards to financial content.",
+      "signals": ["accounting/invoicing features", "financial reporting content", "payment processing keywords", "compliance/regulatory pages"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation with compliance-driven informational demand",
+        "high_value_content_types": ["tax/compliance guides", "financial calculators", "accounting method comparisons", "industry-specific bookkeeping guides"],
+        "competitive_density": "High for broad terms, lower for niche verticals (freelancer invoicing, nonprofit accounting)"
+      }
+    },
+    {
+      "id": "cybersecurity",
+      "label": "Cybersecurity",
+      "description": "Security software, threat detection, identity management, and compliance platforms. Technical audience with high content sophistication expectations.",
+      "signals": ["security/threat detection features", "vulnerability assessment content", "compliance framework pages", "SOC/audit keywords"],
+      "seo_patterns": {
+        "dominant_intent": "Informational — security professionals researching threats, frameworks, and solutions",
+        "high_value_content_types": ["threat intelligence reports", "compliance framework guides (SOC2, ISO 27001)", "security benchmark content", "incident response templates"],
+        "competitive_density": "Moderate — technical depth creates natural barriers to content entry"
+      }
+    },
+    {
+      "id": "healthcare_it",
+      "label": "Healthcare IT",
+      "description": "EHR systems, telehealth platforms, healthcare data management. Heavily regulated vertical where HIPAA compliance content is both a ranking signal and a trust requirement.",
+      "signals": ["EHR/EMR features", "HIPAA compliance content", "telehealth platform keywords", "healthcare interoperability pages"],
+      "seo_patterns": {
+        "dominant_intent": "Informational and navigational — healthcare administrators seeking compliant solutions",
+        "high_value_content_types": ["HIPAA compliance guides", "EHR comparison content", "healthcare workflow optimization", "interoperability standards explainers"],
+        "competitive_density": "Low-moderate — regulatory complexity limits content producers, creating opportunity for authoritative voices"
+      }
+    },
+    {
+      "id": "legal_tech",
+      "label": "Legal Tech",
+      "description": "Legal practice management, document automation, contract lifecycle, and e-discovery tools. YMYL vertical with an audience that demands precision and authority.",
+      "signals": ["legal practice management features", "contract/document automation", "e-discovery keywords", "legal compliance content"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation — legal professionals evaluating tools for specific practice areas",
+        "high_value_content_types": ["practice area guides", "legal technology comparison content", "contract template libraries", "jurisdiction-specific compliance content"],
+        "competitive_density": "Low-moderate — small but growing vertical with significant long-tail opportunity"
+      }
+    },
+    {
+      "id": "edtech",
+      "label": "EdTech",
+      "description": "Learning management systems, online course platforms, educational tools. Seasonal demand patterns and strong programmatic content opportunities around courses and subjects.",
+      "signals": ["LMS features", "online learning content", "course creation keywords", "student engagement pages"],
+      "seo_patterns": {
+        "dominant_intent": "Informational and navigational — educators and learners searching for specific subjects and tools",
+        "high_value_content_types": ["subject-specific learning guides", "LMS comparison content", "teaching methodology resources", "course catalog pages (programmatic)"],
+        "competitive_density": "Moderate — fragmented across K-12, higher ed, corporate training, and consumer learning"
+      }
+    },
+    {
+      "id": "real_estate_tech",
+      "label": "Real Estate Tech",
+      "description": "Property management, real estate CRM, listing platforms, and proptech tools. Geo-heavy SEO with strong local and programmatic content patterns.",
+      "signals": ["property management features", "listing/search functionality", "real estate CRM keywords", "market data content"],
+      "seo_patterns": {
+        "dominant_intent": "Transactional and local — geo-modified property searches dominate",
+        "high_value_content_types": ["market report pages (programmatic by city/zip)", "neighborhood guides", "property type landing pages", "real estate investment calculators"],
+        "competitive_density": "High for broad terms (Zillow, Redfin), moderate-low for B2B proptech tools"
+      }
+    },
+    {
+      "id": "supply_chain_logistics_saas",
+      "label": "Supply Chain / Logistics SaaS",
+      "description": "Inventory management, shipping, warehouse management, and supply chain visibility platforms. Niche B2B vertical with low content competition and high keyword value.",
+      "signals": ["inventory/warehouse management features", "shipping optimization content", "supply chain visibility keywords", "logistics integration pages"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation — logistics managers evaluating operational tools",
+        "high_value_content_types": ["supply chain optimization guides", "shipping carrier comparisons", "inventory management best practices", "industry-specific logistics content"],
+        "competitive_density": "Low — highly specialized audience creates low-volume but high-intent keyword landscape"
+      }
+    },
+    {
+      "id": "customer_support_success",
+      "label": "Customer Support / Success",
+      "description": "Help desk, ticketing, customer success platforms, and support automation tools. Content-rich vertical where support knowledge bases double as SEO assets.",
+      "signals": ["help desk/ticketing features", "customer success content", "support automation keywords", "knowledge base functionality"],
+      "seo_patterns": {
+        "dominant_intent": "Informational and commercial — support leaders researching best practices and tools",
+        "high_value_content_types": ["customer service best practice guides", "support metrics/benchmark content", "help desk comparison pages", "self-service strategy content"],
+        "competitive_density": "Moderate — Zendesk, Intercom, Freshdesk have large footprints but long-tail is accessible"
+      }
+    },
+    {
+      "id": "business_intelligence_data",
+      "label": "Business Intelligence / Data",
+      "description": "Analytics, dashboarding, data visualization, and BI platforms. Technical audience that values depth — thin content is immediately penalized by user behavior signals.",
+      "signals": ["BI/analytics features", "data visualization content", "dashboard/reporting keywords", "data integration pages"],
+      "seo_patterns": {
+        "dominant_intent": "Informational — data professionals seeking tutorials, comparisons, and technical guides",
+        "high_value_content_types": ["data visualization tutorials", "BI tool comparison matrices", "SQL/data query guides", "industry-specific analytics use cases"],
+        "competitive_density": "Moderate — dominated by a few large players (Tableau, Looker, Power BI) but fragmented in specialized niches"
+      }
+    },
+    {
+      "id": "communication_collaboration",
+      "label": "Communication / Collaboration",
+      "description": "Messaging, video conferencing, and team collaboration platforms. Post-2020 explosion in this vertical created intense SERP competition with massive content investments from incumbents.",
+      "signals": ["messaging/chat features", "video conferencing content", "team collaboration keywords", "async communication pages"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation and navigational — users comparing communication tools",
+        "high_value_content_types": ["remote work guides", "communication tool comparisons", "meeting productivity content", "team collaboration best practices"],
+        "competitive_density": "Very high — Slack, Zoom, Teams, Discord all have enormous organic footprints and content teams"
+      }
+    },
+    {
+      "id": "infrastructure_devops",
+      "label": "Infrastructure / DevOps",
+      "description": "Cloud infrastructure, CI/CD, deployment, and DevOps tooling. Overlaps with Developer Tools but distinguished by operations-focused audience and infrastructure-level keywords.",
+      "signals": ["cloud infrastructure features", "CI/CD pipeline content", "deployment automation keywords", "infrastructure monitoring pages"],
+      "seo_patterns": {
+        "dominant_intent": "Informational — DevOps engineers seeking implementation guides and architecture patterns",
+        "high_value_content_types": ["infrastructure tutorials", "deployment guide content", "cloud cost optimization guides", "architecture pattern documentation"],
+        "competitive_density": "Moderate — AWS, GCP, Azure dominate broad terms, but tooling-specific long-tail is accessible"
+      }
+    },
+    {
+      "id": "vertical_saas_industry_specific",
+      "label": "Vertical SaaS (Industry-Specific)",
+      "description": "SaaS platforms built for a specific industry (restaurants, gyms, salons, construction, etc.). SEO advantage is extreme specificity — targeting industry jargon and workflows that horizontal competitors miss.",
+      "signals": ["industry-specific workflow features", "vertical-specific content", "niche industry keywords", "regulation/compliance for specific sector"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation with industry-specific informational demand",
+        "high_value_content_types": ["industry-specific best practice guides", "regulatory compliance content for the vertical", "workflow optimization for the niche", "ROI/case study content"],
+        "competitive_density": "Low — the defining advantage. Vertical SaaS faces minimal organic competition because horizontal players don't target niche industry terms"
+      }
+    },
+    {
+      "id": "ai_machine_learning_platforms",
+      "label": "AI / Machine Learning Platforms",
+      "description": "AI model hosting, ML infrastructure, AI application platforms. The fastest-evolving SaaS vertical — content freshness is existentially important as the landscape shifts monthly.",
+      "signals": ["AI/ML model features", "machine learning content", "LLM/generative AI keywords", "model training/deployment pages"],
+      "seo_patterns": {
+        "dominant_intent": "Informational — developers and decision-makers evaluating rapidly evolving AI capabilities",
+        "high_value_content_types": ["AI model comparison content", "implementation tutorials", "benchmark/evaluation pages", "use-case guides by industry"],
+        "competitive_density": "Rapidly increasing — new entrants weekly, but content quality varies wildly, creating opportunity for authoritative technical content"
+      }
+    },
+    {
+      "id": "ecommerce_saas",
+      "label": "E-commerce SaaS",
+      "description": "E-commerce platforms, cart software, checkout tools, and commerce enablement SaaS. Unique position — marketing to merchants about how to sell, creating content-rich organic strategies around e-commerce education.",
+      "signals": ["e-commerce platform features", "merchant education content", "online selling keywords", "payment/checkout optimization pages"],
+      "seo_patterns": {
+        "dominant_intent": "Informational and commercial — merchants researching how to start, grow, or optimize online stores",
+        "high_value_content_types": ["e-commerce startup guides", "platform comparison content", "conversion optimization guides", "industry-specific selling guides"],
+        "competitive_density": "High — Shopify's content moat is enormous, but challenger platforms find opportunity in niche merchant segments"
+      }
+    }
+  ]
+}

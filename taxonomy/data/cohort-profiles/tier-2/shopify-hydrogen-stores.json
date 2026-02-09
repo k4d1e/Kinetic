@@ -1,0 +1,217 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "profile_version": "1.0",
+  "id": "shopify_hydrogen_stores",
+  "label": "Shopify Hydrogen Stores",
+  "tier": 2,
+  "tier_label": "Strategic Intelligence",
+
+  "description": "E-commerce stores built on Shopify Hydrogen — Shopify's Remix-based custom storefront framework consuming the Storefront API. These properties share platform-specific SEO patterns distinct from both traditional Shopify Liquid stores and fully custom headless commerce. Hydrogen's opinionated architecture (Remix routing, Oxygen hosting, streaming SSR) creates a unique diagnostic fingerprint that E.V.O. can only learn from dedicated fleet coverage.",
+
+  "common_tech_stacks": ["Shopify Hydrogen (Remix-based)", "Shopify Storefront API", "Shopify Oxygen hosting"],
+
+  "defining_seo_characteristics": {
+    "primary_content_type": "Product pages, collection pages, editorial content, brand storytelling, buying guides",
+    "primary_intent_distribution": "45% transactional, 30% commercial investigation, 25% informational",
+    "typical_conversion_path": "Collection page → product page → cart → Shopify checkout",
+    "key_seo_challenges": [
+      "Hydrogen's streaming SSR may deliver partial HTML to crawlers if not properly configured",
+      "Remix routing patterns differ from Next.js conventions — route-based data loading affects crawl behavior",
+      "Shopify's Storefront API rate limits can affect build times and ISR revalidation for large catalogs",
+      "Checkout is still Shopify-hosted, creating a domain boundary that can fragment link equity",
+      "Metafield-based content requiring custom rendering logic that may not be SEO-optimized by default",
+      "Limited plugin/app ecosystem compared to Liquid — SEO apps may not support Hydrogen natively"
+    ],
+    "key_seo_opportunities": [
+      "Full control over HTML output — unlike Liquid themes, Hydrogen allows custom meta tag, schema, and structured data implementation",
+      "Streaming SSR provides fast Time to First Byte, improving Core Web Vitals beyond what Liquid can achieve",
+      "Custom collection pages with editorial content, not just filtered product grids",
+      "Programmatic landing pages combining product data with editorial content for long-tail keyword targeting",
+      "Blog/editorial content natively integrated with product data for seamless content-to-commerce journeys"
+    ]
+  },
+
+  "typical_taxonomy_fingerprint": {
+    "business_model": ["d2c_brand", "ecommerce_small"],
+    "scale_tier": ["small", "medium"],
+    "tech_architecture": "shopify_hydrogen_hosted_ecommerce",
+    "seo_maturity": ["foundation_built", "technically_sound", "growth_phase"],
+    "geographic_profile": ["single_market_single_language", "multi_market_single_language"],
+    "content_velocity": ["low", "moderate"]
+  },
+
+  "fleet_intelligence_notes": {
+    "cross_industry_transfer": "High within this cohort. Hydrogen-specific patterns (streaming SSR indexation, Remix routing SEO, Storefront API caching, Oxygen deployment behavior) transfer completely across all Hydrogen store verticals. Industry determines content strategy but architecture diagnostics are universal.",
+    "protocol_sequencing_pattern": "Typically: Index Diagnostic → Meta Surgeon → Content Opportunity → Link Architecture. Hydrogen stores often have rendering-layer indexation issues from streaming SSR that must be validated first. Schema/structured data comes next as Hydrogen requires manual implementation.",
+    "n_min_target": 20,
+    "current_fleet_count": 0
+  },
+
+  "industries": [
+    {
+      "id": "fashion_apparel_dtc",
+      "label": "Fashion / Apparel DTC",
+      "description": "Direct-to-consumer fashion brands on Hydrogen. Visual storytelling and editorial lookbook content differentiate from commodity fashion e-commerce.",
+      "signals": ["fashion product categories", "lookbook/editorial pages", "size guide content", "seasonal collection pages", "style guide content"],
+      "seo_patterns": {
+        "dominant_intent": "Transactional and commercial — shoppers browsing collections and comparing styles",
+        "high_value_content_types": ["editorial lookbook content", "style guide pages", "size/fit guides", "sustainable fashion content", "collection story pages"],
+        "competitive_density": "High — competing against fast fashion giants and thousands of DTC brands"
+      }
+    },
+    {
+      "id": "beauty_skincare_dtc",
+      "label": "Beauty / Skincare DTC",
+      "description": "DTC beauty and skincare brands on Hydrogen. Ingredient transparency and educational content drive organic discovery and build trust before purchase.",
+      "signals": ["skincare/beauty product categories", "ingredient pages", "routine builder tools", "before/after content", "dermatologist/expert content"],
+      "seo_patterns": {
+        "dominant_intent": "Informational leading to transactional — ingredient research precedes beauty purchases",
+        "high_value_content_types": ["ingredient explainer pages", "skincare routine guides", "skin concern/type content", "clinical study summaries"],
+        "competitive_density": "High — established beauty brands and DTC challengers both invest in content"
+      }
+    },
+    {
+      "id": "health_wellness_dtc",
+      "label": "Health / Wellness DTC",
+      "description": "DTC health and wellness brands on Hydrogen. YMYL territory — E-E-A-T signals and third-party validation are essential for organic performance.",
+      "signals": ["supplement/wellness product categories", "lab testing/certification pages", "practitioner endorsement content", "health benefit content"],
+      "seo_patterns": {
+        "dominant_intent": "Informational with commercial tail — consumers research health claims before purchasing",
+        "high_value_content_types": ["ingredient research content", "clinical evidence summaries", "wellness routine guides", "expert-reviewed educational content"],
+        "competitive_density": "Moderate — YMYL filtering creates a moat for sites with genuine E-E-A-T signals"
+      }
+    },
+    {
+      "id": "premium_luxury_dtc",
+      "label": "Premium / Luxury DTC",
+      "description": "Premium and luxury DTC brands on Hydrogen. Brand experience and craftsmanship storytelling dominate — organic strategy is brand-protective rather than traffic-acquisitive.",
+      "signals": ["premium price positioning", "craftsmanship/origin content", "brand story pages", "editorial photography", "press/media pages"],
+      "seo_patterns": {
+        "dominant_intent": "Navigational and brand-investigation — consumers researching brand credibility before premium purchases",
+        "high_value_content_types": ["brand origin/story content", "craftsmanship process pages", "material sourcing content", "press coverage/award pages"],
+        "competitive_density": "Low for branded terms (if owned), high for category terms where aggregators dominate"
+      }
+    },
+    {
+      "id": "food_beverage_dtc",
+      "label": "Food / Beverage DTC",
+      "description": "DTC food and beverage brands on Hydrogen. Recipe content and dietary-specific targeting create organic funnels to product pages.",
+      "signals": ["food/beverage product categories", "recipe content", "dietary restriction pages", "sourcing/origin content", "subscription options"],
+      "seo_patterns": {
+        "dominant_intent": "Informational funneling to transactional — recipe searches leading to ingredient/product purchases",
+        "high_value_content_types": ["recipe content with product integration", "dietary guide pages", "sourcing story content", "meal plan/pairing guides"],
+        "competitive_density": "Moderate — recipe sites dominate informational but product-specific DTC queries are less contested"
+      }
+    },
+    {
+      "id": "home_interior_dtc",
+      "label": "Home / Interior DTC",
+      "description": "DTC home goods and interior brands on Hydrogen. Room-based and style-based content architecture drives organic discovery for high-consideration home purchases.",
+      "signals": ["home/furniture product categories", "room inspiration content", "material/craft content", "interior style guides", "dimension/sizing content"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation — extensive browsing for high-AOV home purchases",
+        "high_value_content_types": ["room design inspiration content", "material comparison guides", "sizing/dimension guides", "interior style trend content"],
+        "competitive_density": "Moderate — niche DTC home brands compete against Wayfair/IKEA on broad terms but own niche style categories"
+      }
+    },
+    {
+      "id": "pet_products_dtc",
+      "label": "Pet Products DTC",
+      "description": "DTC pet product brands on Hydrogen. Breed-specific and life-stage content creates deep long-tail keyword coverage that generic pet retailers miss.",
+      "signals": ["pet product categories", "breed-specific content", "pet nutrition pages", "veterinary-reviewed content", "life-stage guides"],
+      "seo_patterns": {
+        "dominant_intent": "Informational leading to transactional — pet owners research breed-specific needs",
+        "high_value_content_types": ["breed-specific care guides", "pet nutrition explainers", "life-stage product guides", "vet-reviewed health content"],
+        "competitive_density": "Moderate — Chewy dominates broadly but breed-specific DTC brands have accessible long-tail"
+      }
+    },
+    {
+      "id": "baby_children_dtc",
+      "label": "Baby / Children DTC",
+      "description": "DTC baby and children product brands on Hydrogen. Safety-first content strategy where certifications and expert endorsements are organic trust signals.",
+      "signals": ["baby/children product categories", "safety certification content", "age-appropriate guides", "parenting resource content", "milestone content"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation with safety-informational component",
+        "high_value_content_types": ["safety standard explainer content", "age/milestone product guides", "parent resource content", "expert endorsement pages"],
+        "competitive_density": "Moderate — fragmented DTC landscape with few dominant organic players"
+      }
+    },
+    {
+      "id": "outdoor_adventure_dtc",
+      "label": "Outdoor / Adventure DTC",
+      "description": "DTC outdoor and adventure gear brands on Hydrogen. Activity-based content architecture aligns with how outdoor enthusiasts search — by activity, season, and destination.",
+      "signals": ["outdoor gear product categories", "activity guide content", "destination/trail content", "seasonal gear guides", "sustainability content"],
+      "seo_patterns": {
+        "dominant_intent": "Informational and commercial — activity research leading to gear purchases",
+        "high_value_content_types": ["activity-specific gear guides", "destination/trail content", "seasonal preparation guides", "sustainability/impact content"],
+        "competitive_density": "Moderate — REI's content moat is formidable but niche activity DTC brands compete effectively"
+      }
+    },
+    {
+      "id": "jewelry_accessories_dtc",
+      "label": "Jewelry / Accessories DTC",
+      "description": "DTC jewelry and accessories brands on Hydrogen. Material education and occasion-based content drive organic discovery for considered purchases.",
+      "signals": ["jewelry/accessories product categories", "material education pages", "occasion/gift guide content", "care/maintenance guides", "custom/personalization pages"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation — research-heavy for meaningful purchases",
+        "high_value_content_types": ["material/gemstone education content", "occasion-based buying guides", "care and maintenance guides", "personalization/custom guides"],
+        "competitive_density": "Moderate — DTC jewelry brands compete against established retailers but own unique material/style niches"
+      }
+    },
+    {
+      "id": "sustainability_eco_commerce",
+      "label": "Sustainability / Eco-Commerce",
+      "description": "Sustainability-focused e-commerce brands on Hydrogen. Transparency and impact content is both the organic strategy and the brand differentiator.",
+      "signals": ["sustainability certification pages", "impact report content", "eco-material pages", "carbon footprint content", "ethical sourcing pages"],
+      "seo_patterns": {
+        "dominant_intent": "Informational and values-driven commercial — values-aligned consumers researching before purchasing",
+        "high_value_content_types": ["material sourcing transparency content", "environmental impact pages", "certification explainer content", "sustainable alternative guides"],
+        "competitive_density": "Low — growing but still nascent. Early investment in sustainability content creates long-term organic positions"
+      }
+    },
+    {
+      "id": "subscription_box_brands",
+      "label": "Subscription Box Brands",
+      "description": "Subscription box brands on Hydrogen. Unboxing content, comparison content, and gifting keywords drive organic acquisition for recurring revenue products.",
+      "signals": ["subscription product model", "unboxing/reveal content", "gift subscription pages", "customization/preference options", "comparison content"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation — consumers comparing subscription box options",
+        "high_value_content_types": ["subscription box comparison content", "unboxing/review content", "gift guide pages", "curation/personalization content"],
+        "competitive_density": "Moderate — competitive in broad subscription queries, accessible in niche verticals"
+      }
+    },
+    {
+      "id": "celebrity_influencer_brands",
+      "label": "Celebrity / Influencer Brands",
+      "description": "Celebrity and influencer-founded brands on Hydrogen. Branded search volume is the primary organic asset — SEO strategy focuses on controlling the branded SERP and converting existing awareness.",
+      "signals": ["celebrity/influencer founder content", "high branded search volume", "PR/media coverage pages", "social proof content", "limited drop/launch pages"],
+      "seo_patterns": {
+        "dominant_intent": "Navigational and brand-investigation — fans and curious consumers searching for the brand directly",
+        "high_value_content_types": ["founder story content", "press/media coverage pages", "product launch announcement content", "behind-the-scenes/creation content"],
+        "competitive_density": "Low for branded terms (strong name recognition), high for category terms where celebrity brands compete against established players"
+      }
+    },
+    {
+      "id": "b2b_wholesale_shopify",
+      "label": "B2B / Wholesale on Shopify",
+      "description": "B2B and wholesale operations using Hydrogen with Shopify's B2B features. Unique hybrid of consumer-grade frontend with business-grade pricing, ordering, and account management.",
+      "signals": ["wholesale/tiered pricing", "account-gated content", "bulk ordering tools", "trade/dealer application pages", "B2B-specific product content"],
+      "seo_patterns": {
+        "dominant_intent": "Commercial investigation — business buyers researching wholesale suppliers and bulk options",
+        "high_value_content_types": ["wholesale program pages", "industry-specific product applications", "bulk ordering guides", "trade/dealer information content"],
+        "competitive_density": "Low — B2B commerce on modern platforms is significantly under-optimized for organic search"
+      }
+    },
+    {
+      "id": "multi_brand_house_of_brands",
+      "label": "Multi-Brand / House of Brands",
+      "description": "Parent companies running multiple brands through a single Hydrogen-powered commerce platform. Cross-brand architecture and internal cannibalization management are primary SEO challenges.",
+      "signals": ["multiple brand sections", "brand portfolio architecture", "cross-brand navigation", "shared commerce infrastructure", "brand-specific content streams"],
+      "seo_patterns": {
+        "dominant_intent": "Mixed — varies by brand and product category within the portfolio",
+        "high_value_content_types": ["brand-specific landing pages", "cross-brand category content", "brand comparison/portfolio pages", "house-level authority content"],
+        "competitive_density": "Varies — the inter-brand cannibalization management is the primary diagnostic challenge"
+      }
+    }
+  ]
+}

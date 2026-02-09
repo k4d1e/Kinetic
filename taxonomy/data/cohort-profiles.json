@@ -1,0 +1,182 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "registry_version": "1.0",
+  "description": "Registry of all Kinetic cohort profiles across strategic tiers. Each entry summarizes a cohort profile and references its detailed schema file. This is the portfolio-level view — the fund manager's dashboard for fleet intelligence allocation.",
+
+  "_tier_definitions": {
+    "tier_1": {
+      "label": "Core Revenue + Core Intelligence",
+      "description": "Primary acquisition targets. These cohorts generate the highest-value intelligence signal due to architectural homogeneity (modern JS stacks) and commercial density. Each profile represents a well-defined market with clear territorial boundaries and high willingness-to-pay for SEO intelligence.",
+      "total_profiles": 5,
+      "total_industries": 76
+    },
+    "tier_2": {
+      "label": "Strategic Intelligence",
+      "description": "Secondary acquisition targets that expand E.V.O.'s architectural and behavioral pattern coverage. These cohorts introduce platform diversity (WordPress, Shopify-native, static generators, bespoke enterprise) that deepens the fleet's diagnostic range and makes cross-cohort intelligence transfer more robust.",
+      "total_profiles": 4,
+      "total_industries": 60
+    }
+  },
+
+  "_portfolio_summary": {
+    "total_profiles": 9,
+    "total_industries": 136,
+    "total_seats_at_full_allocation": "136 × N geographic markets = total addressable fleet size"
+  },
+
+  "profiles": [
+    {
+      "id": "saas_marketing_sites",
+      "label": "SaaS Marketing Sites",
+      "tier": 1,
+      "file": "cohort-profiles/tier-1/saas-marketing-sites.json",
+      "industry_count": 18,
+      "common_tech_stacks": ["Next.js", "Nuxt", "Astro", "Remix", "Gatsby"],
+      "typical_taxonomy": {
+        "business_model": ["saas_early_stage", "saas_growth", "saas_enterprise", "blog_driven_saas"],
+        "scale_tier": ["small", "medium"],
+        "tech_architecture": "headless_cms_ssr_ssg",
+        "geographic_profile": ["single_market_single_language", "multi_market_single_language"],
+        "content_velocity": ["moderate", "high"]
+      },
+      "intelligence_value": "Highest density of content-driven organic strategies. Protocol outcome data transfers broadly across SaaS verticals due to shared content architecture patterns.",
+      "n_min_target": 25
+    },
+    {
+      "id": "headless_ecommerce",
+      "label": "Headless E-commerce",
+      "tier": 1,
+      "file": "cohort-profiles/tier-1/headless-ecommerce.json",
+      "industry_count": 17,
+      "common_tech_stacks": ["Shopify Hydrogen", "Medusa", "Saleor", "Commerce.js", "custom frontend + commerce API"],
+      "typical_taxonomy": {
+        "business_model": ["ecommerce_small", "ecommerce_enterprise", "d2c_brand"],
+        "scale_tier": ["small", "medium", "large"],
+        "tech_architecture": "headless_cms_ssr_ssg",
+        "geographic_profile": ["single_market_single_language", "global_multi_language"],
+        "content_velocity": ["moderate", "high", "programmatic"]
+      },
+      "intelligence_value": "Commerce-specific SEO patterns — product schema, faceted navigation, category architecture — that don't exist in content-only sites. Critical for broadening E.V.O.'s technical diagnostic range.",
+      "n_min_target": 25
+    },
+    {
+      "id": "developer_tools_api_companies",
+      "label": "Developer Tools / API Companies",
+      "tier": 1,
+      "file": "cohort-profiles/tier-1/developer-tools-api-companies.json",
+      "industry_count": 14,
+      "common_tech_stacks": ["custom frameworks", "Next.js", "Astro", "Hugo"],
+      "typical_taxonomy": {
+        "business_model": ["developer_tools_api_first", "saas_growth", "saas_enterprise"],
+        "scale_tier": ["medium", "large"],
+        "tech_architecture": ["headless_cms_ssr_ssg", "custom_framework"],
+        "geographic_profile": ["single_market_single_language", "global_multi_language"],
+        "content_velocity": ["moderate", "high"]
+      },
+      "intelligence_value": "Documentation-driven SEO is a unique pattern — technical content, versioned docs, API references, changelog indexing. Intelligence here is non-transferable from other cohorts, making dedicated fleet coverage essential.",
+      "n_min_target": 20
+    },
+    {
+      "id": "tech_startups_general",
+      "label": "Tech Startups (General)",
+      "tier": 1,
+      "file": "cohort-profiles/tier-1/tech-startups-general.json",
+      "industry_count": 15,
+      "common_tech_stacks": ["Next.js", "Nuxt", "SvelteKit", "Astro", "Remix"],
+      "typical_taxonomy": {
+        "business_model": ["saas_early_stage", "saas_growth", "marketplace_aggregator"],
+        "scale_tier": ["micro", "small", "medium"],
+        "tech_architecture": "headless_cms_ssr_ssg",
+        "geographic_profile": ["single_market_single_language", "single_market_multi_language"],
+        "content_velocity": ["low", "moderate"]
+      },
+      "intelligence_value": "Early-stage SEO patterns — foundation building, initial content strategy, first backlink acquisition. Critical for understanding the zero-to-one trajectory that mature cohorts have already completed.",
+      "n_min_target": 20
+    },
+    {
+      "id": "agencies_modern_stacks",
+      "label": "Agencies Building on Modern Stacks",
+      "tier": 1,
+      "file": "cohort-profiles/tier-1/agencies-modern-stacks.json",
+      "industry_count": 12,
+      "common_tech_stacks": ["Next.js", "Nuxt", "Astro"],
+      "typical_taxonomy": {
+        "business_model": ["agency_consultancy", "professional_services_b2b"],
+        "scale_tier": ["small", "medium"],
+        "tech_architecture": "headless_cms_ssr_ssg",
+        "geographic_profile": ["single_market_single_language", "single_market_multi_language"],
+        "content_velocity": ["moderate", "high"]
+      },
+      "intelligence_value": "Agency sites are portfolio-driven — case studies, vertical landing pages, thought leadership. Their SEO patterns reflect trust-building through demonstrated expertise, a distinct pattern from product-led or content-led growth.",
+      "n_min_target": 15
+    },
+    {
+      "id": "headless_wordpress_properties",
+      "label": "Headless WordPress Properties",
+      "tier": 2,
+      "file": "cohort-profiles/tier-2/headless-wordpress-properties.json",
+      "industry_count": 14,
+      "common_tech_stacks": ["WordPress REST API + Next.js/Nuxt/Astro", "WPGraphQL + Next.js/Nuxt/Astro"],
+      "typical_taxonomy": {
+        "business_model": ["publisher_media", "professional_services_b2b", "knowledge_base_documentation"],
+        "scale_tier": ["medium", "large"],
+        "tech_architecture": "headless_cms_ssr_ssg",
+        "geographic_profile": ["single_market_single_language", "single_market_multi_language"],
+        "content_velocity": ["moderate", "high"]
+      },
+      "intelligence_value": "WordPress-to-headless migration patterns are a unique diagnostic signal. E.V.O. learns the specific failure modes of decoupled WordPress — REST API pagination, preview routing, legacy URL preservation — that pure headless sites never encounter.",
+      "n_min_target": 20
+    },
+    {
+      "id": "shopify_hydrogen_stores",
+      "label": "Shopify Hydrogen Stores",
+      "tier": 2,
+      "file": "cohort-profiles/tier-2/shopify-hydrogen-stores.json",
+      "industry_count": 15,
+      "common_tech_stacks": ["Shopify Hydrogen (Remix-based)", "Shopify Storefront API"],
+      "typical_taxonomy": {
+        "business_model": ["d2c_brand", "ecommerce_small"],
+        "scale_tier": ["small", "medium"],
+        "tech_architecture": "shopify_hydrogen_hosted_ecommerce",
+        "geographic_profile": ["single_market_single_language", "multi_market_single_language"],
+        "content_velocity": ["low", "moderate"]
+      },
+      "intelligence_value": "Platform-constrained SEO patterns. Hydrogen's Remix-based architecture introduces specific rendering, routing, and caching behaviors that affect indexation. Intelligence here deepens E.V.O.'s platform-specific diagnostic capabilities.",
+      "n_min_target": 20
+    },
+    {
+      "id": "static_site_generators",
+      "label": "Static Site Generators",
+      "tier": 2,
+      "file": "cohort-profiles/tier-2/static-site-generators.json",
+      "industry_count": 13,
+      "common_tech_stacks": ["Hugo", "Jekyll", "11ty", "Astro (static mode)"],
+      "typical_taxonomy": {
+        "business_model": ["knowledge_base_documentation", "publisher_media", "blog_driven_saas"],
+        "scale_tier": ["micro", "small"],
+        "tech_architecture": ["headless_cms_ssr_ssg", "static_html_traditional_cms"],
+        "geographic_profile": "single_market_single_language",
+        "content_velocity": ["static", "low"]
+      },
+      "intelligence_value": "Build-time SEO is fundamentally different from runtime SEO. No server-side rendering, no dynamic content, no JavaScript hydration. Intelligence here teaches E.V.O. the purest form of content-driven organic performance — stripped of all technical confounders.",
+      "n_min_target": 15
+    },
+    {
+      "id": "custom_enterprise_platforms",
+      "label": "Custom Enterprise Platforms",
+      "tier": 2,
+      "file": "cohort-profiles/tier-2/custom-enterprise-platforms.json",
+      "industry_count": 18,
+      "common_tech_stacks": ["bespoke full-stack applications"],
+      "typical_taxonomy": {
+        "business_model": ["ecommerce_enterprise", "marketplace_aggregator", "publisher_media", "directory_listing_site"],
+        "scale_tier": ["large", "massive"],
+        "tech_architecture": "custom_framework",
+        "geographic_profile": ["multi_market_single_language", "global_multi_language"],
+        "content_velocity": ["high", "programmatic"]
+      },
+      "intelligence_value": "Enterprise-scale SEO operates under fundamentally different constraints — crawl budget engineering, index management at 100K+ pages, organizational SEO governance. Intelligence here is rare and high-value because few diagnostic engines have fleet-level exposure to enterprise patterns.",
+      "n_min_target": 15
+    }
+  ]
+}
