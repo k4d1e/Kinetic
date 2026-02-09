@@ -1,0 +1,388 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "taxonomy_version": "1.0",
+  "description": "6-axis compound identity taxonomy for Kinetic property classification. Each property receives one tag per axis, producing a unique cohort fingerprint that governs E.V.O. fleet intelligence, territorial exclusivity, and protocol sequencing.",
+
+  "_axis_count": 6,
+  "_total_combinations": 12500,
+  "_combination_formula": "5 × 5 × 5 × 5 × 4 × 5 = 12,500 possible compound identities",
+
+  "_field_conventions": {
+    "id": "Stable machine-readable identifier. NEVER rename once a property has been tagged.",
+    "label": "Human-readable display name.",
+    "description": "Contextual explanation used in onboarding and diagnostic reports.",
+    "categories": "Axis 1 only. Groups business models into higher-order families for cohort clustering.",
+    "range": "Axis 2 only. Page count boundaries that define the tier.",
+    "signals": "Observable indicators E.V.O. uses to auto-classify a property on this axis."
+  },
+
+  "axes": [
+    {
+      "axis": 1,
+      "id": "business_model",
+      "label": "Business Model",
+      "description": "The fundamental commercial archetype of the property. Determines content strategy patterns, conversion topology, and which keyword intent distributions are structurally relevant.",
+      "cardinality": 16,
+      "categories": [
+        {
+          "id": "service_based",
+          "label": "Service-Based",
+          "description": "Revenue from human-delivered services. SEO patterns center on local intent, trust signals, and service area coverage.",
+          "models": [
+            {
+              "id": "local_service_business",
+              "label": "Local Service Business",
+              "description": "Single-location service provider. SEO dominated by local pack, GBP optimization, and geo-modified keywords.",
+              "signals": ["single GBP listing", "service area pages", "local schema markup", "NAP citations"]
+            },
+            {
+              "id": "multi_location_service",
+              "label": "Multi-Location Service",
+              "description": "Service provider operating across multiple geographic locations. SEO requires location page architecture and cross-location authority distribution.",
+              "signals": ["multiple GBP listings", "location landing pages", "service-area matrix", "regional content hubs"]
+            },
+            {
+              "id": "professional_services_b2b",
+              "label": "Professional Services / B2B",
+              "description": "High-consideration B2B services (legal, consulting, finance). Long sales cycles with thought leadership content as primary organic driver.",
+              "signals": ["case study pages", "team/bio pages", "industry-specific landing pages", "whitepaper gating"]
+            },
+            {
+              "id": "agency_consultancy",
+              "label": "Agency / Consultancy",
+              "description": "Client services firm selling expertise. Portfolio-driven trust building with content marketing as lead generation engine.",
+              "signals": ["portfolio/work pages", "services taxonomy", "industry vertical pages", "blog-heavy content strategy"]
+            }
+          ]
+        },
+        {
+          "id": "product_based",
+          "label": "Product-Based",
+          "description": "Revenue from physical or digital product sales. SEO patterns center on product discovery, category architecture, and transactional intent capture.",
+          "models": [
+            {
+              "id": "ecommerce_small",
+              "label": "E-commerce (Small)",
+              "description": "Small-catalog online store. SEO focused on product page optimization, long-tail product keywords, and category page authority.",
+              "signals": ["product pages < 1,000", "single storefront", "limited category depth", "direct-to-consumer checkout"]
+            },
+            {
+              "id": "ecommerce_enterprise",
+              "label": "E-commerce (Enterprise)",
+              "description": "Large-catalog enterprise commerce. SEO challenges include faceted navigation, crawl budget management, and duplicate content at scale.",
+              "signals": ["product pages > 10,000", "faceted navigation", "multiple category hierarchies", "internationalized catalogs"]
+            },
+            {
+              "id": "d2c_brand",
+              "label": "D2C Brand",
+              "description": "Direct-to-consumer brand selling owned products. SEO blends branded search defense with editorial content for top-of-funnel discovery.",
+              "signals": ["branded search volume", "editorial blog", "ingredient/material pages", "lifestyle content hub"]
+            },
+            {
+              "id": "marketplace_aggregator",
+              "label": "Marketplace / Aggregator",
+              "description": "Platform connecting buyers and sellers or aggregating listings. SEO driven by programmatic page generation and UGC indexation.",
+              "signals": ["user-generated listings", "search/filter URL patterns", "review aggregation", "programmatic location pages"]
+            }
+          ]
+        },
+        {
+          "id": "content_based",
+          "label": "Content-Based",
+          "description": "Revenue from content monetization (ads, subscriptions, lead generation). SEO is the primary revenue driver, not a support channel.",
+          "models": [
+            {
+              "id": "publisher_media",
+              "label": "Publisher / Media",
+              "description": "Content publisher monetizing through ads, subscriptions, or sponsorships. SEO patterns emphasize freshness, topical authority, and news indexing.",
+              "signals": ["high publish frequency", "news sitemap", "author pages", "ad monetization", "Google News inclusion"]
+            },
+            {
+              "id": "blog_driven_saas",
+              "label": "Blog-Driven SaaS",
+              "description": "SaaS product using content marketing as primary acquisition channel. Blog content targets informational keywords that funnel to product pages.",
+              "signals": ["blog subdirectory with high page count", "comparison pages", "alternative-to pages", "product-led content"]
+            },
+            {
+              "id": "knowledge_base_documentation",
+              "label": "Knowledge Base / Documentation",
+              "description": "Structured reference content (docs, wikis, help centers). SEO value in long-tail technical queries and developer search intent.",
+              "signals": ["versioned docs", "API reference pages", "hierarchical navigation", "code snippet blocks", "changelog pages"]
+            },
+            {
+              "id": "directory_listing_site",
+              "label": "Directory / Listing Site",
+              "description": "Structured directory of entities (businesses, products, people). SEO driven by programmatic templates and aggregated authority.",
+              "signals": ["templated entity pages", "category/tag taxonomy", "location-based filtering", "review/rating aggregation"]
+            }
+          ]
+        },
+        {
+          "id": "saas_technology",
+          "label": "SaaS / Technology",
+          "description": "Software products sold as subscriptions. SEO patterns vary dramatically by stage — from brand building to category defense.",
+          "models": [
+            {
+              "id": "saas_early_stage",
+              "label": "SaaS (Early Stage)",
+              "description": "Pre-PMF or early-growth SaaS. SEO focused on category definition, competitor comparison captures, and foundational technical health.",
+              "signals": ["< 50 indexed pages", "minimal backlink profile", "comparison/alternative keywords targeted", "single product focus"]
+            },
+            {
+              "id": "saas_growth",
+              "label": "SaaS (Growth)",
+              "description": "Growth-stage SaaS scaling organic acquisition. SEO expanding into content hubs, feature pages, and integration/ecosystem content.",
+              "signals": ["active blog with consistent cadence", "feature landing pages", "integration directory", "growing branded search"]
+            },
+            {
+              "id": "saas_enterprise",
+              "label": "SaaS (Enterprise)",
+              "description": "Mature enterprise SaaS defending category position. SEO focused on branded SERP control, competitor defense, and thought leadership authority.",
+              "signals": ["high domain rating", "branded SERP features", "extensive resource library", "multi-product pages", "analyst/award pages"]
+            },
+            {
+              "id": "developer_tools_api_first",
+              "label": "Developer Tools / API-First",
+              "description": "Products targeting developers. SEO uniquely driven by documentation quality, GitHub presence, and technical content that doubles as product education.",
+              "signals": ["API documentation", "SDK/library pages", "GitHub integration", "developer blog", "changelog", "status page"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "axis": 2,
+      "id": "scale_tier",
+      "label": "Scale Tier",
+      "description": "The property's indexed footprint size. Determines crawl budget dynamics, internal linking complexity, and which architectural patterns are structurally necessary vs. premature optimization.",
+      "cardinality": 5,
+      "tiers": [
+        {
+          "id": "micro",
+          "label": "Micro",
+          "description": "Minimal indexed footprint. Every page is hand-crafted. SEO wins come from precision optimization of individual pages rather than structural architecture.",
+          "page_count_min": 1,
+          "page_count_max": 100,
+          "signals": ["small sitemap", "flat site architecture", "< 100 indexed URLs in GSC", "manual content creation"]
+        },
+        {
+          "id": "small",
+          "label": "Small",
+          "description": "Small but structured footprint. Category/tag architecture becomes relevant. Internal linking strategy starts to matter.",
+          "page_count_min": 100,
+          "page_count_max": 1000,
+          "signals": ["2-3 level hierarchy", "category pages present", "100-1,000 indexed URLs", "some template-driven pages"]
+        },
+        {
+          "id": "medium",
+          "label": "Medium",
+          "description": "Substantial footprint requiring deliberate architecture. Crawl budget awareness needed. Content cannibalization risk emerges. Programmatic patterns may be present.",
+          "page_count_min": 1000,
+          "page_count_max": 10000,
+          "signals": ["multi-level taxonomy", "pagination patterns", "1K-10K indexed URLs", "crawl budget considerations", "potential cannibalization"]
+        },
+        {
+          "id": "large",
+          "label": "Large",
+          "description": "Large footprint where architectural decisions dominate SEO outcomes. Crawl budget is a primary constraint. Index bloat is an active threat. Programmatic generation likely.",
+          "page_count_min": 10000,
+          "page_count_max": 100000,
+          "signals": ["deep taxonomy", "faceted navigation", "10K-100K indexed URLs", "crawl budget management critical", "noindex strategies active"]
+        },
+        {
+          "id": "massive",
+          "label": "Massive",
+          "description": "Massive footprint where SEO is fundamentally an information architecture and crawl engineering problem. Page-level optimization is irrelevant; system-level patterns determine outcomes.",
+          "page_count_min": 100000,
+          "page_count_max": null,
+          "signals": ["enterprise sitemap index", "complex URL parameter handling", "100K+ indexed URLs", "dedicated crawl infrastructure", "log file analysis essential"]
+        }
+      ]
+    },
+    {
+      "axis": 3,
+      "id": "tech_architecture",
+      "label": "Tech Architecture",
+      "description": "The rendering and delivery architecture of the property. Determines which technical SEO patterns are relevant, what crawl/render issues to expect, and which diagnostic protocols apply.",
+      "cardinality": 5,
+      "profiles": [
+        {
+          "id": "static_html_traditional_cms",
+          "label": "Static HTML / Traditional CMS",
+          "description": "Server-rendered HTML (WordPress, Drupal, Joomla, static HTML). Crawling is straightforward. SEO issues are typically content and structural, not rendering-related.",
+          "signals": ["server-rendered HTML in view-source", "WordPress/Drupal signatures", "no JavaScript framework detected", "traditional page loads"],
+          "common_platforms": ["WordPress", "Drupal", "Joomla", "Squarespace", "Wix", "static HTML"]
+        },
+        {
+          "id": "javascript_spa",
+          "label": "JavaScript SPA (React, Vue, Angular)",
+          "description": "Client-side rendered single-page application. SEO challenges include render-dependent indexing, JavaScript crawl budget, hydration issues, and dynamic routing.",
+          "signals": ["empty HTML shell in view-source", "JavaScript bundle loading", "client-side routing", "framework-specific DOM patterns"],
+          "common_platforms": ["React (CRA)", "Vue CLI", "Angular", "Svelte (SPA mode)"]
+        },
+        {
+          "id": "headless_cms_ssr_ssg",
+          "label": "Headless CMS + SSR/SSG",
+          "description": "Decoupled architecture with server-side rendering or static site generation. Best-of-both: modern frontend with crawl-friendly HTML output. SEO challenges shift to build pipeline and cache invalidation.",
+          "signals": ["pre-rendered HTML with hydration", "Next.js/Nuxt/Astro/Remix signatures", "API-driven content", "ISR/SSG build patterns"],
+          "common_platforms": ["Next.js", "Nuxt", "Astro", "Remix", "Gatsby", "SvelteKit", "11ty", "Hugo"]
+        },
+        {
+          "id": "shopify_hydrogen_hosted_ecommerce",
+          "label": "Shopify Hydrogen / Hosted E-commerce",
+          "description": "Managed e-commerce platform with custom or semi-custom frontend. SEO constrained by platform capabilities — URL structure, schema markup, and rendering are partially platform-controlled.",
+          "signals": ["Shopify/BigCommerce/Magento signatures", "platform-specific URL patterns", "hosted checkout flow", "product/collection URL structure"],
+          "common_platforms": ["Shopify (Liquid)", "Shopify Hydrogen", "BigCommerce", "Magento", "WooCommerce", "Saleor", "Medusa"]
+        },
+        {
+          "id": "custom_framework",
+          "label": "Custom Framework",
+          "description": "Bespoke or proprietary architecture. SEO diagnostics cannot rely on platform-specific heuristics. Requires first-principles technical analysis of rendering, routing, and crawlability.",
+          "signals": ["no recognizable framework signatures", "proprietary URL patterns", "custom server architecture", "enterprise-specific rendering pipeline"],
+          "common_platforms": ["custom Java/Spring", "custom .NET", "custom Python/Django", "custom Ruby/Rails", "proprietary enterprise stack"]
+        }
+      ]
+    },
+    {
+      "axis": 4,
+      "id": "seo_maturity",
+      "label": "SEO Maturity",
+      "description": "The property's current position on the SEO capability curve. Determines which protocols are relevant, what level of optimization is premature, and where the highest-leverage interventions exist.",
+      "cardinality": 5,
+      "stages": [
+        {
+          "id": "unoptimized",
+          "label": "Unoptimized",
+          "description": "No deliberate SEO work has been done. Technical foundations are absent or broken. The opportunity surface is maximal — almost any intervention produces measurable improvement.",
+          "indicators": ["no sitemap submitted", "no structured data", "missing or duplicate title tags", "no GSC verified", "robots.txt issues", "no internal linking strategy"],
+          "typical_first_protocol": "Index Diagnostic Protocol"
+        },
+        {
+          "id": "foundation_built",
+          "label": "Foundation Built",
+          "description": "Basic technical SEO is in place. Site is crawlable and indexed. Optimization is shallow — default CMS settings, minimal schema, no content strategy. Ready for strategic buildout.",
+          "indicators": ["sitemap present", "basic meta tags", "GSC verified", "some structured data", "no content clusters", "thin internal linking"],
+          "typical_first_protocol": "Content Opportunity Protocol"
+        },
+        {
+          "id": "technically_sound",
+          "label": "Technically Sound",
+          "description": "Technical SEO is solid. Core Web Vitals passing. Schema implemented. The bottleneck shifts from technical health to content strategy and authority building.",
+          "indicators": ["clean crawl reports", "CWV passing", "comprehensive schema", "organized URL structure", "some content investment", "limited backlink growth"],
+          "typical_first_protocol": "Link Architecture Protocol"
+        },
+        {
+          "id": "growth_phase",
+          "label": "Growth Phase",
+          "description": "Active SEO growth. Content clusters expanding. Backlinks growing. Organic traffic on an upward trajectory. Optimization focus shifts to efficiency — maximizing output per input.",
+          "indicators": ["growing keyword footprint", "active content cadence", "diversifying backlink profile", "traffic trend positive", "some keyword cannibalization emerging"],
+          "typical_first_protocol": "Meta Surgeon Protocol"
+        },
+        {
+          "id": "mature_defending",
+          "label": "Mature / Defending",
+          "description": "Category leader or established authority. Organic traffic is substantial. The strategic challenge shifts from growth to defense — protecting rankings, preventing decay, and identifying diminishing returns.",
+          "indicators": ["high domain rating", "broad keyword coverage", "competitor pressure on top terms", "content decay on older pages", "SERP feature competition"],
+          "typical_first_protocol": "Content Refresh Protocol"
+        }
+      ]
+    },
+    {
+      "axis": 5,
+      "id": "geographic_profile",
+      "label": "Geographic Profile",
+      "description": "The property's geographic and linguistic targeting scope. Determines hreflang complexity, local SEO relevance, international indexing strategy, and which geographic patterns E.V.O. should monitor.",
+      "cardinality": 4,
+      "profiles": [
+        {
+          "id": "single_market_single_language",
+          "label": "Single Market, Single Language",
+          "description": "One country, one language. The simplest geographic profile. SEO is focused entirely on one search index. Local SEO may or may not be relevant depending on business model.",
+          "signals": ["single ccTLD or gTLD", "no hreflang tags", "one language in content", "single GSC property"],
+          "seo_implications": ["no international SEO complexity", "local SEO if service-based", "single search index optimization"]
+        },
+        {
+          "id": "single_market_multi_language",
+          "label": "Single Market, Multi-Language",
+          "description": "One country, multiple languages (e.g., Canada EN/FR, Switzerland DE/FR/IT). Requires hreflang implementation within a single market. Content duplication management is critical.",
+          "signals": ["language subdirectories or subdomains", "hreflang tags present", "content translation patterns", "single market but multilingual"],
+          "seo_implications": ["hreflang implementation required", "content parity across languages", "language-specific keyword research", "potential thin content if translations are shallow"]
+        },
+        {
+          "id": "multi_market_single_language",
+          "label": "Multi-Market, Single Language",
+          "description": "Multiple countries, one language (e.g., US + UK + AU in English). Requires geo-targeting strategy — ccTLDs, subdirectories, or subdomains — without translation complexity.",
+          "signals": ["country-specific subdirectories or ccTLDs", "hreflang with same language different regions", "geo-specific content variations", "multiple GSC properties"],
+          "seo_implications": ["geo-targeting architecture decisions", "content localization (not translation)", "market-specific keyword variations", "cross-market cannibalization risk"]
+        },
+        {
+          "id": "global_multi_language",
+          "label": "Global, Multi-Language",
+          "description": "Multiple countries, multiple languages. Maximum international SEO complexity. Requires comprehensive hreflang graph, market-specific content strategy, and cross-market authority architecture.",
+          "signals": ["complex hreflang implementation", "country + language URL segmentation", "translation management system", "multiple GSC properties across markets"],
+          "seo_implications": ["full international SEO architecture required", "hreflang graph complexity", "market prioritization strategy", "translation quality as ranking factor", "cross-market link equity distribution"]
+        }
+      ]
+    },
+    {
+      "axis": 6,
+      "id": "content_velocity",
+      "label": "Content Velocity",
+      "description": "The rate at which the property publishes new indexable content. Determines freshness signals, crawl frequency expectations, content decay risk, and whether the SEO strategy is stock-based or flow-based.",
+      "cardinality": 5,
+      "velocities": [
+        {
+          "id": "static",
+          "label": "Static",
+          "description": "Content rarely changes. Pages are published once and left. SEO is entirely stock-based — the existing corpus must carry all organic performance. Content decay is the primary long-term risk.",
+          "publish_frequency": "< 1 page per month",
+          "signals": ["no blog or news section", "pages unchanged for months", "low crawl frequency in logs", "no content calendar"],
+          "seo_implications": ["content decay is primary threat", "existing pages must be maximally optimized", "internal linking is the main lever", "refreshing old content > creating new content"]
+        },
+        {
+          "id": "low",
+          "label": "Low",
+          "description": "Occasional content publication. Enough to signal freshness but not enough to build momentum. SEO strategy must be highly selective — every piece of content must count.",
+          "publish_frequency": "1-4 pages per month",
+          "signals": ["sporadic blog posts", "occasional new pages", "inconsistent publish cadence", "small content team"],
+          "seo_implications": ["keyword prioritization critical", "every post must target high-value terms", "quality over quantity", "pillar content strategy over volume"]
+        },
+        {
+          "id": "moderate",
+          "label": "Moderate",
+          "description": "Consistent content cadence. Enough to build topical clusters over time. SEO strategy can be systematic — pillar/spoke models, editorial calendars, and content hub expansion.",
+          "publish_frequency": "5-20 pages per month",
+          "signals": ["regular blog cadence", "editorial calendar evidence", "growing content footprint", "dedicated content resource"],
+          "seo_implications": ["cluster-based content strategy viable", "topic authority buildable", "internal linking architecture matters", "content cannibalization monitoring needed"]
+        },
+        {
+          "id": "high",
+          "label": "High",
+          "description": "Aggressive content publication. Rapid footprint expansion. SEO must manage quality at volume — content governance, cannibalization detection, and crawl budget become active concerns.",
+          "publish_frequency": "20-100 pages per month",
+          "signals": ["daily or near-daily publishing", "multiple content streams", "content team of 3+", "active editorial workflow"],
+          "seo_implications": ["content governance essential", "cannibalization risk is high", "crawl budget monitoring needed", "content quality variance management", "editorial workflow optimization"]
+        },
+        {
+          "id": "programmatic",
+          "label": "Programmatic",
+          "description": "Content generated at scale through templates, data pipelines, or AI systems. Hundreds or thousands of pages created systematically. SEO is fundamentally an architecture and quality control problem.",
+          "publish_frequency": "100+ pages per month",
+          "signals": ["templated page patterns", "data-driven content generation", "bulk URL creation", "automated publishing pipeline"],
+          "seo_implications": ["thin content risk is existential", "template quality determines floor", "unique value per page must be enforced", "Google's helpful content signals are primary constraint", "crawl budget is a first-class architectural concern"]
+        }
+      ]
+    }
+  ],
+
+  "_compound_identity_format": {
+    "description": "A property's compound identity is expressed as a 6-tuple of axis IDs, providing a unique cohort fingerprint for fleet intelligence and territorial exclusivity.",
+    "format": "[business_model].[scale_tier].[tech_architecture].[seo_maturity].[geographic_profile].[content_velocity]",
+    "example": "saas_growth.medium.headless_cms_ssr_ssg.growth_phase.single_market_single_language.moderate",
+    "example_readable": "Growth-stage SaaS | Medium footprint (1K-10K pages) | Headless CMS + SSR/SSG | Growth Phase maturity | Single market, single language | Moderate content velocity"
+  },
+
+  "_territorial_exclusivity_note": "Within the Kinetic fleet, no two properties may occupy the same compound identity AND compete for overlapping primary keyword clusters in the same geographic market. E.V.O. performs competitive overlap analysis at onboarding to enforce this constraint.",
+
+  "_intelligence_contribution_note": "Every property's diagnostic cycles, protocol completions, and outcome data are attributed to its compound identity. Fleet intelligence accumulates per cohort region, enabling E.V.O. to transfer learned patterns — fingerprint correlations, protocol sequencing, cascade predictions — to new properties sharing the same or adjacent compound identities."
+}
