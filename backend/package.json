@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "init-db": "node scripts/init-database.js"
+    "init-db": "node scripts/init-database.js",
+    "send-drafts": "node scripts/send-drafts.js"
   },
   "keywords": [
     "seo",
@@ -28,7 +29,11 @@
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "pg": "^8.11.3",
-    "xml2js": "^0.6.2"
+    "xml2js": "^0.6.2",
+    "marked": "^15.0.0",
+    "katex": "^0.16.0",
+    "gray-matter": "^4.0.3",
+    "glob": "^11.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"

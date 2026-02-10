@@ -1,0 +1,9 @@
+[
+  { "wave": 1, "phase": 1, "dir": "cluster-1-moss-algae-prevention/phase1" },
+  { "wave": 2, "phase": 1, "dir": "cluster-2-gutter-drainage-foundation/phase1" },
+  { "wave": 3, "phase": 1, "dir": "cluster-3-pnw-siding-durability/phase1" },
+  { "wave": 4, "phase": 1, "dir": "cluster-4-localized-cost-roi/phase1" },
+  { "wave": 5, "phase": 1, "dir": "cluster-5-rain-ready-roofing/phase1" },
+  { "wave": 6, "phase": 1, "dir": "cluster-6-gutter-guard-skeptic/phase1" },
+  { "wave": 7, "phase": 1, "dir": "cluster-7-home-exterior-health/phase1" }
+]

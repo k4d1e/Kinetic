@@ -22,6 +22,9 @@ Thumbs.db
 *.swo
 *~
 
+# Kinetic rollout state (environment-specific)
+blog/data/rollout-state.json
+
 # Build outputs
 dist/
 build/
