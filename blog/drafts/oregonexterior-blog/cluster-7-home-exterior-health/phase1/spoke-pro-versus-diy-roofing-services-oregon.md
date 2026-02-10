@@ -4,7 +4,7 @@ post_type: "spoke"
 phase: 1
 primary_keyword: "Roofing Services Oregon"
 h1_title: "Professional vs. DIY: When to Call an Oregon Exterior Expert"
-slug: "roofing-services-oregon"
+slug: "pro-versus-diy-roofing-services-oregon"
 intent: "Commercial / Decision-Making"
 parent_post: "Home Exterior Services"
 sibling_posts: ["Roof Cleaning Services", "Exterior Painting Portland"]

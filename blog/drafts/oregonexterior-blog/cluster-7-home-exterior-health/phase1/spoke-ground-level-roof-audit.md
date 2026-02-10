@@ -4,7 +4,7 @@ post_type: "spoke"
 phase: 1
 primary_keyword: "Roof Cleaning Services"
 h1_title: "The 5-Minute Ground-Level Roof Audit: Spotting Damage Without a Ladder"
-slug: "roof-cleaning-services"
+slug: "ground-level-roof-audit"
 intent: "Informational / Low Friction"
 parent_post: "Home Exterior Services"
 sibling_posts: ["Exterior Painting Portland", "Roofing Services Oregon"]

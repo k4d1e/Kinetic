@@ -4,7 +4,7 @@ post_type: "spoke"
 phase: 1
 primary_keyword: "Roofing Services Oregon"
 h1_title: "Is a New Roof Worth It? 2026 ROI for Portland & Salem Homeowners"
-slug: "roofing-services-oregon"
+slug: "new-roof-portland-oregon"
 intent: "Commercial / ROI"
 parent_post: "Home Exterior Services"
 sibling_posts: ["Roof Cleaning Salem OR", "Exterior Painting Portland"]

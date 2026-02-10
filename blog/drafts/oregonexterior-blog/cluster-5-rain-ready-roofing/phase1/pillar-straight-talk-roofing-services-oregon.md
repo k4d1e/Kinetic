@@ -4,7 +4,7 @@ post_type: "pillar"
 phase: 1
 primary_keyword: "Roofing Services Oregon"
 h1_title: "The Oregon Homeowner's Guide to a Leak-Free Winter: 2026 Edition"
-slug: "roofing-services-oregon"
+slug: "straight-talk-roofing-services-oregon"
 intent: "Informational / Safety Hub"
 parent_post: null
 sibling_posts: null

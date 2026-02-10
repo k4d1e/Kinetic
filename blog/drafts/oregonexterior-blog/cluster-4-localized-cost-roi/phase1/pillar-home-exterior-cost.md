@@ -4,7 +4,7 @@ post_type: "pillar"
 phase: 1
 primary_keyword: "Home Exterior Services"
 h1_title: "The 2026 Oregon Home Exterior Cost vs. Value Report"
-slug: "home-exterior-services"
+slug: "home-exterior-cost"
 intent: "Commercial / Financial Hub"
 parent_post: null
 sibling_posts: null

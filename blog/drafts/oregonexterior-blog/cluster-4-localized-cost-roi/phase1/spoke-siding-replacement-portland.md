@@ -4,7 +4,7 @@ post_type: "spoke"
 phase: 1
 primary_keyword: "Exterior Painting Portland"
 h1_title: "Why Siding Replacement Beats the Stock Market for Oregon Home Equity"
-slug: "exterior-painting-portland"
+slug: "siding-replacement-portland"
 intent: "Informational / Investment"
 parent_post: "Home Exterior Services"
 sibling_posts: ["Roofing Services Oregon", "Roof Cleaning Salem OR"]

@@ -4,7 +4,7 @@ post_type: "spoke"
 phase: 1
 primary_keyword: "Roof Cleaning Salem OR"
 h1_title: "Emergency Roof Repair in Salem & Portland: Costs and Response Times"
-slug: "roof-cleaning-salem-or"
+slug: "emergency-roof-cleaning-salem-or"
 intent: "Transactional / Urgent"
 parent_post: "Roofing Services Oregon"
 sibling_posts: ["Roof Cleaning Services", "Home Exterior Services"]

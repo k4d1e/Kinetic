@@ -4,7 +4,7 @@ post_type: "spoke"
 phase: 1
 primary_keyword: "Exterior Painting Portland"
 h1_title: "The Screwdriver Test: How to Check Your Oregon Siding for Hidden Rot"
-slug: "exterior-painting-portland"
+slug: "hidden-home-siding-rot"
 intent: "Informational / Tactical"
 parent_post: "Home Exterior Services"
 sibling_posts: ["Roof Cleaning Services", "Roofing Services Oregon"]

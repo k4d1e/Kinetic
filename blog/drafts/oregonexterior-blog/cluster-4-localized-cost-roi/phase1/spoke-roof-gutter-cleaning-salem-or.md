@@ -4,7 +4,7 @@ post_type: "spoke"
 phase: 1
 primary_keyword: "Roof Cleaning Salem OR"
 h1_title: "Salem Exterior Maintenance Pricing: Roof & Gutter Cleaning 2026"
-slug: "roof-cleaning-salem-or"
+slug: "roof-gutter-cleaning-salem-or"
 intent: "Transactional / Local"
 parent_post: "Home Exterior Services"
 sibling_posts: ["Roofing Services Oregon", "Exterior Painting Portland"]

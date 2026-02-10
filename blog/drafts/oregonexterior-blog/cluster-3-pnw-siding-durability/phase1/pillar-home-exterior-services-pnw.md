@@ -4,7 +4,7 @@ post_type: "pillar"
 phase: 1
 primary_keyword: "Home Exterior Services"
 h1_title: "The Ultimate Oregon Siding Guide: Best Materials for a 150-Day Rainy Season"
-slug: "home-exterior-services"
+slug: "home-exterior-services-pnw"
 intent: "Informational / Structural Hub"
 parent_post: null
 sibling_posts: null

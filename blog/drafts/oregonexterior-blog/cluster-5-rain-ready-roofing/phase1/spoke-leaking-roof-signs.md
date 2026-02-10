@@ -4,7 +4,7 @@ post_type: "spoke"
 phase: 1
 primary_keyword: "Roof Cleaning Services"
 h1_title: "7 Signs Your Roof is Leaking (Before the Water Hits the Floor)"
-slug: "roof-cleaning-services"
+slug: "leaking-roof-signs"
 intent: "Informational / Problem-Aware"
 parent_post: "Roofing Services Oregon"
 sibling_posts: ["Roof Cleaning Salem OR", "Home Exterior Services"]

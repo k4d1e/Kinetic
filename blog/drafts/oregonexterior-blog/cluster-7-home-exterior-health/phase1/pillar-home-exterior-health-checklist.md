@@ -4,7 +4,7 @@ post_type: "pillar"
 phase: 1
 primary_keyword: "Home Exterior Services"
 h1_title: "The Ultimate Oregon Home Exterior Health Checklist: 2026 Edition"
-slug: "home-exterior-services"
+slug: "home-exterior-health-checklist"
 intent: "Informational / Safety Hub"
 parent_post: null
 sibling_posts: null

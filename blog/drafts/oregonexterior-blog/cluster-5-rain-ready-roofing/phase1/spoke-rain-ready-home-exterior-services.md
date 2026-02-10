@@ -4,7 +4,7 @@ post_type: "spoke"
 phase: 1
 primary_keyword: "Home Exterior Services"
 h1_title: "The 4-Step 'Rain-Ready' Checklist for PNW Roofs"
-slug: "home-exterior-services"
+slug: "rain-ready-home-exterior-services"
 intent: "Informational / Tactical"
 parent_post: "Roofing Services Oregon"
 sibling_posts: ["Roof Cleaning Services", "Roof Cleaning Salem OR"]
