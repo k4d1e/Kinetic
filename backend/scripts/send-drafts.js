@@ -234,7 +234,46 @@ function convertMarkdownToHtml(markdownBody) {
   body = renderLatex(body);
 
   // 3. Convert Markdown to HTML
+  //    Custom table renderer: TipTap's ProseMirror schema strips <table>, <div>,
+  //    and any element outside its whitelist. Convert markdown tables into a
+  //    structured list layout using only TipTap-safe elements:
+  //    <p>, <strong>, <ul>, <li>, <br>
   const marked = new Marked();
+  marked.use({
+    renderer: {
+      table(token) {
+        // Render header labels (skip first column — it becomes the row label)
+        const headerLabels = token.header.map(cell =>
+          this.parser.parseInline(cell.tokens)
+        );
+
+        let html = '';
+
+        for (const row of token.rows) {
+          const cells = row.map(cell => this.parser.parseInline(cell.tokens));
+
+          // First cell is the row label, remaining cells pair with headers.
+          // If the cell markdown already rendered as <strong>, don't double-wrap.
+          const rowLabel = cells[0] || '';
+          const alreadyBold = rowLabel.startsWith('<strong>') && rowLabel.endsWith('</strong>');
+          html += alreadyBold
+            ? `<p>${rowLabel}</p>\n`
+            : `<p><strong>${rowLabel}</strong></p>\n`;
+
+          if (cells.length > 1) {
+            html += '<ul>\n';
+            for (let i = 1; i < cells.length; i++) {
+              const header = headerLabels[i] || '';
+              html += `<li>${header}: ${cells[i]}</li>\n`;
+            }
+            html += '</ul>\n';
+          }
+        }
+
+        return html;
+      }
+    }
+  });
   let html = marked.parse(body);
 
   // 4. Strip image placeholder blocks
