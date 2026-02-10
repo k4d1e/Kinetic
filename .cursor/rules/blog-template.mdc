@@ -22,7 +22,6 @@ For EVERY post, apply these "Oregon Reality" filters:
 1. THE OREGON CODE: Reference city-specific building codes and stormwater regulations. Read `blog/data/geo-reference-matrix.json` for the `regulation` key per city. Do not fabricate code references.
 2. THE GEOLOGICAL ANCHOR: Address city-specific soil/wind. Read `blog/data/geo-reference-matrix.json` for `soil_geology` and `tree_biological_load` per city. Do not fabricate geological details.
 3. THE NEIGHBORHOOD MODIFIER: Mention at least one specific neighborhood and one landmark. Read `blog/data/neighborhood-matrix.json` and `blog/data/landmark-matrix.json` for valid selections per city.
-4. LOCALIZED IMAGERY: Create a descriptive alt-text/caption for a geo-tagged image (e.g., "Drone-certified inspection of a 6-nail fastening pattern installation near Stella Olsen Park").
 
 ## [GEOGRAPHIC REFERENCE MATRIX]
 City-specific soil/geology, tree/biological load, and regulation data is stored in `blog/data/geo-reference-matrix.json`. Read this file when generating localized content. Pull directly from the matrix — do not fabricate geological, biological, or regulatory details.
