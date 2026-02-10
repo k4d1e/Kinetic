@@ -53,44 +53,60 @@ Use this exact mapping for cluster folder names:
 - Create: `cluster-1-moss-algae-prevention/phase2/`
 - Create: `cluster-3-pnw-siding-durability/phase2/`
 - Create: `cluster-5-rain-ready-roofing/phase2/`
-- Do NOT create phase2 folders for Clusters 2, 4, 6, 7 (they receive no posts this phase)
 
 ## [FILE NAMING STANDARD]
 
+### [SLUG DERIVATION (Phase 2+)]
+
+The filename slug is derived from the `h1_title` field using smart truncation. The `h1_title` MUST be set (not null) before file naming.
+
+**Derivation steps (apply in order):**
+1. If the title contains a colon (`:`) or em-dash (`—` / `--`), use ONLY the text before the first delimiter
+2. Remove any parenthetical content — text inside `(` `)` including the parentheses
+3. Remove special characters: `?`, `!`, `&`, `(`, `)`, `'`, `"`, `.`, `,`
+4. Remove stop words: the, a, an, in, of, for, and, to, is, are, your, why, how, what, when, that, do
+5. Convert to lowercase kebab-case (spaces become hyphens)
+6. Truncate to the first **6 meaningful words**
+
+### [PHASE 1 LEGACY NAMING]
+Phase 1 posts used `primary_keyword`-based slugs (e.g., `spoke-roof-cleaning-salem-or.md`). Do NOT rename existing Phase 1 files. The h1_title-based naming applies to **Phase 2+ only**.
+
 ### [PILLAR POSTS]
-Format: `pillar-{primary-keyword-slug}.md`
+Format: `pillar-{title-slug}.md`
 
 Rules:
 - Always prefix with `pillar-`
-- Use the `primary_keyword` field from the manifest, converted to lowercase kebab-case
-- Remove special characters, spaces become hyphens
+- Derive `{title-slug}` from `h1_title` using the derivation steps above
 - One pillar post per cluster (generated in Phase 1 only)
 
 **Examples:**
-- `primary_keyword: "Roof Cleaning Services"` → `pillar-roof-cleaning-services.md`
-- `primary_keyword: "Home Exterior Services"` → `pillar-home-exterior-services.md`
-- `primary_keyword: "Gutter Guards Salem"` → `pillar-gutter-guards-salem.md`
+- `h1_title: "The Ultimate Oregon Roof Maintenance Guide: Defeating Moss in the PNW"`
+  → before colon: "The Ultimate Oregon Roof Maintenance Guide"
+  → remove stop words → `pillar-ultimate-oregon-roof-maintenance-guide.md`
+- `h1_title: "The 2026 Oregon Home Exterior Cost vs. Value Report"`
+  → no colon → remove stop words, truncate to 6 → `pillar-2026-oregon-home-exterior-cost.md`
 
 ### [SPOKE POSTS]
-Format: `spoke-{primary-keyword-slug}.md`
+Format: `spoke-{title-slug}.md`
 
 Rules:
 - Always prefix with `spoke-`
-- Use the `primary_keyword` field from the manifest, converted to lowercase kebab-case
-- Remove special characters, spaces become hyphens
-- If multiple spokes in the same cluster share the same keyword, append `-{city}` or `-{modifier}`
+- Derive `{title-slug}` from `h1_title` using the derivation steps above
 
 **Examples:**
-- `primary_keyword: "Roof Cleaning"` → `spoke-roof-cleaning.md`
-- `primary_keyword: "Roof Cleaning Salem OR"` → `spoke-roof-cleaning-salem-or.md`
-- `primary_keyword: "Gutter Guards Portland Oregon"` → `spoke-gutter-guards-portland-oregon.md`
-- `primary_keyword: "Roof Moss Removal"` → `spoke-roof-moss-removal.md`
+- `h1_title: "Soft Wash vs. Pressure Washing: Why Oregon Homeowners are Switching"`
+  → before colon: "Soft Wash vs. Pressure Washing"
+  → remove special chars → `spoke-soft-wash-vs-pressure-washing.md`
+- `h1_title: "2026 Salem & Portland Roof Cleaning Cost Guide"`
+  → no colon → remove stop words/special chars, truncate to 6 → `spoke-2026-salem-portland-roof-cleaning-cost.md`
+- `h1_title: "Do Gutter Guards Actually Stop Douglas Fir Needles? (PNW Field Test)"`
+  → no colon → remove parens, stop words, special chars, truncate to 6 → `spoke-gutter-guards-actually-stop-douglas-fir.md`
 
 ### [HANDLING DUPLICATES]
-If two posts in the SAME cluster/phase have identical slugs (rare but possible):
-- First occurrence: `spoke-{slug}.md`
-- Second occurrence: `spoke-{slug}-2.md`
-- Third occurrence: `spoke-{slug}-3.md`
+If two posts in the SAME cluster/phase produce identical slugs after derivation:
+- First occurrence: `{type}-{slug}.md`
+- Second occurrence: `{type}-{slug}-2.md`
+- Third occurrence: `{type}-{slug}-3.md`
 
 ## [FILE OUTPUT ROUTING]
 
@@ -99,7 +115,7 @@ For each generated blog post:
 1. **Read the post's metadata** (from manifest or frontmatter):
    - `cluster` (number 1-7)
    - `post_type` ("pillar" or "spoke")
-   - `primary_keyword` (string)
+   - `h1_title` (string — must not be null)
    - `phase` (if available; default to current generation phase)
 
 2. **Determine the cluster folder:**
@@ -111,8 +127,9 @@ For each generated blog post:
    - Example: Phase 2 → `phase2/`
 
 4. **Construct the filename:**
-   - If `post_type: "pillar"` → `pillar-{slug}.md`
-   - If `post_type: "spoke"` → `spoke-{slug}.md`
+   - Derive the slug from `h1_title` using the [SLUG DERIVATION] steps above
+   - If `post_type: "pillar"` → `pillar-{title-slug}.md`
+   - If `post_type: "spoke"` → `spoke-{title-slug}.md`
 
 5. **Construct the full output path:**
    ```
@@ -126,54 +143,59 @@ For each generated blog post:
 blog/drafts/oregonexterior-blog/
   └── {cluster_folder_from_mapping}/
       └── phase{current_phase}/
-          └── {post_type}-{primary_keyword_slug}.md
+          └── {post_type}-{title_slug}.md
 ```
 
 ## [EXAMPLES]
 
-### Example 1: Phase 1 Pillar Post
+### Example 1: Phase 1 Pillar Post (legacy naming)
 **Input:**
 ```json
 {
   "cluster": 1,
   "post_type": "pillar",
-  "primary_keyword": "Roof Cleaning Services"
+  "primary_keyword": "Roof Cleaning Services",
+  "h1_title": "The Ultimate Oregon Roof Maintenance Guide: Defeating Moss in the PNW"
 }
 ```
 
-**Output Path:**
+**Output Path (Phase 1 — uses primary_keyword slug):**
 ```
 blog/drafts/oregonexterior-blog/cluster-1-moss-algae-prevention/phase1/pillar-roof-cleaning-services.md
 ```
 
-### Example 2: Phase 2 Spoke Post
+### Example 2: Phase 2 Spoke Post (h1_title slug)
 **Input:**
 ```json
 {
   "cluster": 5,
   "post_type": "spoke",
-  "primary_keyword": "Emergency Roof Repair Portland"
+  "h1_title": "Emergency Roof Repair in Salem & Portland: Costs and Response Times"
 }
 ```
 
+**Slug derivation:** before colon → "Emergency Roof Repair in Salem & Portland" → remove stop words & special chars → `emergency-roof-repair-salem-portland`
+
 **Output Path:**
 ```
-blog/drafts/oregonexterior-blog/cluster-5-rain-ready-roofing/phase2/spoke-emergency-roof-repair-portland.md
+blog/drafts/oregonexterior-blog/cluster-5-rain-ready-roofing/phase2/spoke-emergency-roof-repair-salem-portland.md
 ```
 
-### Example 3: Phase 3 Spoke Post
+### Example 3: Phase 3 Spoke Post (h1_title slug)
 **Input:**
 ```json
 {
   "cluster": 2,
   "post_type": "spoke",
-  "primary_keyword": "Gutter Cleaning Service"
+  "h1_title": "How Clogged Gutters Lead to $20,000 Foundation Cracks in Oregon"
 }
 ```
 
+**Slug derivation:** no colon → remove stop words → truncate to 6 → `clogged-gutters-lead-20000-foundation-cracks`
+
 **Output Path:**
 ```
-blog/drafts/oregonexterior-blog/cluster-2-gutter-drainage-foundation/phase3/spoke-gutter-cleaning-service.md
+blog/drafts/oregonexterior-blog/cluster-2-gutter-drainage-foundation/phase3/spoke-clogged-gutters-lead-20000-foundation-cracks.md
 ```
 
 ## [PRE-GENERATION CHECKLIST]
@@ -220,6 +242,7 @@ If the agent encounters any of these issues:
 - **Cluster number not in range 1-7:** STOP and alert the user
 - **Invalid post_type:** STOP and alert the user (must be "pillar" or "spoke")
 - **Missing primary_keyword:** STOP and alert the user
+- **Missing or null h1_title (Phase 2+):** STOP and alert the user — h1_title is required for filename derivation
 - **Cannot create phase subfolder:** STOP and alert the user with error details
 - **Duplicate filename collision:** Append `-2`, `-3`, etc. and log a warning
 
