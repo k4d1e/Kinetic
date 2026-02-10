@@ -38,6 +38,17 @@ const BATCH_SIZE = 18;
 const DELAY_BETWEEN_POSTS_MS = 2000;
 const DELAY_BETWEEN_BATCHES_MS = 3600000; // 1 hour
 
+// Cluster ID map for the admin backend (matches DB CHECK constraint)
+const CLUSTER_ID_MAP = {
+  1: 'moss-algae-prevention',
+  2: 'gutter-drainage-foundation',
+  3: 'pnw-siding-durability',
+  4: 'localized-cost-roi',
+  5: 'rain-ready-roofing',
+  6: 'gutter-guard-skeptic',
+  7: 'home-exterior-health'
+};
+
 // Cluster name map for meta_keywords context
 const CLUSTER_CONTEXT = {
   1: 'moss prevention, algae removal, roof biology, PNW roof maintenance',
@@ -295,6 +306,7 @@ function assemblePayload(frontmatter, markdownBody, wave, authorId) {
   return {
     title: frontmatter.h1_title,
     slug: frontmatter.slug,
+    cluster_id: CLUSTER_ID_MAP[frontmatter.cluster],
     content: html,
     excerpt: frontmatter.one_sentence_summary || '',
     meta_description: deriveMetaDescription(frontmatter.one_sentence_summary),
@@ -415,6 +427,7 @@ async function main() {
       console.log(`  kinetic_id: ${payload.kinetic_id}`);
       console.log(`  title:      ${payload.title}`);
       console.log(`  slug:       ${payload.slug}`);
+      console.log(`  cluster_id: ${payload.cluster_id}`);
       console.log(`  reading_time: ${payload.reading_time} min`);
       console.log(`  meta_description: ${payload.meta_description}`);
       console.log(`  content length: ${payload.content.length} chars`);
