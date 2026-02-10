@@ -355,7 +355,8 @@ function assemblePayload(frontmatter, markdownBody, wave, authorId) {
     kinetic_id: deriveKineticId(wave, frontmatter.cluster, frontmatter.post_type, frontmatter.slug),
     featured_image_url: '',
     featured_image_alt: '',
-    author_id: authorId
+    author_id: authorId,
+    content_role: frontmatter.post_type
   };
 }
 
@@ -467,6 +468,7 @@ async function main() {
       console.log(`  title:      ${payload.title}`);
       console.log(`  slug:       ${payload.slug}`);
       console.log(`  cluster_id: ${payload.cluster_id}`);
+      console.log(`  content_role: ${payload.content_role}`);
       console.log(`  reading_time: ${payload.reading_time} min`);
       console.log(`  meta_description: ${payload.meta_description}`);
       console.log(`  content length: ${payload.content.length} chars`);
