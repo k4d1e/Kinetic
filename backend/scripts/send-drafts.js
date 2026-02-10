@@ -189,16 +189,41 @@ function resolveWave(manifest, state, opts) {
 // Markdown → HTML Conversion
 // ──────────────────────────────────────────────
 
-function renderLatex(text) {
-  const katexOpts = { throwOnError: false, strict: false, output: 'mathml' };
+function latexToReadable(latex) {
+  // Convert LaTeX notation to readable plain text
+  return latex
+    .replace(/\\text\{([^}]*)\}/g, '$1')       // \text{annual} → annual
+    .replace(/\\approx/g, '≈')                  // \approx → ≈
+    .replace(/\\times/g, '×')                    // \times → ×
+    .replace(/\\div/g, '÷')                      // \div → ÷
+    .replace(/\\leq/g, '≤')                      // \leq → ≤
+    .replace(/\\geq/g, '≥')                      // \geq → ≥
+    .replace(/\\neq/g, '≠')                      // \neq → ≠
+    .replace(/\\pm/g, '±')                        // \pm → ±
+    .replace(/\\infty/g, '∞')                    // \infty → ∞
+    .replace(/\\sum/g, 'Σ')                      // \sum → Σ
+    .replace(/\\rho/g, 'ρ')                      // \rho → ρ
+    .replace(/\\pi/g, 'π')                        // \pi → π
+    .replace(/\\Delta/g, 'Δ')                    // \Delta → Δ
+    .replace(/\\Rightarrow/g, '⇒')              // \Rightarrow → ⇒
+    .replace(/\\rightarrow/g, '→')              // \rightarrow → →
+    .replace(/\\cdot/g, '·')                      // \cdot → ·
+    .replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, '($1 / $2)') // \frac{a}{b} → (a / b)
+    .replace(/\{([^}]*)\}/g, '$1')               // {,} → , and other braces
+    .replace(/_([A-Za-z0-9])/g, '_$1')           // keep simple subscripts readable
+    .replace(/_\{([^}]*)\}/g, '_$1')             // V_{annual} → V_annual (already handled by brace strip)
+    .replace(/\^([A-Za-z0-9])/g, '^$1')          // keep simple superscripts
+    .replace(/\^\{([^}]*)\}/g, '^($1)')          // x^{2n} → x^(2n)
+    .replace(/\\\s/g, ' ')                        // escaped spaces
+    .replace(/\s+/g, ' ')                         // collapse whitespace
+    .trim();
+}
 
-  // Replace display math $$...$$ first
+function renderLatex(text) {
+  // Replace display math $$...$$ with a styled blockquote (TipTap-compatible)
   text = text.replace(/\$\$([\s\S]*?)\$\$/g, (match, latex) => {
-    try {
-      return katex.renderToString(latex.trim(), { ...katexOpts, displayMode: true });
-    } catch {
-      return match;
-    }
+    const readable = latexToReadable(latex.trim());
+    return `<pre><code>${readable}</code></pre>`;
   });
 
   // Replace inline math $...$ (but not $$ and not dollar amounts like $350)
@@ -206,11 +231,8 @@ function renderLatex(text) {
   // Negative lookahead for digit after opening $ skips currency like $350.
   text = text.replace(/(?<!\$)\$(?!\$)(?!\d)(.*?)(?<!\$)\$(?!\$)/g, (match, latex) => {
     if (!latex.trim()) return match;
-    try {
-      return katex.renderToString(latex.trim(), { ...katexOpts, displayMode: false });
-    } catch {
-      return match;
-    }
+    const readable = latexToReadable(latex.trim());
+    return `<code>${readable}</code>`;
   });
 
   return text;
