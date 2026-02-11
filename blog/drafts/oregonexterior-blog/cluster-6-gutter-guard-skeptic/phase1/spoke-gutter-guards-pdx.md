@@ -4,7 +4,7 @@ post_type: "spoke"
 phase: 1
 primary_keyword: "Gutter Guards Portland Oregon"
 h1_title: "The Douglas Fir Test: Why Micro-Mesh is the Only Guard for Oregon Needles"
-slug: "gutter-guards-portland-oregon"
+slug: "gutter-guards-pdx"
 intent: "Informational / Comparison"
 parent_post: "Gutter Guards Salem"
 sibling_posts: ["Gutter Installation Experts", "Gutter Guards Vancouver"]
