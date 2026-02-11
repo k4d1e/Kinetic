@@ -46,7 +46,8 @@ const CLUSTER_ID_MAP = {
   4: 'localized-cost-roi',
   5: 'rain-ready-roofing',
   6: 'gutter-guard-skeptic',
-  7: 'home-exterior-health'
+  7: 'home-exterior-health',
+  8: 'residential-exterior-painting'
 };
 
 // Cluster name map for meta_keywords context
@@ -57,7 +58,8 @@ const CLUSTER_CONTEXT = {
   4: 'exterior cost, ROI, home improvement value, cost guide',
   5: 'roofing, rain ready, Oregon roofing, roof repair',
   6: 'gutter guards, gutter protection, leaf guards, gutter skeptic',
-  7: 'home exterior, inspection, exterior health, maintenance checklist'
+  7: 'home exterior, inspection, exterior health, maintenance checklist',
+  8: 'exterior painting, residential painting, house painting, paint services'
 };
 
 // ──────────────────────────────────────────────
@@ -348,8 +350,8 @@ function validateFrontmatter(data, filename) {
   if (missing.length > 0) {
     return `Missing required frontmatter fields: ${missing.join(', ')}`;
   }
-  if (typeof data.cluster !== 'number' || data.cluster < 1 || data.cluster > 7) {
-    return `Invalid cluster value: ${data.cluster} (must be 1-7)`;
+  if (typeof data.cluster !== 'number' || data.cluster < 1 || data.cluster > 8) {
+    return `Invalid cluster value: ${data.cluster} (must be 1-8)`;
   }
   if (!['pillar', 'spoke'].includes(data.post_type)) {
     return `Invalid post_type: ${data.post_type} (must be "pillar" or "spoke")`;
