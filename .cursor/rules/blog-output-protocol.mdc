@@ -38,6 +38,7 @@ Use this exact mapping for cluster folder names:
 | 5 | `cluster-5-rain-ready-roofing` |
 | 6 | `cluster-6-gutter-guard-skeptic` |
 | 7 | `cluster-7-home-exterior-health` |
+| 8 | `cluster-8-residential-exterior-painting` |
 
 ## [PHASE SUBFOLDER CREATION]
 
@@ -113,7 +114,7 @@ If two posts in the SAME cluster/phase produce identical slugs after derivation:
 For each generated blog post:
 
 1. **Read the post's metadata** (from manifest or frontmatter):
-   - `cluster` (number 1-7)
+   - `cluster` (number 1-8)
    - `post_type` ("pillar" or "spoke")
    - `h1_title` (string — must not be null)
    - `phase` (if available; default to current generation phase)
@@ -239,7 +240,7 @@ status: "draft"
 
 If the agent encounters any of these issues:
 
-- **Cluster number not in range 1-7:** STOP and alert the user
+- **Cluster number not in range 1-8:** STOP and alert the user
 - **Invalid post_type:** STOP and alert the user (must be "pillar" or "spoke")
 - **Missing primary_keyword:** STOP and alert the user
 - **Missing or null h1_title (Phase 2+):** STOP and alert the user — h1_title is required for filename derivation

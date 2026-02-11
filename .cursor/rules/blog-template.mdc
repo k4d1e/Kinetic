@@ -53,7 +53,7 @@ The Content Manifest is a JSON file located at `blog/data/manifest.json`. It is 
 Universal fields per post object:
 | JSON Key | Type | Description |
 |---|---|---|
-| `cluster` | integer | Which of the 7 Topic Clusters this belongs to |
+| `cluster` | integer | Which of the 8 Topic Clusters this belongs to |
 | `post_type` | string | The content type for this post (e.g., `"pillar"`, `"spoke"`, `"standalone"`, `"seasonal"`) |
 | `primary_keyword` | string | The exact GSC target keyword this post must rank for. The H1, intro, and body must stay anchored to this term. |
 | `h1_title` | string or null | Full title following the H1 formula — must contain the Primary Keyword. Set to `null` if Kinetic should derive it. |

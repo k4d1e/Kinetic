@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "manifest_version": "1.0",
+  "phase": "phase1",
+  "generated_by": "kinetic",
+  "description": "Phase 1: Hub & Spoke — Cluster 8 (Residential Exterior Painting): 1 Pillar Post + 3 Spoke Posts. Completed manifest with all null fields derived.",
+  "posts": [
+    {
+      "_comment": "CLUSTER 8 — Residential Exterior Painting",
+      "cluster": 8,
+      "cluster_id": "residential-exterior-painting",
+      "post_type": "pillar",
+      "primary_keyword": "Exterior Painting Portland",
+      "h1_title": "The Ultimate Oregon Exterior Painting Guide: Paint That Survives PNW Rain",
+      "slug": "exterior-painting-portland",
+      "intent": "Informational / Commercial Hub",
+      "parent_post": null,
+      "sibling_posts": null,
+      "one_sentence_summary": "Exterior painting in Portland isn't about color — it's about moisture-barrier engineering, and 90% of paint failures trace back to prep work skipped in the name of speed.",
+      "target_city": "",
+      "target_neighborhood": "",
+      "target_landmark": ""
+    },
+    {
+      "cluster": 8,
+      "cluster_id": "residential-exterior-painting",
+      "post_type": "spoke",
+      "primary_keyword": "Exterior Paint Portland",
+      "h1_title": "Acrylic vs. Elastomeric vs. Alkyd: Best Exterior Paint for Oregon Climate",
+      "slug": "exterior-paint-portland",
+      "intent": "Commercial / Comparison",
+      "parent_post": "Exterior Painting Portland",
+      "sibling_posts": ["Exterior Painting Portland OR", "Exterior Painting Services"],
+      "one_sentence_summary": "Acrylic, elastomeric, and alkyd exterior paint each solve different Oregon problems — the wrong choice voids the warranty and fails within two winters.",
+      "target_city": "",
+      "target_neighborhood": "",
+      "target_landmark": ""
+    },
+    {
+      "cluster": 8,
+      "cluster_id": "residential-exterior-painting",
+      "post_type": "spoke",
+      "primary_keyword": "Exterior Painting Portland OR",
+      "h1_title": "2026 Portland & Salem Exterior Painting Cost Guide",
+      "slug": "exterior-painting-portland-or",
+      "intent": "Transactional / Local",
+      "parent_post": "Exterior Painting Portland",
+      "sibling_posts": ["Exterior Paint Portland", "Exterior Painting Services"],
+      "one_sentence_summary": "Exterior painting in Portland OR runs $3.50–$7.00 per square foot, and the price gap comes down to substrate prep, moisture testing, and whether your painter follows the 2026 ORSC.",
+      "target_city": "Portland",
+      "target_neighborhood": "Irvington",
+      "target_landmark": "Irving Park"
+    },
+    {
+      "cluster": 8,
+      "cluster_id": "residential-exterior-painting",
+      "post_type": "spoke",
+      "primary_keyword": "Exterior Painting Services",
+      "h1_title": "5 Warning Signs Your Oregon Home Needs Repainting Now",
+      "slug": "exterior-painting-services",
+      "intent": "Informational / Problem-Aware",
+      "parent_post": "Exterior Painting Portland",
+      "sibling_posts": ["Exterior Paint Portland", "Exterior Painting Portland OR"],
+      "one_sentence_summary": "Five visible warning signs reveal your Oregon siding's paint has already failed — and waiting another year turns a $8K paint job into a $30K siding replacement.",
+      "target_city": "",
+      "target_neighborhood": "",
+      "target_landmark": ""
+    }
+  ]
+}

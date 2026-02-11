@@ -28,6 +28,10 @@
     {
       "cluster": 7,
       "name": "Home Exterior Health & Inspection"
+    },
+    {
+      "cluster": 8,
+      "name": "Residential Exterior Painting"
     }
   ]
 }
