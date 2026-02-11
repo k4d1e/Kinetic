@@ -10,7 +10,8 @@
     "4": "localized-cost-roi",
     "5": "rain-ready-roofing",
     "6": "gutter-guard-skeptic",
-    "7": "home-exterior-health"
+    "7": "home-exterior-health",
+    "8": "residential-exterior-painting"
   },
 
   "_field_conventions": {
@@ -41,7 +42,7 @@
   },
 
   "_post_schema": {
-    "cluster": "integer (1-7) — Which topic cluster this post belongs to.",
+    "cluster": "integer (1-8) — Which topic cluster this post belongs to.",
     "cluster_id": "string — Cluster slug for the admin backend. Must match _cluster_id_map.",
     "post_type": "string — 'pillar' or 'spoke'.",
     "primary_keyword": "string — The exact GSC target keyword this post must rank for.",

@@ -6,7 +6,7 @@ alwaysApply: false
 # Inherits: blog-template.mdc (Founder voice, Topic Clusters, Oregon Reality filters, Linking Logic, Technical Constraints, Execution Order)
 
 ## [PROCEDURAL TASK]
-Generate 7 Pillar Posts (Hubs) and their corresponding 21 Spoke Posts (Children) for the Topic Clusters defined in @.cursor/rules/blog-template.mdc
+Generate 8 Pillar Posts (Hubs) and their corresponding 24 Spoke Posts (Children) for the Topic Clusters defined in @.cursor/rules/blog-template.mdc
 
 Each Hub must act as the ultimate authority on the topic, while Spokes target specific local/transactional intent.
 
@@ -42,14 +42,14 @@ Complete ONLY fields set to `null`:
 Do NOT modify any pre-filled fields. Write the completed manifest to `blog/data/completed/phase1.json` before proceeding to Batch 1.
 
 ## [BATCH 1: PILLAR POSTS]
-Generate the 7 Parent Pillar Posts using the completed Content Manifest as a reference for all inline spoke links.
+Generate the 8 Parent Pillar Posts using the completed Content Manifest as a reference for all inline spoke links.
 Format:
 - H1: Use `h1_title` from the manifest
 - Intent: Split `intent` on ` / `. Read `blog/data/intent-matrix.json`. Apply `primary_intents[primary]` as the base, then merge any `*_override` fields from `modifiers[modifier]`. Use the resolved `tone`, `cta_placement`, `content_depth`, and `structure` to shape the post.
 - Body: Intro (Straight-talk) -> The Physics of the Problem -> The 2026 Code Solution -> The "Neighborhood" Spotlight. Spoke links are woven inline throughout — no dedicated link section. Use each Spoke's `one_sentence_summary` from the manifest as the teaser text.
 
 ## [BATCH 2: SPOKE POSTS]
-Generate the 21 Spoke Posts using the completed Content Manifest as a reference for all parent and sibling links.
+Generate the 24 Spoke Posts using the completed Content Manifest as a reference for all parent and sibling links.
 Format:
 - H1: Use `h1_title` from the manifest
 - Intent: Split `intent` on ` / `. Read `blog/data/intent-matrix.json`. Apply `primary_intents[primary]` as the base, then merge any `*_override` fields from `modifiers[modifier]`. Use the resolved `tone`, `cta_placement`, `content_depth`, and `structure` to shape the post.

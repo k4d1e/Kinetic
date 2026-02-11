@@ -1,48 +1,57 @@
 ---
 alwaysApply: false
 ---
-# KINETIC ENGINE CONFIGURATION: LOCAL-FIRST HUB & SPOKE GENERATOR
+# KINETIC ENGINE CONFIGURATION: CITY-FIRST SPOKE EXPANSION
 # Target: Oregon Exterior Experts CMS (Supabase)
 # Inherits: blog-template.mdc (Founder voice, Topic Clusters, Oregon Reality filters, Linking Logic, Technical Constraints, Execution Order)
+# Depends on: Phase 1 completion (7 pillars + 21 spokes delivered via waves 001–007, zero failures)
 
 ## [PROCEDURAL TASK]
-Generate 7 Pillar Posts (Hubs) and their corresponding 21 Spoke Posts (Children) for the Topic Clusters defined in @.cursor/rules/blog-template.mdc
+**Phase 2: Portland — Full Cluster Coverage**
 
-Each Hub must act as the ultimate authority on the topic, while Spokes target specific local/transactional intent.
+Generate 3–4 Spoke Posts per cluster (21–28 total) targeting Portland, OR. All 7 clusters receive city-specific spoke content. Every post in this phase has `target_city: "Portland"`.
+
+**No new pillar posts.** The 7 Phase 1 pillars remain the permanent hubs. Each Phase 2 spoke links back to its Phase 1 pillar (via `parent_post`) and cross-links to both Phase 1 and Phase 2 sibling spokes.
+
+The goal is to prove full geographic dominance for a single city across every topic cluster before expanding to additional cities in later phases.
 
 ## [FILE OUTPUT PROTOCOL]
 Before generating any posts, read and follow: @.cursor/rules/blog-output-protocol.mdc
 
 All generated posts MUST:
 - Be routed to the correct cluster folder (cluster-1-moss-algae-prevention through cluster-7-home-exterior-health)
-- Be placed in the phase2/ subfolder within each cluster
-- Follow naming conventions: `pillar-{title-slug}.md` or `spoke-{title-slug}.md` (slug derived from `h1_title`, see output protocol)
+- Be placed in the `phase2/` subfolder within each cluster
+- Follow naming convention: `spoke-{title-slug}.md` (slug derived from `h1_title`, see output protocol)
 - Use the cluster mapping and file routing rules defined in the output protocol
+- No `pillar-` files are generated in Phase 2
 
 ## [BATCH 0: CONTENT MANIFEST]
 The Content Manifest schema template is at `blog/data/manifest.json`.
+Phase 1 completed manifest (for cross-phase reference) is at `blog/data/completed/phase1.json`.
 
-Read the JSON file. The following fields are pre-filled and locked — do NOT modify them:
-`cluster`, `post_type`, `primary_keyword`, `h1_title`, `intent`, `parent_post`, `sibling_posts`
+Read the manifest JSON file. The following fields are pre-filled and locked — do NOT modify them:
+`cluster`, `post_type` (always `"spoke"`), `primary_keyword`, `h1_title`, `intent`, `parent_post`, `sibling_posts`, `target_city` (always `"Portland"`)
 
 Complete ONLY fields set to `null`:
-- `slug` — derive from `primary_keyword` + `target_city`
+- `slug` — derive from `primary_keyword` + `"Portland"`
 - `one_sentence_summary` — write using the `primary_keyword` in the Founder voice, shaped by the `intent` classification
-- `target_neighborhood` — read `blog/data/neighborhood-matrix.json`, select a neighborhood from the array matching the post's `target_city`. Distribute neighborhoods across posts so no two posts in the same cluster share the same neighborhood.
-- `target_landmark` — read `blog/data/landmark-matrix.json`, select a landmark from the array matching the post's `target_city`. Choose a landmark geographically near the chosen `target_neighborhood`. Distribute landmarks across posts so no two posts in the same cluster share the same landmark.
+- `target_neighborhood` — read `blog/data/neighborhood-matrix.json`, select a neighborhood from the Portland array. Distribute neighborhoods across posts so no two posts in the same cluster share the same neighborhood. Also avoid neighborhoods already used by Phase 1 Portland-targeted posts (check `blog/data/completed/phase1.json`).
+- `target_landmark` — read `blog/data/landmark-matrix.json`, select a landmark from the Portland array. Choose a landmark geographically near the chosen `target_neighborhood`. Distribute landmarks across posts so no two posts in the same cluster share the same landmark. Also avoid landmarks already used by Phase 1 Portland-targeted posts.
 
-Do NOT modify any pre-filled fields. Write the completed manifest to `blog/data/completed/phase1.json` before proceeding to Batch 1.
+Do NOT modify any pre-filled fields. Write the completed manifest to `blog/data/completed/phase2.json` before proceeding to Batch 1.
 
-## [BATCH 1: PILLAR POSTS]
-Generate the 7 Parent Pillar Posts using the completed Content Manifest as a reference for all inline spoke links.
+## [BATCH 1: SPOKE POSTS]
+Generate the Phase 2 Spoke Posts (3–4 per cluster) using the completed Content Manifest as a reference for all parent and sibling links.
+
 Format:
 - H1: Use `h1_title` from the manifest
 - Intent: Split `intent` on ` / `. Read `blog/data/intent-matrix.json`. Apply `primary_intents[primary]` as the base, then merge any `*_override` fields from `modifiers[modifier]`. Use the resolved `tone`, `cta_placement`, `content_depth`, and `structure` to shape the post.
-- Body: Intro (Straight-talk) -> The Physics of the Problem -> The 2026 Code Solution -> The "Neighborhood" Spotlight. Spoke links are woven inline throughout — no dedicated link section. Use each Spoke's `one_sentence_summary` from the manifest as the teaser text.
+- Oregon Reality: Pull Portland-specific data from `blog/data/geo-reference-matrix.json` (`soil_geology`, `tree_biological_load`, `regulation`). Reference the post's `target_neighborhood` and `target_landmark` from the completed manifest.
+- Body: Intro (Portland-specific problem framing) -> The Physics/Evidence -> The Code/Standard -> The Fix. Close with "The Bigger Picture" paragraph linking back to the Phase 1 pillar (via `parent_post`) and referencing sibling spokes (via `sibling_posts`).
 
-## [BATCH 2: SPOKE POSTS]
-Generate the 21 Spoke Posts using the completed Content Manifest as a reference for all parent and sibling links.
-Format:
-- H1: Use `h1_title` from the manifest
-- Intent: Split `intent` on ` / `. Read `blog/data/intent-matrix.json`. Apply `primary_intents[primary]` as the base, then merge any `*_override` fields from `modifiers[modifier]`. Use the resolved `tone`, `cta_placement`, `content_depth`, and `structure` to shape the post.
-- Body: Intro (Local problem framing) -> The Physics/Evidence -> The Code/Standard -> The Fix. Close with "The Bigger Picture" paragraph using `parent_post` and `sibling_posts` from the manifest.
+### [CROSS-PHASE LINKING]
+Phase 2 spokes exist within the Phase 1 hub-and-spoke topology. Linking rules:
+
+- **Upward (required):** Every Phase 2 spoke links to its Phase 1 pillar via `parent_post`. Use the standard "The Bigger Picture" closing format.
+- **Lateral (required):** `sibling_posts` may include both Phase 1 spoke keywords and Phase 2 spoke keywords. Link to all siblings listed in the manifest.
+- **Anchor text:** Follow the layered-defense keyword style defined in @.cursor/rules/blog-template.mdc — e.g., "Portland's first line of gutter defense," "the drainage layer protecting your Portland foundation."

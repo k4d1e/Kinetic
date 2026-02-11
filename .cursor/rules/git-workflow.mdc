@@ -119,6 +119,22 @@ git add <relevant-files>
 git commit -m "Descriptive commit message"
 ```
 
+**PowerShell Note:** PowerShell does NOT support heredoc syntax (`<<EOF`). For multi-line commit messages in PowerShell, use multiple `-m` flags:
+
+```powershell
+# ❌ DOES NOT WORK in PowerShell
+git commit -m "$(cat <<'EOF'
+Line 1
+Line 2
+EOF
+)"
+
+# ✅ WORKS in PowerShell
+git commit -m "Line 1" -m "Line 2" -m "Line 3"
+```
+
+For complex commit messages in PowerShell, keep them simple or use multiple `-m` flags. Bash/Zsh heredoc syntax will fail with parsing errors in PowerShell.
+
 ### Step 3: STOP and Report
 Display a summary:
 - ✓ Commit created: `[commit-hash]`
